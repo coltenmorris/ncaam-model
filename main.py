@@ -176,9 +176,8 @@ def run(args) -> int:
 
     if config.WEB_DASHBOARD:
         import shutil
-        payload = web.build_payload(day, results, record, trend, history,
-                                    report.books_table(results, rows) if not results.empty else
-                                    report.books_table(pd.DataFrame(), []), notes)
+        payload = web.build_payload(day, results, record, trend, history, games, rows, ratings,
+                                    src, DATA, notes)
         page = web.write_site(DOCS, payload)
         if saved:
             shutil.copyfile(saved, DOCS / "NCAAM_Dashboard.xlsx")

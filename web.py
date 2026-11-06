@@ -48,6 +48,16 @@ def _clean(v):
     return v
 
 
+def _sanitize(x):
+    if isinstance(x, dict):
+        return {k: _sanitize(v) for k, v in x.items()}
+    if isinstance(x, (list, tuple)):
+        return [_sanitize(v) for v in x]
+    if isinstance(x, (str, bool)) or x is None:
+        return x
+    return _clean(x)
+
+
 def _records(df: pd.DataFrame, cols) -> list[list]:
     if df is None or df.empty:
         return []
@@ -58,24 +68,176 @@ def _records(df: pd.DataFrame, cols) -> list[list]:
     return out
 
 
+def _payout(american):
+    """Decimal payout for an American price (higher = better for the bettor)."""
+    try:
+        a = float(american)
+    except (TypeError, ValueError):
+        return None
+    if a == 0 or a != a:
+        return None
+    return 1 + (a / 100 if a > 0 else 100 / -a)
+
+
+def _better_spread(pt, px, ref_pt, ref_px) -> bool:
+    if pt is None or ref_pt is None:
+        return False
+    if pt > ref_pt + 1e-9:
+        return True
+    if abs(pt - ref_pt) < 1e-9:
+        p, r = _payout(px), _payout(ref_px)
+        return p is not None and r is not None and p > r + 1e-9
+    return False
+
+
+def _better_ml(ml, ref_ml) -> bool:
+    p, r = _payout(ml), _payout(ref_ml)
+    return p is not None and r is not None and p > r + 1e-9
+
+
+def odds_compare(games: list[dict], rows: list[dict]) -> list[dict]:
+    """One entry per game: the DraftKings line (from ESPN) and every other book,
+    flagging any number that is better than DraftKings for that side."""
+    from espn import home_line
+    names = {r["game_id"]: (r.get("t1") or r.get("espn_t1"), r.get("t2") or r.get("espn_t2")) for r in rows}
+    out = []
+    for g in sorted(games, key=lambda x: str(x.get("start") or "")):
+        books = dict(g.get("books") or {})
+        dk_api = next((books.pop(k) for k in list(books) if k.lower().startswith("draftkings")), None)
+        h = home_line(g)
+        if h is not None:
+            dk = {"source": "DraftKings (ESPN)", "home_pt": h, "away_pt": -h,
+                  "home_px": g.get("spread_price_home"), "away_px": g.get("spread_price_away"),
+                  "home_ml": g.get("ml_home"), "away_ml": g.get("ml_away")}
+            if dk_api:  # fill any prices ESPN didn't include
+                for k_dk, k_api in (("home_px", "home_price"), ("away_px", "away_price"),
+                                    ("home_ml", "ml_home"), ("away_ml", "ml_away")):
+                    if dk[k_dk] is None:
+                        dk[k_dk] = dk_api.get(k_api)
+        elif dk_api and dk_api.get("home_point") is not None:
+            dk = {"source": "DraftKings (The Odds API)", "home_pt": dk_api.get("home_point"),
+                  "away_pt": dk_api.get("away_point"), "home_px": dk_api.get("home_price"),
+                  "away_px": dk_api.get("away_price"), "home_ml": dk_api.get("ml_home"),
+                  "away_ml": dk_api.get("ml_away")}
+        else:
+            dk = None
+        if dk is None and not books:
+            continue
+        others, n_better = [], 0
+        for name, b in sorted(books.items()):
+            row = {"book": name, "away_pt": b.get("away_point"), "home_pt": b.get("home_point"),
+                   "away_px": b.get("away_price"), "home_px": b.get("home_price"),
+                   "away_ml": b.get("ml_away"), "home_ml": b.get("ml_home")}
+            better = {}
+            if dk:
+                better = {
+                    "away_sp": _better_spread(row["away_pt"], row["away_px"], dk["away_pt"], dk["away_px"]),
+                    "home_sp": _better_spread(row["home_pt"], row["home_px"], dk["home_pt"], dk["home_px"]),
+                    "away_ml": _better_ml(row["away_ml"], dk["away_ml"]),
+                    "home_ml": _better_ml(row["home_ml"], dk["home_ml"]),
+                }
+            row["better"] = better
+            if any(better.values()):
+                n_better += 1
+            others.append(row)
+        t1, t2 = names.get(g["game_id"], (g["away"]["location"], g["home"]["location"]))
+        out.append({"time": g.get("time", ""), "away": t1, "home": t2,
+                    "awayAbbr": g["away"]["abbr"], "homeAbbr": g["home"]["abbr"],
+                    "dk": dk, "books": others, "better": n_better})
+    return out
+
+
+def power_table(ratings: pd.DataFrame, data_dir: Path | None) -> pd.DataFrame:
+    df = ratings.copy()
+    df = df.sort_values("net_rtg", ascending=False).reset_index(drop=True)
+    df["Rk"] = range(1, len(df) + 1)
+    change = [None] * len(df)
+    if data_dir is not None:
+        files = sorted(Path(data_dir).glob("ratings_*_*.csv"))
+        today = date.today().isoformat()
+        past = [f for f in files if f.stem.split("_")[-1] < today]
+        week_ago = (pd.Timestamp(today) - pd.Timedelta(days=7)).strftime("%Y-%m-%d")
+        pick = [f for f in past if f.stem.split("_")[-1] <= week_ago]
+        ref = pick[-1] if pick else (past[0] if past else None)
+        if ref is not None:
+            try:
+                old = pd.read_csv(ref).sort_values("net_rtg", ascending=False).reset_index(drop=True)
+                old_rk = {t: i + 1 for i, t in enumerate(old["team"])}
+                change = [old_rk[t] - r if t in old_rk else None for t, r in zip(df["team"], df["Rk"])]
+            except Exception:
+                pass
+    df["Change"] = change
+    out = pd.DataFrame({
+        "Rk": df["Rk"], "Team": df["team"], "Conf": df["conf"], "Record": df["record"],
+        "Net": df["net_rtg"], "Adj O": df["adj_o"], "O Rk": df["adj_o_rank"],
+        "Adj D": df["adj_d"], "D Rk": df["adj_d_rank"], "Tempo": df["adj_t"], "Tempo Rk": df["adj_t_rank"],
+        "Change": df["Change"],
+    })
+    return out
+
+
+def tips() -> dict:
+    line_src = ("the median line across all sportsbooks from The Odds API (falls back to DraftKings via ESPN)"
+                if config.LINE_SOURCE == "consensus" else "DraftKings via ESPN (falls back to the multi-book consensus)")
+    hca = config.HOME_COURT_POINTS
+    return {
+        "today": {
+            "Time": "Scheduled tip-off, Eastern time.",
+            "Away": "Away team (T1 in the original spreadsheet). Win % and margin columns are from this team's side.",
+            "Home": "Home team (T2). On a neutral court no home-court points are applied.",
+            "Line": f"The spread the model compares against: {line_src}.",
+            "Books": "How many sportsbooks posted a spread for this game (The Odds API).",
+            "Best away": "The most points available on the away team at any single book. Higher is better for an away bet.",
+            "Best home": "The most points available on the home team at any single book. Higher is better for a home bet.",
+            "Proj away margin": f"Points the model expects the away team to win (+) or lose (-) by. (Away net rating - Home net rating) x average tempo / 100, minus {hca:g} for home court. Net rating = adjusted offense - adjusted defense, per 100 possessions.",
+            "Edge pick": "The side the model likes against the spread, at the line shown. It is whichever side the Edge points to.",
+            "Edge": "How many points the model disagrees with the line. |Proj away margin + away line|. Example: model Arizona by 34.3, line Arizona -31, edge 3.3 on Arizona. Yellow = 2+, green = 4+.",
+            "Model away win": f"Model's chance the away team wins outright (spread ignored). Normal distribution of the projected margin with a standard deviation of {config.MARGIN_STDEV:g} points.",
+            "Market away win": "The market's chance the away team wins outright: average of Kalshi and Polymarket prices, or the sportsbooks' moneylines with the bookmaker's cut removed if neither lists the game.",
+            "Watch": f"Original 'Games to Watch' screen. YES when the two teams' ranks add to under {config.RANK_SUM_LIMIT} and |rank gap / spread| is {config.WATCH_HIGH_RATIO}+ (backs the better team) or under {config.WATCH_LOW_RATIO} (backs the worse team).",
+            "Conf.": f"Enhanced Value tier. Wtd Eff = {config.OFFENSE_WEIGHT:g} x offensive gap + {config.DEFENSE_WEIGHT:g} x defensive gap (home team gets {hca:g} pts). Enhanced Value = |Wtd Eff / spread| x (avg tempo / {config.TEMPO_BASELINE:g}). High {config.HIGH_THRESHOLD:g}+, Medium {config.MEDIUM_THRESHOLD:g} to {config.HIGH_THRESHOLD:g}, Low under {config.MEDIUM_THRESHOLD:g}. Measures the efficiency gap relative to the spread, not cover likelihood.",
+            "Model pick": "The team with the better weighted efficiency (Wtd Eff). It always backs the stronger team and does not check whether it is stronger by more than the line. Use Edge for that.",
+        },
+        "power": {
+            "Rk": "Rank by net rating (adjusted offense minus adjusted defense).",
+            "Team": "Team name as used by the ratings source.",
+            "Conf": "Conference.",
+            "Record": "Season win-loss record.",
+            "Net": "Adjusted offense minus adjusted defense: points better than an average Division I team per 100 possessions.",
+            "Adj O": "Points scored per 100 possessions, adjusted for opponent strength and venue. Higher is better.",
+            "O Rk": "National rank in adjusted offense.",
+            "Adj D": "Points allowed per 100 possessions, adjusted for opponent strength and venue. Lower is better.",
+            "D Rk": "National rank in adjusted defense (1 = best).",
+            "Tempo": "Possessions per 40 minutes. Higher = faster pace.",
+            "Tempo Rk": "Rank in tempo (1 = fastest).",
+            "Change": "Places moved in the rankings over about the last 7 days. Green up, red down.",
+        },
+    }
+
+
 def build_payload(day: date, results: pd.DataFrame, record: pd.DataFrame, trend: pd.DataFrame,
-                  history: pd.DataFrame, books: pd.DataFrame, notes: list[str]) -> dict:
+                  history: pd.DataFrame, games: list[dict], rows: list[dict], ratings: pd.DataFrame,
+                  ratings_source: str, data_dir: Path | None, notes: list[str]) -> dict:
     today = pd.DataFrame()
     if not results.empty and "Edge Size" in results:
         today = results[results["Line"].fillna("") != ""].sort_values("Edge Size", ascending=False, na_position="last")
     hist = history.copy()
     if not hist.empty:
         hist = hist.sort_values(["date", "start"], ascending=[False, True], na_position="last").head(3000)
+    power = power_table(ratings, data_dir) if ratings is not None and not ratings.empty else pd.DataFrame()
     return {
         "day": day.strftime("%A, %B %d, %Y").replace(" 0", " "),
         "updated": datetime.now().strftime("%b %d, %Y %I:%M %p ET").replace(" 0", " "),
         "mode": "Legacy Excel" if config.LEGACY_EXCEL_MODE else "Standard",
         "edgeBuckets": list(config.EDGE_BUCKETS),
+        "tips": tips(),
         "today": {"cols": [h for _, h in TODAY_COLS], "rows": _records(today, TODAY_COLS)},
         "record": {"cols": list(record.columns), "rows": _records(record, [(c, c) for c in record.columns])},
         "trend": {"cols": list(trend.columns), "rows": _records(trend, [(c, c) for c in trend.columns])},
         "history": {"cols": [h for _, h in HIST_COLS], "rows": _records(hist, HIST_COLS)},
-        "books": {"cols": list(books.columns), "rows": _records(books, [(c, c) for c in books.columns])},
+        "odds": _sanitize(odds_compare(games, rows)),
+        "power": {"cols": list(power.columns), "rows": _records(power, [(c, c) for c in power.columns]),
+                  "source": ratings_source},
         "notes": list(notes),
         "games": int(len(results)) if not results.empty else 0,
     }
@@ -162,6 +324,23 @@ tbody tr:hover{background:var(--surface-2)}
 footer{color:var(--muted);font-size:12px;margin-top:22px}
 footer ul{margin:6px 0 0;padding-left:18px}
 a{color:var(--accent)}
+.info{background:none;border:0;padding:0 0 0 4px;margin:0;color:var(--muted);font:inherit;font-size:12px;cursor:help;line-height:1;vertical-align:baseline}
+.info:hover,.info:focus-visible{color:var(--accent);outline:none}
+#hint{position:fixed;z-index:50;max-width:300px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12.5px;line-height:1.45;font-weight:400;text-transform:none;letter-spacing:0;white-space:normal;box-shadow:0 6px 18px rgba(0,0,0,.18);display:none}
+#hint b{display:block;margin-bottom:2px}
+.odds td.sp{min-width:96px}
+.odds tr.game{cursor:pointer}
+.odds tr.game td:first-child{width:28px;color:var(--text-2)}
+.odds tr.book td{background:var(--surface-2);font-size:12.5px}
+.odds tr.book td.bk{padding-left:28px;color:var(--text-2)}
+.odds .px{color:var(--muted);font-size:11.5px;margin-left:4px}
+.better{background:var(--good-bg)!important;color:var(--good);font-weight:700}
+.better::before{content:"\25B2 ";font-size:9px}
+.dkcell{font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-size:12.5px;color:var(--text-2);margin:2px 0 10px}
+.legend .sw{display:inline-block;padding:0 6px;border-radius:4px}
+.btn{background:var(--surface-2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:7px 12px;font:inherit;font-size:13px;cursor:pointer}
+.up{color:var(--good);font-weight:600}.down{color:var(--bad);font-weight:600}
 .theme{background:none;border:1px solid var(--border);color:var(--text-2);border-radius:8px;padding:4px 10px;font:inherit;font-size:12px;cursor:pointer}
 </style>
 </head>
@@ -176,6 +355,7 @@ a{color:var(--accent)}
     <button role="tab" aria-selected="false" data-tab="rate">Success Rate</button>
     <button role="tab" aria-selected="false" data-tab="history">History</button>
     <button role="tab" aria-selected="false" data-tab="books">Odds by Book</button>
+    <button role="tab" aria-selected="false" data-tab="power">Power Rankings</button>
   </nav>
 
   <section id="today">
@@ -209,9 +389,25 @@ a{color:var(--accent)}
   </section>
 
   <section id="books" hidden>
-    <div class="controls"><input type="search" id="bookSearch" placeholder="Search team or book"></div>
+    <div class="controls">
+      <input type="search" id="bookSearch" placeholder="Search team">
+      <label class="sub"><input type="checkbox" id="betterOnly"> Only games with a better number than DraftKings</label>
+      <button class="btn" id="expandAll" type="button">Expand all</button>
+    </div>
+    <div class="legend"><span>DraftKings (from the ESPN schedule) is the standard line. Click a game to see every book.</span>
+      <span><span class="sw better">better</span> = more points, better price, or a better moneyline than DraftKings for that side</span></div>
     <div class="tbl" id="bookTbl"></div>
   </section>
+
+  <section id="power" hidden>
+    <div class="controls">
+      <select id="powerConf"><option value="">All conferences</option></select>
+      <input type="search" id="powerSearch" placeholder="Search team">
+    </div>
+    <p class="sub" id="powerSrc"></p>
+    <div class="tbl" id="powerTbl"></div>
+  </section>
+  <div id="hint" role="tooltip"></div>
 
   <footer>
     <div><a href="NCAAM_Dashboard.xlsx">Download the Excel dashboard</a> &middot; <a href="pick_history.csv">Pick history (CSV)</a></div>
@@ -255,7 +451,33 @@ document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
 try { const t = localStorage.getItem('tab'); if (t) { const b = document.querySelector('nav button[data-tab="'+t+'"]'); if (b) b.click(); } } catch(e) {}
 
 // generic sortable table
-function table(host, cols, rows, fmt) {
+// ---------- info tooltips
+const hint = $('hint');
+let pinned = null;
+function showHint(btn) {
+  hint.replaceChildren(el('b', {textContent: btn.dataset.label}), document.createTextNode(btn.dataset.tip));
+  hint.style.display = 'block';
+  const r = btn.getBoundingClientRect(), w = hint.offsetWidth, h = hint.offsetHeight;
+  let left = Math.min(Math.max(8, r.left + r.width / 2 - w / 2), innerWidth - w - 8);
+  let top = r.bottom + 8; if (top + h > innerHeight - 8) top = r.top - h - 8;
+  hint.style.left = left + 'px'; hint.style.top = top + 'px';
+}
+function hideHint() { hint.style.display = 'none'; pinned = null; }
+function infoBtn(label, tip) {
+  const b = el('button', {type: 'button', className: 'info', textContent: '\u24D8'});
+  b.setAttribute('aria-label', 'About ' + label); b.dataset.label = label; b.dataset.tip = tip;
+  b.addEventListener('mouseenter', () => showHint(b));
+  b.addEventListener('mouseleave', () => { if (pinned !== b) hideHint(); });
+  b.addEventListener('focus', () => showHint(b));
+  b.addEventListener('blur', hideHint);
+  b.addEventListener('click', ev => { ev.stopPropagation(); if (pinned === b) hideHint(); else { showHint(b); pinned = b; } });
+  return b;
+}
+document.addEventListener('click', () => { if (pinned) hideHint(); });
+addEventListener('scroll', () => { if (hint.style.display === 'block' && !pinned) hideHint(); }, true);
+addEventListener('keydown', ev => { if (ev.key === 'Escape') hideHint(); });
+
+function table(host, cols, rows, fmt, tipMap) {
   host.replaceChildren();
   if (!rows.length) { host.append(el('div', {className: 'empty', textContent: 'Nothing to show yet.'})); return; }
   let sortI = -1, dir = 1;
@@ -263,6 +485,7 @@ function table(host, cols, rows, fmt) {
   const t = el('table'), thead = el('thead'), tb = el('tbody'), hr = el('tr');
   cols.forEach((c, i) => {
     const th = el('th', {textContent: c, className: numCol[i] ? 'n' : ''});
+    if (tipMap && tipMap[c]) th.append(infoBtn(c, tipMap[c]));
     th.onclick = () => { dir = sortI === i ? -dir : (numCol[i] ? -1 : 1); sortI = i; body(); };
     hr.append(th);
   });
@@ -314,7 +537,7 @@ function drawToday() {
   const min = +$('edgeMin').value, q = $('todaySearch').value.trim().toLowerCase();
   const rows = T.rows.filter(r => (min === 0 || (isNum(r[ti('Edge')]) && r[ti('Edge')] >= min)) &&
     (!q || (String(r[ti('Away')]) + ' ' + String(r[ti('Home')])).toLowerCase().includes(q)));
-  table($('todayTbl'), T.cols, rows, fmtToday);
+  table($('todayTbl'), T.cols, rows, fmtToday, (D.tips || {}).today);
 }
 $('edgeMin').onchange = drawToday; $('todaySearch').oninput = drawToday; drawToday();
 
@@ -396,13 +619,71 @@ function drawHist() {
 }
 ['histType', 'histRes'].forEach(i => $(i).onchange = drawHist); $('histSearch').oninput = drawHist; drawHist();
 
-// ---------- Books
+// ---------- Odds by Book (DraftKings standard + expandable books)
+const O = D.odds || [];
+const sp = (pt, px) => { const f = el('span'); f.append(document.createTextNode(!isNum(pt) ? '' : pt === 0 ? 'PK' : (pt > 0 ? '+' : '') + pt)); if (isNum(px)) f.append(el('span', {className: 'px', textContent: '(' + (px > 0 ? '+' : '') + Math.round(px) + ')'})); return f; };
+const ml = v => isNum(v) ? (v > 0 ? '+' : '') + Math.round(v) : '';
+const open = new Set();
+let allOpen = false;
+const BH = ['', 'Time', 'Away', 'Home', 'Away spread', 'Home spread', 'Away ML', 'Home ML', 'Books', 'Better than DK'];
+const BT = {
+  'Away spread': 'Points on the away team, with the price in parentheses. Game rows show DraftKings from the ESPN schedule.',
+  'Home spread': 'Points on the home team, with the price in parentheses. Game rows show DraftKings from the ESPN schedule.',
+  'Away ML': 'Moneyline for the away team to win outright (American odds).',
+  'Home ML': 'Moneyline for the home team to win outright (American odds).',
+  'Books': 'Other sportsbooks with a line on this game. Click the row to see them.',
+  'Better than DK': 'How many other books offer at least one number better than DraftKings: more points on a side, the same points at a better price, or a better moneyline.'
+};
 function drawBooks() {
-  const q = $('bookSearch').value.trim().toLowerCase();
-  table($('bookTbl'), D.books.cols, D.books.rows.filter(r => !q || r.join(' ').toLowerCase().includes(q)),
-    (c, v) => (c.indexOf('Line') >= 0 ? sgn(v) : null));
+  const host = $('bookTbl'); host.replaceChildren();
+  const q = $('bookSearch').value.trim().toLowerCase(), only = $('betterOnly').checked;
+  const games = O.filter(g => (!q || (g.away + ' ' + g.home).toLowerCase().includes(q)) && (!only || g.better > 0));
+  if (!games.length) { host.append(el('div', {className: 'empty', textContent: O.length ? 'No games match.' : 'No lines posted yet for this slate.'})); return; }
+  const t = el('table', {className: 'odds'}), hr = el('tr'), tb = el('tbody');
+  BH.forEach(h => { const th = el('th', {textContent: h, className: /spread|ML|Books|Better/.test(h) ? 'n' : ''}); if (BT[h]) th.append(infoBtn(h, BT[h])); hr.append(th); });
+  t.append(el('thead', null, [hr]), tb); host.append(t);
+  games.forEach((g, gi) => {
+    const id = g.away + '|' + g.home + '|' + g.time, isOpen = allOpen || open.has(id), dk = g.dk || {};
+    const tr = el('tr', {className: 'game'});
+    tr.setAttribute('aria-expanded', isOpen);
+    const cell = (c, cls) => { const td = el('td', {className: cls || ''}); if (c instanceof Node) td.append(c); else td.textContent = c == null ? '' : c; return td; };
+    tr.append(cell(g.books.length ? (isOpen ? '▾' : '▸') : ''), cell(g.time), cell(g.away), cell(g.home),
+      cell(g.dk ? sp(dk.away_pt, dk.away_px) : 'n/a', 'n dkcell sp'), cell(g.dk ? sp(dk.home_pt, dk.home_px) : 'n/a', 'n dkcell sp'),
+      cell(ml(dk.away_ml), 'n dkcell'), cell(ml(dk.home_ml), 'n dkcell'), cell(g.books.length, 'n'),
+      cell(g.better ? chip(g.better + (g.better === 1 ? ' book' : ' books'), 'hi') : '', 'n'));
+    tr.title = g.dk ? 'Standard line: ' + dk.source : 'No DraftKings line for this game';
+    tr.onclick = () => { if (open.has(id)) open.delete(id); else open.add(id); allOpen = false; drawBooks(); };
+    tb.append(tr);
+    if (!isOpen) return;
+    g.books.forEach(b => {
+      const r = el('tr', {className: 'book'}), bt = b.better || {};
+      const c = (v, ok) => { const td = el('td', {className: 'n' + (ok ? ' better' : '')}); if (v instanceof Node) td.append(v); else td.textContent = v; if (ok) td.title = 'Better than DraftKings'; return td; };
+      r.append(el('td'), el('td', {className: 'bk', textContent: b.book, colSpan: 3}),
+        c(sp(b.away_pt, b.away_px), bt.away_sp), c(sp(b.home_pt, b.home_px), bt.home_sp),
+        c(ml(b.away_ml), bt.away_ml), c(ml(b.home_ml), bt.home_ml), el('td'), el('td'));
+      tb.append(r);
+    });
+  });
 }
-$('bookSearch').oninput = drawBooks; drawBooks();
+$('bookSearch').oninput = drawBooks; $('betterOnly').onchange = drawBooks;
+$('expandAll').onclick = () => { allOpen = !allOpen; if (!allOpen) open.clear(); $('expandAll').textContent = allOpen ? 'Collapse all' : 'Expand all'; drawBooks(); };
+drawBooks();
+
+// ---------- Power rankings
+const P = D.power || {cols: [], rows: []}, pi = n => P.cols.indexOf(n);
+$('powerSrc').textContent = P.source ? 'Ratings source: ' + P.source + '. Ranked by net rating (adjusted offense minus adjusted defense).' : '';
+[...new Set(P.rows.map(r => r[pi('Conf')]).filter(Boolean))].sort().forEach(c => $('powerConf').append(el('option', {value: c, textContent: c})));
+function drawPower() {
+  const cf = $('powerConf').value, q = $('powerSearch').value.trim().toLowerCase();
+  const rows = P.rows.filter(r => (!cf || r[pi('Conf')] === cf) && (!q || String(r[pi('Team')]).toLowerCase().includes(q)));
+  table($('powerTbl'), P.cols, rows, (c, v) => {
+    if (c === 'Net') return isNum(v) ? (v > 0 ? '+' : '') + v.toFixed(1) : '';
+    if (c === 'Adj O' || c === 'Adj D' || c === 'Tempo') return isNum(v) ? v.toFixed(1) : '';
+    if (c === 'Change') { if (!isNum(v) || v === 0) return isNum(v) ? '–' : ''; return el('span', {className: v > 0 ? 'up' : 'down', textContent: (v > 0 ? '▲ ' : '▼ ') + Math.abs(v)}); }
+    return null;
+  }, (D.tips || {}).power);
+}
+$('powerConf').onchange = drawPower; $('powerSearch').oninput = drawPower; drawPower();
 })();
 </script>
 </body>

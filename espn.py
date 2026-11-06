@@ -36,7 +36,8 @@ def _num(x):
 def _parse_odds(comp: dict, away: dict, home: dict) -> dict:
     """Return favorite abbreviation, spread size, O/U and the raw line text."""
     out = {"line_text": "", "fav_abbr": None, "spread": None, "over_under": None,
-           "ml_home": None, "ml_away": None}
+           "ml_home": None, "ml_away": None, "spread_price_home": None,
+           "spread_price_away": None, "provider": None}
     odds_list = comp.get("odds") or []
     if not odds_list:
         return out
@@ -88,6 +89,14 @@ def _moneylines(odds: dict, out: dict) -> None:
             node = node.get("close") or node.get("open") or {}
             ml = _num(str(node.get("odds", "")).replace("+", ""))
         out[f"ml_{side}"] = ml
+        # spread price (DraftKings juice), e.g. -110
+        price = _num((odds.get(f"{side}TeamOdds") or {}).get("spreadOdds"))
+        if price is None:
+            node = ((odds.get("pointSpread") or {}).get(side) or {})
+            node = node.get("close") or node.get("open") or {}
+            price = _num(str(node.get("odds", "")).replace("+", ""))
+        out[f"spread_price_{side}"] = price
+    out["provider"] = ((odds.get("provider") or {}).get("name")) or "DraftKings"
 
 
 def home_line(g: dict):

@@ -116,10 +116,11 @@ def _cbbd_frame(rows: list, pace: dict) -> pd.DataFrame:
     for x in rows:
         rk = x.get("rankings") or {}
         out.append({
-            "team": x.get("team"), "conf": x.get("conference"), "record": "",
+            "team": x.get("team"), "conf": x.get("conference"),
+            "record": (pace.get(x.get("team")) or {}).get("record", ""),
             "adj_o": x.get("offensiveRating"), "adj_d": x.get("defensiveRating"),
             "rank": rk.get("net"), "adj_o_rank": rk.get("offense"), "adj_d_rank": rk.get("defense"),
-            "adj_t": pace.get(x.get("team")), "barthag": None,
+            "adj_t": (pace.get(x.get("team")) or {}).get("pace"), "barthag": None,
         })
     df = pd.DataFrame(out).dropna(subset=["team", "adj_o", "adj_d"])
     df["adj_t"] = pd.to_numeric(df["adj_t"], errors="coerce").fillna(config.TEMPO_BASELINE)
@@ -132,9 +133,14 @@ def _cbbd_frame(rows: list, pace: dict) -> pd.DataFrame:
 
 
 def _cbbd_pace(label: int) -> dict:
+    """team -> {"pace": float, "record": "W-L"} from CBBD season stats."""
     try:
-        return {x.get("team"): x.get("pace") for x in _cbbd_get("/stats/team/season", {"season": label})
-                if x.get("pace")}
+        out = {}
+        for x in _cbbd_get("/stats/team/season", {"season": label}):
+            w, l = x.get("wins"), x.get("losses")
+            out[x.get("team")] = {"pace": x.get("pace"),
+                                  "record": f"{int(w)}-{int(l)}" if w is not None and l is not None else ""}
+        return out
     except Exception as e:
         print(f"  CBBD pace unavailable ({e}); using league-average tempo")
         return {}
