@@ -183,6 +183,7 @@ def tips() -> dict:
     return {
         "today": {
             "Time": "Scheduled tip-off, Eastern time.",
+            "Matchup": "Away team @ home team. Away is T1 in the original spreadsheet; the win % and margin columns are from the away team's side.",
             "Away": "Away team (T1 in the original spreadsheet). Win % and margin columns are from this team's side.",
             "Home": "Home team (T2). On a neutral court no home-court points are applied.",
             "Line": f"The spread the model compares against: {line_src}.",
@@ -299,21 +300,21 @@ TEMPLATE = r"""<!doctype html>
   --bg:#e7e7e4; --paper:#f3f3f1; --paper-2:#ebebe8; --ink:#0a0a0a; --ink-2:#3d3d3b; --muted:#7b7b77;
   --line:#c8c8c3; --rule:#0a0a0a; --blue:#1f3fe6; --on-blue:#ffffff; --block:#0a0a0a; --on-block:#f3f3f1;
   --good:#0d7a3c; --good-bg:#d9efe1; --bad:#b3261e; --bad-bg:#f6dcd9; --warn-bg:#fdeec2;
-  --grid:#d4d4cf;
+  --grid:#d4d4cf; --stripe:#ebebe8; --hover:#e1e1dc; --child:#e5e5e1;
 }
 @media (prefers-color-scheme:dark){
   :root:where(:not([data-theme="light"])){
     color-scheme:dark;
     --bg:#0c0c0c; --paper:#151515; --paper-2:#1d1d1c; --ink:#f1f1ee; --ink-2:#c4c4bf; --muted:#8c8c87;
     --line:#2f2f2d; --rule:#f1f1ee; --blue:#3b5bff; --on-blue:#ffffff; --block:#f1f1ee; --on-block:#0c0c0c;
-    --good:#5fd08f; --good-bg:#13301f; --bad:#f2897f; --bad-bg:#3a1a17; --warn-bg:#3a3110; --grid:#262625;
+    --good:#5fd08f; --good-bg:#13301f; --bad:#f2897f; --bad-bg:#3a1a17; --warn-bg:#3a3110; --grid:#262625; --stripe:#1d1d1c; --hover:#252524; --child:#202020;
   }
 }
 :root[data-theme="dark"]{
   color-scheme:dark;
   --bg:#0c0c0c; --paper:#151515; --paper-2:#1d1d1c; --ink:#f1f1ee; --ink-2:#c4c4bf; --muted:#8c8c87;
   --line:#2f2f2d; --rule:#f1f1ee; --blue:#3b5bff; --on-blue:#ffffff; --block:#f1f1ee; --on-block:#0c0c0c;
-  --good:#5fd08f; --good-bg:#13301f; --bad:#f2897f; --bad-bg:#3a1a17; --warn-bg:#3a3110; --grid:#262625;
+  --good:#5fd08f; --good-bg:#13301f; --bad:#f2897f; --bad-bg:#3a1a17; --warn-bg:#3a3110; --grid:#262625; --stripe:#1d1d1c; --hover:#252524; --child:#202020;
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
@@ -368,7 +369,8 @@ table{border-collapse:collapse;width:100%;font-size:13px}
 th,td{padding:9px 12px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--line)}
 th{position:sticky;top:0;background:var(--paper);color:var(--ink);font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid var(--rule);cursor:pointer;user-select:none}
 td.n,th.n{text-align:right}
-tbody tr:hover>td{background:var(--paper-2)}
+tbody tr.alt>td{background:var(--stripe)}
+tbody tr:hover>td{background:var(--hover)}
 .chip{display:inline-block;padding:2px 7px;font-size:11px;font-weight:700;letter-spacing:.04em;border:1px solid var(--line);background:transparent}
 .W{background:var(--good-bg);color:var(--good);border-color:transparent}
 .L{background:var(--bad-bg);color:var(--bad);border-color:transparent}
@@ -385,7 +387,8 @@ tbody tr:hover>td{background:var(--paper-2)}
 /* expandable rows (odds + history) */
 tr.parent{cursor:pointer}
 tr.parent td.tog{width:30px;color:var(--ink);font-weight:700}
-tr.child td{background:var(--paper-2);font-size:12.5px}
+tr.child>td{background:var(--child);font-size:12.5px}
+tr.child>td:first-child{box-shadow:inset 3px 0 0 var(--blue)}
 tr.child td.bk{padding-left:30px;color:var(--ink-2)}
 .px{color:var(--muted);font-size:11.5px;margin-left:4px}
 .better{background:var(--good-bg)!important;color:var(--good);font-weight:700}
@@ -394,6 +397,16 @@ tr.child td.bk{padding-left:30px;color:var(--ink-2)}
 .legend{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;font-size:12.5px;color:var(--ink-2);margin:0 0 12px}
 .legend .sw{display:inline-block;padding:1px 6px}
 
+/* today: compact board + phone cards */
+.cards{display:none}
+.gcard{border-top:1px solid var(--rule);padding:12px 2px 14px}
+.gcard .row1{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.gcard .teams{font-size:15px;font-weight:700;letter-spacing:-.01em}
+.gcard .meta{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.gcard .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;margin-top:10px}
+.gcard .k{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.gcard .v{font-size:13.5px;font-weight:600;margin-top:2px}
+@media (max-width:720px){ #todayTbl{display:none} .cards{display:block} label[for=todayMore],#todayMoreWrap{display:none} }
 /* chart */
 .chart{position:relative}
 .chart svg{display:block;width:100%;height:auto}
@@ -445,8 +458,10 @@ footer a{color:var(--ink)}
         <label class="lbl muted" for="edgeMin">Edge at least</label>
         <select id="edgeMin"></select>
         <input type="search" id="todaySearch" placeholder="Search team">
+        <label class="chk" id="todayMoreWrap"><input type="checkbox" id="todayMore"> Show all columns</label>
       </div>
       <div class="tbl" id="todayTbl"></div>
+      <div class="cards" id="todayCards"></div>
       <p class="sub">Away = T1, Home = T2. Hover or tap &#9432; for what each column means.</p>
     </div>
   </section>
@@ -592,8 +607,8 @@ function table(host, cols, rows, fmt, tipMap) {
   function body() {
     const rs = rows.slice();
     if (sortI >= 0) rs.sort((a, b) => { const x = a[sortI], y = b[sortI]; if (x == null) return 1; if (y == null) return -1; return (x > y ? 1 : x < y ? -1 : 0) * dir; });
-    tb.replaceChildren(...rs.map(r => {
-      const tr = el('tr');
+    tb.replaceChildren(...rs.map((r, ri) => {
+      const tr = el('tr', {className: ri % 2 ? 'alt' : ''});
       r.forEach((v, i) => {
         const td = el('td', {className: numCol[i] ? 'n' : ''});
         const out = fmt ? fmt(cols[i], v, r) : null;
@@ -626,12 +641,39 @@ function fmtToday(c, v) {
   if (c.indexOf('margin') >= 0 || c.indexOf('Best') === 0) return sgn(v);
   return null;
 }
-function drawToday() {
+const MAIN = ['Time', 'Matchup', 'Line', 'Edge pick', 'Edge', 'Model pick', 'Conf.'];
+const MORE = ['Proj away margin', 'Model away win', 'Market away win', 'Books', 'Best away', 'Best home'];
+const short = v => v == null ? '' : String(v).replace(/ covers$/, '');
+function todayRows() {
   const min = +$('edgeMin').value, q = $('todaySearch').value.trim().toLowerCase();
-  const rows = T.rows.filter(r => (min === 0 || (isNum(r[ti('Edge')]) && r[ti('Edge')] >= min)) &&
+  return T.rows.filter(r => (min === 0 || (isNum(r[ti('Edge')]) && r[ti('Edge')] >= min)) &&
     (!q || (String(r[ti('Away')]) + ' ' + String(r[ti('Home')])).toLowerCase().includes(q)));
-  table($('todayTbl'), T.cols, rows, fmtToday, (D.tips || {}).today);
 }
+function drawToday() {
+  const rows = todayRows(), more = $('todayMore').checked;
+  const cols = MAIN.concat(more ? MORE : []);
+  const data = rows.map(r => cols.map(c => c === 'Matchup' ? r[ti('Away')] + ' @ ' + r[ti('Home')]
+    : c === 'Model pick' ? short(r[ti(c)]) : r[ti(c)]));
+  table($('todayTbl'), cols, data, fmtToday, (D.tips || {}).today);
+  // phone: one card per game
+  const host = $('todayCards'); host.replaceChildren();
+  if (!rows.length) { host.append(el('div', {className: 'empty', textContent: 'Nothing to show yet.'})); return; }
+  rows.forEach(r => {
+    const kv = (k, v) => el('div', null, [el('div', {className: 'k', textContent: k}), (() => { const d = el('div', {className: 'v'}); if (v instanceof Node) d.append(v); else d.textContent = v == null ? '' : v; return d; })()]);
+    const edge = r[ti('Edge')], conf = r[ti('Conf.')];
+    host.append(el('div', {className: 'gcard'}, [
+      el('div', {className: 'row1'}, [el('div', {className: 'teams', textContent: r[ti('Away')] + ' @ ' + r[ti('Home')]}), el('div', {className: 'meta', textContent: (r[ti('Time')] || '') + '  ' + (r[ti('Line')] || '')})]),
+      el('div', {className: 'grid'}, [
+        kv('Edge pick', r[ti('Edge pick')]),
+        kv('Edge', isNum(edge) ? chip(edge.toFixed(1), edge >= b2 ? 'hi' : edge >= b1 ? 'md' : '') : ''),
+        kv('Model pick', short(r[ti('Model pick')])),
+        kv('Confidence', conf ? chip(conf, conf === 'High' ? 'hi' : conf === 'Medium' ? 'md' : '') : ''),
+        kv('Proj away margin', sgn(r[ti('Proj away margin')])),
+        kv('Away win: model / market', pct(r[ti('Model away win')]) + (isNum(r[ti('Market away win')]) ? ' / ' + pct(r[ti('Market away win')]) : ''))
+      ])]));
+  });
+}
+$('todayMore').onchange = drawToday;
 $('edgeMin').onchange = drawToday; $('todaySearch').oninput = drawToday; drawToday();
 
 // ---------- 02 Success rate
@@ -717,10 +759,10 @@ function drawHist() {
   const t = el('table'), tb = el('tbody'), hr = el('tr');
   HH.forEach(h => { const th = el('th', {textContent: h, className: h === 'Edge' ? 'n' : ''}); if (HT[h]) th.append(infoBtn(h, HT[h])); hr.append(th); });
   t.append(el('thead', null, [hr]), tb); host.append(t);
-  games.forEach(g => {
+  games.forEach((g, gi) => {
     const id = g.date + '|' + g.gid, open = histAll || histOpen.has(id), p = primary(g);
     const others = g.picks.filter(x => x !== p);
-    const tr = el('tr', {className: 'parent'});
+    const tr = el('tr', {className: 'parent' + (gi % 2 ? ' alt' : '')});
     const td = (c, cls) => { const d = el('td', {className: cls || ''}); if (c instanceof Node) d.append(c); else d.textContent = c == null ? '' : c; return d; };
     const oth = el('span'); others.forEach((o, i) => { if (i) oth.append(document.createTextNode('  ')); oth.append(document.createTextNode(o.type + ' '), resChip(o.result)); });
     tr.append(td(g.picks.length > 1 ? (open ? '−' : '+') : '', 'tog'), td(g.date), td(g.away), td(g.home),
@@ -770,9 +812,9 @@ function drawBooks() {
   const t = el('table'), hr = el('tr'), tb = el('tbody');
   BH.forEach(h => { const th = el('th', {textContent: h, className: /spread|ML|Books|Better/.test(h) ? 'n' : ''}); if (BT[h]) th.append(infoBtn(h, BT[h])); hr.append(th); });
   t.append(el('thead', null, [hr]), tb); host.append(t);
-  games.forEach(g => {
+  games.forEach((g, gi) => {
     const id = g.away + '|' + g.home + '|' + g.time, isOpen = allOpen || open.has(id), dk = g.dk || {};
-    const tr = el('tr', {className: 'parent'});
+    const tr = el('tr', {className: 'parent' + (gi % 2 ? ' alt' : '')});
     const cell = (c, cls) => { const td = el('td', {className: cls || ''}); if (c instanceof Node) td.append(c); else td.textContent = c == null ? '' : c; return td; };
     tr.append(cell(g.books.length ? (isOpen ? '−' : '+') : '', 'tog'), cell(g.time), cell(g.away), cell(g.home),
       cell(g.dk ? sp(dk.away_pt, dk.away_px) : 'n/a', 'n dk'), cell(g.dk ? sp(dk.home_pt, dk.home_px) : 'n/a', 'n dk'),
