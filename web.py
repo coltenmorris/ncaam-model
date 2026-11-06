@@ -19,7 +19,7 @@ TODAY_COLS = [
     ("Books", "Books"), ("Best T1", "Best away"), ("Best T2", "Best home"),
     ("Proj T1 Margin", "Proj away margin"), ("Edge Pick", "Edge pick"), ("Edge Size", "Edge"),
     ("Model T1 Win%", "Model away win"), ("Market T1 Win%", "Market away win"),
-    ("Games to Watch", "Watch"), ("Confidence", "Conf."), ("Model Pick", "Model pick"),
+    ("Confidence", "Conf."), ("Model Pick", "Model pick"),
 ]
 HIST_COLS = [
     ("date", "Date"), ("pick_type", "Type"), ("t1", "Away"), ("t2", "Home"), ("pick_team", "Pick"),
@@ -194,7 +194,6 @@ def tips() -> dict:
             "Edge": "How many points the model disagrees with the line. |Proj away margin + away line|. Example: model Arizona by 34.3, line Arizona -31, edge 3.3 on Arizona. Yellow = 2+, green = 4+.",
             "Model away win": f"Model's chance the away team wins outright (spread ignored). Normal distribution of the projected margin with a standard deviation of {config.MARGIN_STDEV:g} points.",
             "Market away win": "The market's chance the away team wins outright: average of Kalshi and Polymarket prices, or the sportsbooks' moneylines with the bookmaker's cut removed if neither lists the game.",
-            "Watch": f"Original 'Games to Watch' screen. YES when the two teams' ranks add to under {config.RANK_SUM_LIMIT} and |rank gap / spread| is {config.WATCH_HIGH_RATIO}+ (backs the better team) or under {config.WATCH_LOW_RATIO} (backs the worse team).",
             "Conf.": f"Enhanced Value tier. Wtd Eff = {config.OFFENSE_WEIGHT:g} x offensive gap + {config.DEFENSE_WEIGHT:g} x defensive gap (home team gets {hca:g} pts). Enhanced Value = |Wtd Eff / spread| x (avg tempo / {config.TEMPO_BASELINE:g}). High {config.HIGH_THRESHOLD:g}+, Medium {config.MEDIUM_THRESHOLD:g} to {config.HIGH_THRESHOLD:g}, Low under {config.MEDIUM_THRESHOLD:g}. Measures the efficiency gap relative to the spread, not cover likelihood.",
             "Model pick": "The team with the better weighted efficiency (Wtd Eff). It always backs the stronger team and does not check whether it is stronger by more than the line. Use Edge for that.",
         },
@@ -213,6 +212,35 @@ def tips() -> dict:
             "Change": "Places moved in the rankings over about the last 7 days. Green up, red down.",
         },
     }
+
+
+def history_groups(history: pd.DataFrame, limit_days: int = 120) -> list[dict]:
+    """One entry per game, with every pick on that game nested inside."""
+    if history is None or history.empty:
+        return []
+    h = history[history["pick_type"] != "Watch"].copy()
+    dates = sorted(h["date"].dropna().unique(), reverse=True)[:limit_days]
+    h = h[h["date"].isin(dates)]
+    order = {"Edge": 0, "Model": 1, "Market": 2}
+    out = []
+    for (d, gid), grp in h.groupby(["date", "game_id"], sort=False):
+        grp = grp.sort_values("pick_type", key=lambda c: c.map(order).fillna(9))
+        first = grp.iloc[0]
+        picks = []
+        for _, r in grp.iterrows():
+            picks.append(_sanitize({
+                "type": r["pick_type"], "team": r["pick_team"], "side": r["pick_side"],
+                "line": r.get("pick_line"), "edge": r.get("edge"), "conf": r.get("confidence"),
+                "ev": r.get("enhanced_value"), "mprob": r.get("market_prob"), "modelp": r.get("model_prob"),
+                "result": r.get("result"), "source": r.get("line_source"),
+            }))
+        out.append(_sanitize({
+            "date": d, "start": first.get("start"), "gid": gid, "away": first["t1"], "home": first["t2"],
+            "s1": first.get("t1_score"), "s2": first.get("t2_score"), "picks": picks,
+        }))
+    out.sort(key=lambda g: (g["date"] or "", -(pd.Timestamp(g["start"]).timestamp() if g.get("start") else 0)),
+             reverse=True)
+    return out
 
 
 def build_payload(day: date, results: pd.DataFrame, record: pd.DataFrame, trend: pd.DataFrame,
@@ -234,7 +262,9 @@ def build_payload(day: date, results: pd.DataFrame, record: pd.DataFrame, trend:
         "today": {"cols": [h for _, h in TODAY_COLS], "rows": _records(today, TODAY_COLS)},
         "record": {"cols": list(record.columns), "rows": _records(record, [(c, c) for c in record.columns])},
         "trend": {"cols": list(trend.columns), "rows": _records(trend, [(c, c) for c in trend.columns])},
-        "history": {"cols": [h for _, h in HIST_COLS], "rows": _records(hist, HIST_COLS)},
+        "history": history_groups(history),
+        "marketEdges": int((results["Win% Edge (T1)"].abs() >= config.MARKET_EDGE_MIN).sum())
+                       if not results.empty and "Win% Edge (T1)" in results else 0,
         "odds": _sanitize(odds_compare(games, rows)),
         "power": {"cols": list(power.columns), "rows": _records(power, [(c, c) for c in power.columns]),
                   "source": ratings_source},
@@ -260,160 +290,221 @@ TEMPLATE = r"""<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>NCAAM Model</title>
 <meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
   color-scheme:light;
-  --bg:#f6f6f4; --surface:#fcfcfb; --surface-2:#f0efeb; --border:#e2e1dc;
-  --text:#0b0b0b; --text-2:#52514e; --muted:#7a7974;
-  --accent:#2a78d6; --series-1:#2a78d6; --grid:#e6e5e0;
-  --good:#0f7b3d; --good-bg:#e3f4e9; --bad:#b42318; --bad-bg:#fbe9e7;
-  --warn-bg:#fff4d6; --chip:#eceae4;
+  --bg:#e7e7e4; --paper:#f3f3f1; --paper-2:#ebebe8; --ink:#0a0a0a; --ink-2:#3d3d3b; --muted:#7b7b77;
+  --line:#c8c8c3; --rule:#0a0a0a; --blue:#1f3fe6; --on-blue:#ffffff; --block:#0a0a0a; --on-block:#f3f3f1;
+  --good:#0d7a3c; --good-bg:#d9efe1; --bad:#b3261e; --bad-bg:#f6dcd9; --warn-bg:#fdeec2;
+  --grid:#d4d4cf;
 }
 @media (prefers-color-scheme:dark){
   :root:where(:not([data-theme="light"])){
     color-scheme:dark;
-    --bg:#121211; --surface:#1a1a19; --surface-2:#232321; --border:#33332f;
-    --text:#f0efec; --text-2:#c3c2b7; --muted:#8f8e86;
-    --accent:#3987e5; --series-1:#3987e5; --grid:#2c2c29;
-    --good:#5cc98a; --good-bg:#16301f; --bad:#f08b80; --bad-bg:#3a1d1a;
-    --warn-bg:#3a3214; --chip:#2a2a27;
+    --bg:#0c0c0c; --paper:#151515; --paper-2:#1d1d1c; --ink:#f1f1ee; --ink-2:#c4c4bf; --muted:#8c8c87;
+    --line:#2f2f2d; --rule:#f1f1ee; --blue:#3b5bff; --on-blue:#ffffff; --block:#f1f1ee; --on-block:#0c0c0c;
+    --good:#5fd08f; --good-bg:#13301f; --bad:#f2897f; --bad-bg:#3a1a17; --warn-bg:#3a3110; --grid:#262625;
   }
 }
 :root[data-theme="dark"]{
   color-scheme:dark;
-  --bg:#121211; --surface:#1a1a19; --surface-2:#232321; --border:#33332f;
-  --text:#f0efec; --text-2:#c3c2b7; --muted:#8f8e86;
-  --accent:#3987e5; --series-1:#3987e5; --grid:#2c2c29;
-  --good:#5cc98a; --good-bg:#16301f; --bad:#f08b80; --bad-bg:#3a1d1a;
-  --warn-bg:#3a3214; --chip:#2a2a27;
+  --bg:#0c0c0c; --paper:#151515; --paper-2:#1d1d1c; --ink:#f1f1ee; --ink-2:#c4c4bf; --muted:#8c8c87;
+  --line:#2f2f2d; --rule:#f1f1ee; --blue:#3b5bff; --on-blue:#ffffff; --block:#f1f1ee; --on-block:#0c0c0c;
+  --good:#5fd08f; --good-bg:#13301f; --bad:#f2897f; --bad-bg:#3a1a17; --warn-bg:#3a3110; --grid:#262625;
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 48px}
-header{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;justify-content:space-between}
-h1{font-size:22px;margin:0}
-.sub{color:var(--text-2);font-size:13px}
-nav{display:flex;gap:4px;margin:18px 0 14px;overflow-x:auto;border-bottom:1px solid var(--border)}
-nav button{background:none;border:0;border-bottom:2px solid transparent;color:var(--text-2);font:inherit;font-weight:600;padding:10px 12px;cursor:pointer;white-space:nowrap}
-nav button[aria-selected="true"]{color:var(--text);border-bottom-color:var(--accent)}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 "Inter Tight","Helvetica Neue",Helvetica,Arial,sans-serif;font-feature-settings:"tnum" 1}
+.wrap{max-width:1240px;margin:0 auto;padding:28px 24px 56px}
+.lbl{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.muted{color:var(--muted)}
+
+/* header */
+.mast{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:start;border-bottom:1px solid var(--rule);padding-bottom:18px}
+.mast h1{margin:0;font-weight:800;font-size:clamp(56px,11vw,148px);line-height:.84;letter-spacing:-.055em;text-transform:lowercase}
+.mast .side{position:relative;text-align:left;min-width:180px;padding:4px 0 0 18px}
+.mast .side:before{content:"";position:absolute;left:0;top:0;bottom:0;border-left:1px solid var(--rule)}
+.mast .side .stack{font-size:13px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;line-height:1.25}
+.mast .side .meta{margin-top:26px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}
+.theme{margin-top:10px;background:none;border:1px solid var(--rule);color:var(--ink);padding:5px 10px;font:600 10.5px/1 inherit;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+.sub{color:var(--ink-2);font-size:12.5px}
+
+/* nav */
+nav{display:flex;gap:0;margin:0 0 22px;overflow-x:auto;border-bottom:1px solid var(--line)}
+nav button{background:none;border:0;border-bottom:3px solid transparent;color:var(--muted);font:600 12px/1 inherit;letter-spacing:.07em;text-transform:uppercase;padding:16px 18px 13px 0;margin-right:22px;cursor:pointer;white-space:nowrap}
+nav button .n{color:var(--muted);margin-right:8px;font-weight:500}
+nav button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--blue)}
+nav button[aria-selected="true"] .n{color:var(--blue)}
 section[hidden]{display:none}
-.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:16px}
-.tile{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
-.tile .k{color:var(--text-2);font-size:12px;text-transform:uppercase;letter-spacing:.04em}
-.tile .v{font-size:24px;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums}
-.tile .s{color:var(--muted);font-size:12px}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:16px}
-.card h2{font-size:15px;margin:0 0 10px}
-.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
-select,input[type=search]{background:var(--surface-2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:7px 10px;font:inherit;font-size:14px}
-input[type=search]{min-width:0;flex:1 1 180px}
-.tbl{overflow-x:auto;border:1px solid var(--border);border-radius:8px}
-table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
-th,td{padding:7px 10px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--border)}
-th{position:sticky;top:0;background:var(--surface-2);color:var(--text-2);font-weight:600;cursor:pointer;user-select:none}
+
+/* tiles */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:18px}
+.tile{position:relative;background:var(--paper);border:1px solid var(--line);padding:14px 16px 16px;min-height:150px;display:flex;flex-direction:column}
+.tile .top{display:flex;justify-content:space-between;gap:8px}
+.tile .v{font-size:52px;font-weight:700;letter-spacing:-.04em;line-height:1;margin-top:auto;padding-top:18px}
+.tile .s{font-size:12.5px;margin-top:8px;color:var(--ink-2)}
+.tile .arrow{position:absolute;right:14px;bottom:12px;font-size:16px}
+.tile.blue{background:var(--blue);border-color:var(--blue);color:var(--on-blue)}
+.tile.blue .s,.tile.blue .lbl{color:var(--on-blue)}
+.tile.black{background:var(--block);border-color:var(--block);color:var(--on-block)}
+.tile.black .s,.tile.black .lbl{color:var(--on-block)}
+
+/* cards & controls */
+.card{background:var(--paper);border:1px solid var(--line);padding:16px;margin-bottom:16px}
+.card-h{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--rule);padding-bottom:10px;margin-bottom:12px}
+.card-h h2{margin:0;font-size:22px;font-weight:700;letter-spacing:-.02em}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
+select,input[type=search]{background:var(--paper);color:var(--ink);border:1px solid var(--rule);border-radius:0;padding:8px 10px;font:500 13px inherit}
+input[type=search]{min-width:0;flex:1 1 200px}
+.btn{background:var(--ink);color:var(--bg);border:1px solid var(--ink);border-radius:0;padding:8px 14px;font:600 11px inherit;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+label.chk{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink-2)}
+
+/* tables */
+.tbl{overflow-x:auto;background:var(--paper);border:1px solid var(--line)}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:9px 12px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--line)}
+th{position:sticky;top:0;background:var(--paper);color:var(--ink);font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid var(--rule);cursor:pointer;user-select:none}
 td.n,th.n{text-align:right}
-tbody tr:hover{background:var(--surface-2)}
-.chip{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;font-weight:600;background:var(--chip)}
-.W{background:var(--good-bg);color:var(--good)} .L{background:var(--bad-bg);color:var(--bad)}
-.hi{background:var(--good-bg);color:var(--good)} .md{background:var(--warn-bg)}
-.indent{padding-left:22px;color:var(--text-2)}
+tbody tr:hover>td{background:var(--paper-2)}
+.chip{display:inline-block;padding:2px 7px;font-size:11px;font-weight:700;letter-spacing:.04em;border:1px solid var(--line);background:transparent}
+.W{background:var(--good-bg);color:var(--good);border-color:transparent}
+.L{background:var(--bad-bg);color:var(--bad);border-color:transparent}
+.hi{background:var(--blue);color:var(--on-blue);border-color:var(--blue)}
+.md{border-color:var(--ink);color:var(--ink)}
+.indent{padding-left:22px;color:var(--ink-2)}
+.empty{color:var(--muted);padding:22px 14px}
+.info{background:none;border:0;padding:0 0 0 5px;margin:0;color:var(--muted);font:inherit;font-size:12px;cursor:help;line-height:1}
+.info:hover,.info:focus-visible{color:var(--blue);outline:none}
+#hint{position:fixed;z-index:50;max-width:310px;background:var(--ink);color:var(--bg);padding:10px 12px;font-size:12.5px;line-height:1.45;display:none}
+#hint b{display:block;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
+.up{color:var(--good);font-weight:700}.down{color:var(--bad);font-weight:700}
+
+/* expandable rows (odds + history) */
+tr.parent{cursor:pointer}
+tr.parent td.tog{width:30px;color:var(--ink);font-weight:700}
+tr.child td{background:var(--paper-2);font-size:12.5px}
+tr.child td.bk{padding-left:30px;color:var(--ink-2)}
+.px{color:var(--muted);font-size:11.5px;margin-left:4px}
+.better{background:var(--good-bg)!important;color:var(--good);font-weight:700}
+.better:before{content:"\25B2 ";font-size:9px}
+.dk{font-weight:700}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;font-size:12.5px;color:var(--ink-2);margin:0 0 12px}
+.legend .sw{display:inline-block;padding:1px 6px}
+
+/* chart */
 .chart{position:relative}
 .chart svg{display:block;width:100%;height:auto}
-.tip{position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 9px;font-size:12px;box-shadow:0 4px 14px rgba(0,0,0,.15);display:none;white-space:nowrap}
-.empty{color:var(--muted);padding:18px 4px}
-footer{color:var(--muted);font-size:12px;margin-top:22px}
-footer ul{margin:6px 0 0;padding-left:18px}
-a{color:var(--accent)}
-.info{background:none;border:0;padding:0 0 0 4px;margin:0;color:var(--muted);font:inherit;font-size:12px;cursor:help;line-height:1;vertical-align:baseline}
-.info:hover,.info:focus-visible{color:var(--accent);outline:none}
-#hint{position:fixed;z-index:50;max-width:300px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12.5px;line-height:1.45;font-weight:400;text-transform:none;letter-spacing:0;white-space:normal;box-shadow:0 6px 18px rgba(0,0,0,.18);display:none}
-#hint b{display:block;margin-bottom:2px}
-.odds td.sp{min-width:96px}
-.odds tr.game{cursor:pointer}
-.odds tr.game td:first-child{width:28px;color:var(--text-2)}
-.odds tr.book td{background:var(--surface-2);font-size:12.5px}
-.odds tr.book td.bk{padding-left:28px;color:var(--text-2)}
-.odds .px{color:var(--muted);font-size:11.5px;margin-left:4px}
-.better{background:var(--good-bg)!important;color:var(--good);font-weight:700}
-.better::before{content:"\25B2 ";font-size:9px}
-.dkcell{font-weight:600}
-.legend{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-size:12.5px;color:var(--text-2);margin:2px 0 10px}
-.legend .sw{display:inline-block;padding:0 6px;border-radius:4px}
-.btn{background:var(--surface-2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:7px 12px;font:inherit;font-size:13px;cursor:pointer}
-.up{color:var(--good);font-weight:600}.down{color:var(--bad);font-weight:600}
-.theme{background:none;border:1px solid var(--border);color:var(--text-2);border-radius:8px;padding:4px 10px;font:inherit;font-size:12px;cursor:pointer}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);padding:7px 10px;font-size:12px;display:none;white-space:nowrap}
+
+/* footer */
+footer{margin-top:34px;display:grid;grid-template-columns:auto 1fr 1fr auto;gap:18px;align-items:start;border-top:1px solid var(--rule);padding-top:18px}
+footer .sq{width:44px;height:44px;background:var(--blue);color:var(--on-blue);display:flex;align-items:center;justify-content:center;font-size:20px;text-decoration:none}
+footer .cta{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.02em;line-height:1.25}
+footer ul{margin:0;padding:0;list-style:none;font-size:11.5px;color:var(--ink-2)}
+footer ul li{padding:1px 0}
+footer a{color:var(--ink)}
+@media (max-width:720px){
+  .wrap{padding:18px 16px 40px}
+  .mast{grid-template-columns:1fr}
+  .mast .side{padding:12px 0 0;border-top:1px solid var(--rule)}
+  .mast .side:before{display:none}
+  .mast .side .meta{margin-top:10px}
+  .tiles{grid-template-columns:1fr 1fr;gap:10px}
+  .tile{min-height:118px;padding:12px}.tile .v{font-size:36px;padding-top:12px}
+  footer{grid-template-columns:auto 1fr}
+}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <div><h1>NCAAM Model</h1><div class="sub" id="day"></div></div>
-    <div class="sub"><span id="updated"></span> &nbsp;<button class="theme" id="theme">Theme</button></div>
+  <header class="mast">
+    <h1>ncaam<br>model</h1>
+    <div class="side">
+      <div class="stack">Ratings.<br>Lines.<br>Edge.</div>
+      <div class="meta"><div id="day"></div><div id="updated"></div></div>
+      <button class="theme" id="theme" type="button">Theme</button>
+    </div>
   </header>
+
   <nav role="tablist">
-    <button role="tab" aria-selected="true" data-tab="today">Today</button>
-    <button role="tab" aria-selected="false" data-tab="rate">Success Rate</button>
-    <button role="tab" aria-selected="false" data-tab="history">History</button>
-    <button role="tab" aria-selected="false" data-tab="books">Odds by Book</button>
-    <button role="tab" aria-selected="false" data-tab="power">Power Rankings</button>
+    <button role="tab" aria-selected="true" data-tab="today"><span class="n">01</span>Today</button>
+    <button role="tab" aria-selected="false" data-tab="rate"><span class="n">02</span>Success Rate</button>
+    <button role="tab" aria-selected="false" data-tab="history"><span class="n">03</span>History</button>
+    <button role="tab" aria-selected="false" data-tab="books"><span class="n">04</span>Odds by Book</button>
+    <button role="tab" aria-selected="false" data-tab="power"><span class="n">05</span>Power Rankings</button>
   </nav>
 
   <section id="today">
     <div class="tiles" id="todayTiles"></div>
-    <div class="controls">
-      <label class="sub" for="edgeMin">Show edges of at least</label>
-      <select id="edgeMin"></select>
-      <input type="search" id="todaySearch" placeholder="Search team">
+    <div class="card">
+      <div class="card-h"><h2>Today's board</h2><span class="lbl muted">Sorted by edge</span></div>
+      <div class="controls">
+        <label class="lbl muted" for="edgeMin">Edge at least</label>
+        <select id="edgeMin"></select>
+        <input type="search" id="todaySearch" placeholder="Search team">
+      </div>
+      <div class="tbl" id="todayTbl"></div>
+      <p class="sub">Away = T1, Home = T2. Hover or tap &#9432; for what each column means.</p>
     </div>
-    <div class="tbl" id="todayTbl"></div>
-    <p class="sub">Away = T1, Home = T2. Edge = projected margin vs the line (points). Win % columns are for the away team.</p>
   </section>
 
   <section id="rate" hidden>
     <div class="tiles" id="rateTiles"></div>
-    <div class="card"><h2>Cumulative success rate, sportsbook edge picks</h2>
+    <div class="card"><div class="card-h"><h2>Cumulative success rate</h2><span class="lbl muted">Sportsbook edge picks</span></div>
       <div class="chart" id="chart"></div>
       <p class="sub">Dashed line = 52.4%, break-even against the spread at -110.</p>
     </div>
-    <div class="card"><h2>Record by pick type</h2><div class="tbl" id="recordTbl"></div></div>
-    <div class="card"><h2>Edge picks by day</h2><div class="tbl" id="trendTbl"></div></div>
+    <div class="card"><div class="card-h"><h2>Record by pick type</h2><span class="lbl muted">02</span></div><div class="tbl" id="recordTbl"></div></div>
+    <div class="card"><div class="card-h"><h2>Edge picks by day</h2><span class="lbl muted">03</span></div><div class="tbl" id="trendTbl"></div></div>
   </section>
 
   <section id="history" hidden>
-    <div class="controls">
-      <select id="histType"><option value="">All pick types</option><option>Edge</option><option>Market</option><option>Watch</option><option>Model</option></select>
-      <select id="histRes"><option value="">All results</option><option>W</option><option>L</option><option>P</option><option value="pending">Pending</option></select>
-      <input type="search" id="histSearch" placeholder="Search team or date">
+    <div class="card">
+      <div class="card-h"><h2>Pick history</h2><span class="lbl muted">One row per game. Click to see every pick.</span></div>
+      <div class="controls">
+        <select id="histRes"><option value="">All edge results</option><option>W</option><option>L</option><option>P</option><option value="pending">Pending</option></select>
+        <input type="search" id="histSearch" placeholder="Search team or date">
+        <button class="btn" id="histExpand" type="button">Expand all</button>
+      </div>
+      <div class="tbl" id="histTbl"></div>
     </div>
-    <div class="tbl" id="histTbl"></div>
   </section>
 
   <section id="books" hidden>
-    <div class="controls">
-      <input type="search" id="bookSearch" placeholder="Search team">
-      <label class="sub"><input type="checkbox" id="betterOnly"> Only games with a better number than DraftKings</label>
-      <button class="btn" id="expandAll" type="button">Expand all</button>
+    <div class="card">
+      <div class="card-h"><h2>Odds by book</h2><span class="lbl muted">DraftKings is the standard line</span></div>
+      <div class="controls">
+        <input type="search" id="bookSearch" placeholder="Search team">
+        <label class="chk"><input type="checkbox" id="betterOnly"> Only games with a better number than DraftKings</label>
+        <button class="btn" id="expandAll" type="button">Expand all</button>
+      </div>
+      <div class="legend"><span>DraftKings comes from the ESPN schedule. Click a game to see every book.</span>
+        <span><span class="sw better">better</span> more points, a better price, or a better moneyline than DraftKings for that side</span></div>
+      <div class="tbl" id="bookTbl"></div>
     </div>
-    <div class="legend"><span>DraftKings (from the ESPN schedule) is the standard line. Click a game to see every book.</span>
-      <span><span class="sw better">better</span> = more points, better price, or a better moneyline than DraftKings for that side</span></div>
-    <div class="tbl" id="bookTbl"></div>
   </section>
 
   <section id="power" hidden>
-    <div class="controls">
-      <select id="powerConf"><option value="">All conferences</option></select>
-      <input type="search" id="powerSearch" placeholder="Search team">
+    <div class="card">
+      <div class="card-h"><h2>Power rankings</h2><span class="lbl muted" id="powerSrc"></span></div>
+      <div class="controls">
+        <select id="powerConf"><option value="">All conferences</option></select>
+        <input type="search" id="powerSearch" placeholder="Search team">
+      </div>
+      <div class="tbl" id="powerTbl"></div>
     </div>
-    <p class="sub" id="powerSrc"></p>
-    <div class="tbl" id="powerTbl"></div>
   </section>
-  <div id="hint" role="tooltip"></div>
 
   <footer>
-    <div><a href="NCAAM_Dashboard.xlsx">Download the Excel dashboard</a> &middot; <a href="pick_history.csv">Pick history (CSV)</a></div>
-    <div id="mode"></div>
-    <ul id="notes"></ul>
+    <a class="sq" href="NCAAM_Dashboard.xlsx" aria-label="Download the Excel dashboard">&#8599;</a>
+    <div class="cta">Download<br>the full<br>dashboard.</div>
+    <div><div class="lbl">Data</div><ul><li><a href="NCAAM_Dashboard.xlsx">Excel dashboard</a></li><li><a href="pick_history.csv">Pick history (CSV)</a></li><li id="mode"></li></ul></div>
+    <div><div class="lbl">Last run</div><ul id="notes"></ul></div>
   </footer>
+  <div id="hint" role="tooltip"></div>
 </div>
 
 <script id="payload" type="application/json">__DATA__</script>
@@ -425,8 +516,11 @@ const el = (tag, props, kids) => { const e = document.createElement(tag); if (pr
 const isNum = v => typeof v === 'number' && isFinite(v);
 const pct = v => isNum(v) ? (v*100).toFixed(1) + '%' : '';
 const sgn = v => isNum(v) ? (v > 0 ? '+' : '') + (Math.round(v*10)/10).toFixed(1) : '';
+const line = v => !isNum(v) ? '' : v === 0 ? 'PK' : (v > 0 ? '+' : '') + v;
+const chip = (text, cls) => el('span', {className: 'chip ' + (cls || ''), textContent: text});
+const pad2 = n => String(n).padStart(2, '0');
 
-// theme toggle
+// theme
 const root = document.documentElement;
 try { const t = localStorage.getItem('theme'); if (t) root.dataset.theme = t; } catch(e) {}
 $('theme').onclick = () => {
@@ -435,10 +529,9 @@ $('theme').onclick = () => {
   try { localStorage.setItem('theme', root.dataset.theme); } catch(e) {}
   drawChart();
 };
-
 $('day').textContent = D.day;
 $('updated').textContent = 'Updated ' + D.updated;
-$('mode').textContent = 'Model mode: ' + D.mode;
+$('mode').textContent = 'Mode: ' + D.mode;
 D.notes.forEach(n => $('notes').append(el('li', {textContent: n})));
 
 // tabs
@@ -450,21 +543,19 @@ document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
 });
 try { const t = localStorage.getItem('tab'); if (t) { const b = document.querySelector('nav button[data-tab="'+t+'"]'); if (b) b.click(); } } catch(e) {}
 
-// generic sortable table
-// ---------- info tooltips
-const hint = $('hint');
-let pinned = null;
+// info tooltips
+const hint = $('hint'); let pinned = null;
 function showHint(btn) {
   hint.replaceChildren(el('b', {textContent: btn.dataset.label}), document.createTextNode(btn.dataset.tip));
   hint.style.display = 'block';
   const r = btn.getBoundingClientRect(), w = hint.offsetWidth, h = hint.offsetHeight;
-  let left = Math.min(Math.max(8, r.left + r.width / 2 - w / 2), innerWidth - w - 8);
+  const left = Math.min(Math.max(8, r.left + r.width / 2 - w / 2), innerWidth - w - 8);
   let top = r.bottom + 8; if (top + h > innerHeight - 8) top = r.top - h - 8;
   hint.style.left = left + 'px'; hint.style.top = top + 'px';
 }
 function hideHint() { hint.style.display = 'none'; pinned = null; }
 function infoBtn(label, tip) {
-  const b = el('button', {type: 'button', className: 'info', textContent: '\u24D8'});
+  const b = el('button', {type: 'button', className: 'info', textContent: 'ⓘ'});
   b.setAttribute('aria-label', 'About ' + label); b.dataset.label = label; b.dataset.tip = tip;
   b.addEventListener('mouseenter', () => showHint(b));
   b.addEventListener('mouseleave', () => { if (pinned !== b) hideHint(); });
@@ -477,26 +568,30 @@ document.addEventListener('click', () => { if (pinned) hideHint(); });
 addEventListener('scroll', () => { if (hint.style.display === 'block' && !pinned) hideHint(); }, true);
 addEventListener('keydown', ev => { if (ev.key === 'Escape') hideHint(); });
 
+function tile(host, i, k, v, s, cls) {
+  host.append(el('div', {className: 'tile ' + (cls || '')}, [
+    el('div', {className: 'top'}, [el('span', {className: 'lbl', textContent: k}), el('span', {className: 'lbl', textContent: pad2(i)})]),
+    el('div', {className: 'v', textContent: v}), el('div', {className: 's', textContent: s}),
+    el('span', {className: 'arrow', textContent: '↗'})]));
+}
+
+// sortable table
 function table(host, cols, rows, fmt, tipMap) {
   host.replaceChildren();
   if (!rows.length) { host.append(el('div', {className: 'empty', textContent: 'Nothing to show yet.'})); return; }
   let sortI = -1, dir = 1;
   const numCol = cols.map((_, i) => rows.some(r => isNum(r[i])) && rows.every(r => r[i] == null || isNum(r[i])));
-  const t = el('table'), thead = el('thead'), tb = el('tbody'), hr = el('tr');
+  const t = el('table'), tb = el('tbody'), hr = el('tr');
   cols.forEach((c, i) => {
     const th = el('th', {textContent: c, className: numCol[i] ? 'n' : ''});
     if (tipMap && tipMap[c]) th.append(infoBtn(c, tipMap[c]));
     th.onclick = () => { dir = sortI === i ? -dir : (numCol[i] ? -1 : 1); sortI = i; body(); };
     hr.append(th);
   });
-  thead.append(hr); t.append(thead, tb); host.append(t);
+  t.append(el('thead', null, [hr]), tb); host.append(t);
   function body() {
     const rs = rows.slice();
-    if (sortI >= 0) rs.sort((a, b) => {
-      const x = a[sortI], y = b[sortI];
-      if (x == null) return 1; if (y == null) return -1;
-      return (x > y ? 1 : x < y ? -1 : 0) * dir;
-    });
+    if (sortI >= 0) rs.sort((a, b) => { const x = a[sortI], y = b[sortI]; if (x == null) return 1; if (y == null) return -1; return (x > y ? 1 : x < y ? -1 : 0) * dir; });
     tb.replaceChildren(...rs.map(r => {
       const tr = el('tr');
       r.forEach((v, i) => {
@@ -510,25 +605,23 @@ function table(host, cols, rows, fmt, tipMap) {
   }
   body();
 }
-const chip = (text, cls) => el('span', {className: 'chip ' + (cls || ''), textContent: text});
 
-// ---------- Today
-const T = D.today, ti = name => T.cols.indexOf(name);
+// ---------- 01 Today
+const T = D.today, ti = n => T.cols.indexOf(n);
 const buckets = D.edgeBuckets.length ? D.edgeBuckets : [0, 2, 4, 6];
-buckets.forEach(b => $('edgeMin').append(el('option', {value: b, textContent: b === 0 ? 'Any edge' : b + '+ pts'})));
-if (buckets.length > 1) $('edgeMin').value = buckets[1];
-const strong = T.rows.filter(r => isNum(r[ti('Edge')]) && r[ti('Edge')] >= (buckets[1] || 2)).length;
-const big = T.rows.filter(r => isNum(r[ti('Edge')]) && r[ti('Edge')] >= (buckets[2] || 4)).length;
-const watch = T.rows.filter(r => r[ti('Watch')] === 'YES').length;
-[['Games', D.games, 'on the ESPN slate'], ['With a line', T.rows.length, 'priced by books'],
- ['Edges ' + (buckets[1] || 2) + '+ pts', strong, (big) + ' at ' + (buckets[2] || 4) + '+ pts'],
- ['Games to Watch', watch, 'original screen']].forEach(([k, v, s]) =>
-  $('todayTiles').append(el('div', {className: 'tile'}, [el('div', {className: 'k', textContent: k}), el('div', {className: 'v', textContent: v}), el('div', {className: 's', textContent: s})])));
+const b1 = buckets[1] || 2, b2 = buckets[2] || 4;
+buckets.forEach(b => $('edgeMin').append(el('option', {value: b, textContent: b === 0 ? 'Any' : b + '+ pts'})));
+$('edgeMin').value = b1;
+const nStrong = T.rows.filter(r => isNum(r[ti('Edge')]) && r[ti('Edge')] >= b1).length;
+const nBig = T.rows.filter(r => isNum(r[ti('Edge')]) && r[ti('Edge')] >= b2).length;
+tile($('todayTiles'), 1, 'Games', D.games, 'On the ESPN schedule', '');
+tile($('todayTiles'), 2, 'Edges ' + b2 + '+', nBig, nStrong + ' at ' + b1 + '+ points', 'blue');
+tile($('todayTiles'), 3, 'With a line', T.rows.length, 'Priced by sportsbooks', '');
+tile($('todayTiles'), 4, 'Market edges', D.marketEdges || 0, 'Model vs prediction markets', 'black');
 function fmtToday(c, v) {
   if (v == null) return '';
-  if (c === 'Edge') return chip(v.toFixed(1), v >= (buckets[2] || 4) ? 'hi' : v >= (buckets[1] || 2) ? 'md' : '');
+  if (c === 'Edge') return chip(v.toFixed(1), v >= b2 ? 'hi' : v >= b1 ? 'md' : '');
   if (c === 'Conf.') return v ? chip(v, v === 'High' ? 'hi' : v === 'Medium' ? 'md' : '') : '';
-  if (c === 'Watch') return v === 'YES' ? chip('YES', 'md') : '';
   if (c.indexOf('win') >= 0) return pct(v);
   if (c.indexOf('margin') >= 0 || c.indexOf('Best') === 0) return sgn(v);
   return null;
@@ -541,16 +634,15 @@ function drawToday() {
 }
 $('edgeMin').onchange = drawToday; $('todaySearch').oninput = drawToday; drawToday();
 
-// ---------- Success rate
+// ---------- 02 Success rate
 const R = D.record, ri = n => R.cols.indexOf(n);
-function recRow(label) { return R.rows.find(r => String(r[0]).trim() === label); }
+const recRow = label => R.rows.find(r => String(r[0]).trim() === label);
 const e = recRow('Sportsbook Edge (all)') || [], m = recRow('Market Edge (all, straight up)') || [];
-const tile = (k, v, s) => $('rateTiles').append(el('div', {className: 'tile'}, [el('div', {className: 'k', textContent: k}), el('div', {className: 'v', textContent: v}), el('div', {className: 's', textContent: s})]));
-tile('Edge record', e.length ? e[ri('W')] + '-' + e[ri('L')] + '-' + e[ri('P')] : '0-0-0', 'W-L-P against the spread');
-tile('Edge success', pct(e[ri('Success Rate')]) || 'n/a', 'break-even 52.4%');
-tile('Edge units', isNum(e[ri('Units')]) ? (e[ri('Units')] > 0 ? '+' : '') + e[ri('Units')].toFixed(2) : 'n/a', '1 unit per pick at -110');
-tile('Market picks', m.length ? m[ri('W')] + '-' + m[ri('L')] : '0-0', (isNum(m[ri('Success Rate')]) ? pct(m[ri('Success Rate')]) + ' ' : '') + 'straight up');
-table($('recordTbl'), R.cols, R.rows, (c, v, r) => {
+tile($('rateTiles'), 1, 'Edge record', e.length ? e[ri('W')] + '-' + e[ri('L')] + '-' + e[ri('P')] : '0-0-0', 'W-L-P against the spread', '');
+tile($('rateTiles'), 2, 'Edge success', pct(e[ri('Success Rate')]) || 'n/a', 'Break-even is 52.4%', 'blue');
+tile($('rateTiles'), 3, 'Edge units', isNum(e[ri('Units')]) ? (e[ri('Units')] > 0 ? '+' : '') + e[ri('Units')].toFixed(2) : 'n/a', '1 unit per pick at -110', '');
+tile($('rateTiles'), 4, 'Market picks', m.length ? m[ri('W')] + '-' + m[ri('L')] : '0-0', (isNum(m[ri('Success Rate')]) ? pct(m[ri('Success Rate')]) + ' ' : '') + 'straight up', 'black');
+table($('recordTbl'), R.cols, R.rows, (c, v) => {
   if (c === 'Pick Type') { const s = String(v); return el('span', {className: s.startsWith('  ') ? 'indent' : '', textContent: s.trim()}); }
   if (c === 'Success Rate') return pct(v);
   if (c === 'Units') return isNum(v) ? (v > 0 ? '+' : '') + v.toFixed(2) : '';
@@ -566,26 +658,24 @@ function drawChart() {
   const W = Math.max(host.clientWidth || 640, 300), H = 240, pad = {l: 44, r: 14, t: 12, b: 28};
   const cs = getComputedStyle(document.documentElement), col = n => cs.getPropertyValue(n).trim();
   const ys = pts.map(p => p[ci]).concat([0.524]);
-  let lo = Math.max(0, Math.floor((Math.min(...ys) - 0.05) * 10) / 10), hi = Math.min(1, Math.ceil((Math.max(...ys) + 0.05) * 10) / 10);
+  const lo = Math.max(0, Math.floor((Math.min(...ys) - 0.05) * 10) / 10), hi = Math.min(1, Math.ceil((Math.max(...ys) + 0.05) * 10) / 10);
   const x = i => pad.l + i * (W - pad.l - pad.r) / (pts.length - 1), y = v => pad.t + (hi - v) * (H - pad.t - pad.b) / (hi - lo);
   const NS = 'http://www.w3.org/2000/svg', s = document.createElementNS(NS, 'svg');
-  s.setAttribute('viewBox', '0 0 ' + W + ' ' + H); s.setAttribute('role', 'img');
-  s.setAttribute('aria-label', 'Cumulative success rate of edge picks by day');
+  s.setAttribute('viewBox', '0 0 ' + W + ' ' + H); s.setAttribute('role', 'img'); s.setAttribute('aria-label', 'Cumulative success rate of edge picks by day');
   const add = (tag, at) => { const n = document.createElementNS(NS, tag); for (const k in at) n.setAttribute(k, at[k]); s.append(n); return n; };
   for (let v = lo; v <= hi + 1e-9; v += 0.1) {
     add('line', {x1: pad.l, x2: W - pad.r, y1: y(v), y2: y(v), stroke: col('--grid'), 'stroke-width': 1});
     add('text', {x: pad.l - 6, y: y(v) + 4, 'text-anchor': 'end', 'font-size': 11, fill: col('--muted')}).textContent = Math.round(v * 100) + '%';
   }
-  add('line', {x1: pad.l, x2: W - pad.r, y1: y(0.524), y2: y(0.524), stroke: col('--text-2'), 'stroke-width': 1, 'stroke-dasharray': '4 4'});
+  add('line', {x1: pad.l, x2: W - pad.r, y1: y(0.524), y2: y(0.524), stroke: col('--ink-2'), 'stroke-width': 1, 'stroke-dasharray': '4 4'});
   const step = Math.ceil(pts.length / 6);
   pts.forEach((p, i) => { if (i % step === 0 || i === pts.length - 1) add('text', {x: x(i), y: H - 8, 'text-anchor': 'middle', 'font-size': 11, fill: col('--muted')}).textContent = String(p[di]).slice(5); });
-  add('path', {d: pts.map((p, i) => (i ? 'L' : 'M') + x(i) + ' ' + y(p[ci])).join(' '), fill: 'none', stroke: col('--series-1'), 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round'});
+  add('path', {d: pts.map((p, i) => (i ? 'L' : 'M') + x(i) + ' ' + y(p[ci])).join(' '), fill: 'none', stroke: col('--blue'), 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round'});
   const last = pts.length - 1;
-  add('circle', {cx: x(last), cy: y(pts[last][ci]), r: 4, fill: col('--series-1'), stroke: col('--surface'), 'stroke-width': 2});
-  const hair = add('line', {y1: pad.t, y2: H - pad.b, stroke: col('--text-2'), 'stroke-width': 1, visibility: 'hidden'});
-  const dot = add('circle', {r: 4, fill: col('--series-1'), stroke: col('--surface'), 'stroke-width': 2, visibility: 'hidden'});
-  const tip = el('div', {className: 'tip'});
-  host.append(s, tip);
+  add('circle', {cx: x(last), cy: y(pts[last][ci]), r: 4, fill: col('--blue'), stroke: col('--paper'), 'stroke-width': 2});
+  const hair = add('line', {y1: pad.t, y2: H - pad.b, stroke: col('--ink-2'), 'stroke-width': 1, visibility: 'hidden'});
+  const dot = add('circle', {r: 4, fill: col('--blue'), stroke: col('--paper'), 'stroke-width': 2, visibility: 'hidden'});
+  const tip = el('div', {className: 'tip'}); host.append(s, tip);
   const hit = add('rect', {x: pad.l, y: 0, width: W - pad.l - pad.r, height: H, fill: 'transparent'});
   const show = ev => {
     const b = s.getBoundingClientRect(), px = (ev.clientX - b.left) * W / b.width;
@@ -594,8 +684,7 @@ function drawChart() {
     dot.setAttribute('cx', x(i)); dot.setAttribute('cy', y(p[ci])); dot.setAttribute('visibility', 'visible');
     tip.replaceChildren(el('div', {textContent: p[di]}), el('div', {textContent: 'Cumulative ' + pct(p[ci]) + ' (' + p[wi] + '-' + p[li] + ')'}));
     tip.style.display = 'block';
-    const left = x(i) * b.width / W;
-    tip.style.left = Math.min(left + 10, b.width - tip.offsetWidth - 4) + 'px'; tip.style.top = '8px';
+    tip.style.left = Math.min(x(i) * b.width / W + 10, b.width - tip.offsetWidth - 4) + 'px'; tip.style.top = '8px';
   };
   hit.addEventListener('pointermove', show); hit.addEventListener('pointerdown', show);
   hit.addEventListener('pointerleave', () => { tip.style.display = 'none'; hair.setAttribute('visibility', 'hidden'); dot.setAttribute('visibility', 'hidden'); });
@@ -603,32 +692,71 @@ function drawChart() {
 addEventListener('resize', () => { if (!$('rate').hidden) drawChart(); });
 if (!$('rate').hidden) drawChart();
 
-// ---------- History
-const Hh = D.history, hi_ = n => Hh.cols.indexOf(n);
+// ---------- 03 History (grouped by game)
+const HG = D.history || [];
+const histOpen = new Set(); let histAll = false;
+const resChip = r => r ? chip(r, r === 'W' ? 'W' : r === 'L' ? 'L' : '') : chip('Pending');
+const primary = g => g.picks.find(p => p.type === 'Edge') || g.picks[0] || {};
+const HH = ['', 'Date', 'Away', 'Home', 'Final', 'Edge pick', 'Edge', 'Result', 'Other picks'];
+const HT = {
+  'Final': 'Final score, away first, from ESPN. Blank until the game is final.',
+  'Edge pick': 'The side the model liked against the line when the pick was logged, with that line.',
+  'Edge': 'Points of disagreement between the model and the line when logged.',
+  'Result': 'Edge pick result against the spread: W, L, P (push). Pending until the game is final.',
+  'Other picks': 'Results of the other picks on this game (Model Pick and Market pick). Click the row for details.'
+};
 function drawHist() {
-  const ty = $('histType').value, rs = $('histRes').value, q = $('histSearch').value.trim().toLowerCase();
-  const rows = Hh.rows.filter(r => (!ty || r[hi_('Type')] === ty) &&
-    (!rs || (rs === 'pending' ? !r[hi_('Result')] : r[hi_('Result')] === rs)) &&
-    (!q || r.join(' ').toLowerCase().includes(q)));
-  table($('histTbl'), Hh.cols, rows, (c, v, r) => {
-    if (c === 'Result') return v ? chip(v, v === 'W' ? 'W' : v === 'L' ? 'L' : '') : chip('Pending');
-    if (c === 'Line') return isNum(v) ? (v > 0 ? '+' : '') + v : '';
-    if (c === 'Edge') return isNum(v) ? (r[hi_('Type')] === 'Market' ? pct(v) : v.toFixed(1)) : '';
-    return null;
+  const host = $('histTbl'); host.replaceChildren();
+  const rf = $('histRes').value, q = $('histSearch').value.trim().toLowerCase();
+  const games = HG.filter(g => {
+    const p = primary(g);
+    if (rf && (rf === 'pending' ? p.result : p.result !== rf)) return false;
+    return !q || (g.date + ' ' + g.away + ' ' + g.home).toLowerCase().includes(q);
+  });
+  if (!games.length) { host.append(el('div', {className: 'empty', textContent: HG.length ? 'No games match.' : 'Nothing logged yet.'})); return; }
+  const t = el('table'), tb = el('tbody'), hr = el('tr');
+  HH.forEach(h => { const th = el('th', {textContent: h, className: h === 'Edge' ? 'n' : ''}); if (HT[h]) th.append(infoBtn(h, HT[h])); hr.append(th); });
+  t.append(el('thead', null, [hr]), tb); host.append(t);
+  games.forEach(g => {
+    const id = g.date + '|' + g.gid, open = histAll || histOpen.has(id), p = primary(g);
+    const others = g.picks.filter(x => x !== p);
+    const tr = el('tr', {className: 'parent'});
+    const td = (c, cls) => { const d = el('td', {className: cls || ''}); if (c instanceof Node) d.append(c); else d.textContent = c == null ? '' : c; return d; };
+    const oth = el('span'); others.forEach((o, i) => { if (i) oth.append(document.createTextNode('  ')); oth.append(document.createTextNode(o.type + ' '), resChip(o.result)); });
+    tr.append(td(g.picks.length > 1 ? (open ? '−' : '+') : '', 'tog'), td(g.date), td(g.away), td(g.home),
+      td(isNum(g.s1) && isNum(g.s2) ? Math.round(g.s1) + ' - ' + Math.round(g.s2) : ''),
+      td(p.team ? p.team + ' ' + line(p.line) : ''), td(p.type === 'Edge' && isNum(p.edge) ? p.edge.toFixed(1) : '', 'n'),
+      td(resChip(p.result)), td(oth));
+    tr.setAttribute('aria-expanded', open);
+    tr.onclick = () => { if (histOpen.has(id)) histOpen.delete(id); else histOpen.add(id); histAll = false; drawHist(); };
+    tb.append(tr);
+    if (!open) return;
+    g.picks.forEach(x => {
+      let detail = '';
+      if (x.type === 'Edge') detail = isNum(x.edge) ? x.edge.toFixed(1) + ' pt edge' : '';
+      else if (x.type === 'Model') detail = (x.conf ? x.conf + ' confidence' : '') + (isNum(x.ev) ? ' (value ' + x.ev.toFixed(2) + ')' : '');
+      else if (x.type === 'Market') detail = 'Model ' + pct(x.modelp) + ' vs market ' + pct(x.mprob) + ' to win';
+      const label = x.type === 'Market' ? x.team + ' to win' : x.team + ' ' + line(x.line);
+      const c = el('tr', {className: 'child'});
+      c.append(el('td'), el('td', {className: 'bk', textContent: x.type === 'Model' ? 'Model pick' : x.type === 'Market' ? 'Market pick' : 'Edge pick'}),
+        el('td', {textContent: label, colSpan: 3}), el('td', {textContent: detail, colSpan: 2}), td(resChip(x.result)), el('td', {textContent: x.source || '', className: 'muted'}));
+      tb.append(c);
+    });
   });
 }
-['histType', 'histRes'].forEach(i => $(i).onchange = drawHist); $('histSearch').oninput = drawHist; drawHist();
+$('histRes').onchange = drawHist; $('histSearch').oninput = drawHist;
+$('histExpand').onclick = () => { histAll = !histAll; if (!histAll) histOpen.clear(); $('histExpand').textContent = histAll ? 'Collapse all' : 'Expand all'; drawHist(); };
+drawHist();
 
-// ---------- Odds by Book (DraftKings standard + expandable books)
+// ---------- 04 Odds by book
 const O = D.odds || [];
-const sp = (pt, px) => { const f = el('span'); f.append(document.createTextNode(!isNum(pt) ? '' : pt === 0 ? 'PK' : (pt > 0 ? '+' : '') + pt)); if (isNum(px)) f.append(el('span', {className: 'px', textContent: '(' + (px > 0 ? '+' : '') + Math.round(px) + ')'})); return f; };
+const sp = (pt, px) => { const f = el('span'); f.append(document.createTextNode(line(pt))); if (isNum(px)) f.append(el('span', {className: 'px', textContent: '(' + (px > 0 ? '+' : '') + Math.round(px) + ')'})); return f; };
 const ml = v => isNum(v) ? (v > 0 ? '+' : '') + Math.round(v) : '';
-const open = new Set();
-let allOpen = false;
+const open = new Set(); let allOpen = false;
 const BH = ['', 'Time', 'Away', 'Home', 'Away spread', 'Home spread', 'Away ML', 'Home ML', 'Books', 'Better than DK'];
 const BT = {
-  'Away spread': 'Points on the away team, with the price in parentheses. Game rows show DraftKings from the ESPN schedule.',
-  'Home spread': 'Points on the home team, with the price in parentheses. Game rows show DraftKings from the ESPN schedule.',
+  'Away spread': 'Points on the away team, price in parentheses. Game rows show DraftKings from the ESPN schedule.',
+  'Home spread': 'Points on the home team, price in parentheses. Game rows show DraftKings from the ESPN schedule.',
   'Away ML': 'Moneyline for the away team to win outright (American odds).',
   'Home ML': 'Moneyline for the home team to win outright (American odds).',
   'Books': 'Other sportsbooks with a line on this game. Click the row to see them.',
@@ -639,24 +767,23 @@ function drawBooks() {
   const q = $('bookSearch').value.trim().toLowerCase(), only = $('betterOnly').checked;
   const games = O.filter(g => (!q || (g.away + ' ' + g.home).toLowerCase().includes(q)) && (!only || g.better > 0));
   if (!games.length) { host.append(el('div', {className: 'empty', textContent: O.length ? 'No games match.' : 'No lines posted yet for this slate.'})); return; }
-  const t = el('table', {className: 'odds'}), hr = el('tr'), tb = el('tbody');
+  const t = el('table'), hr = el('tr'), tb = el('tbody');
   BH.forEach(h => { const th = el('th', {textContent: h, className: /spread|ML|Books|Better/.test(h) ? 'n' : ''}); if (BT[h]) th.append(infoBtn(h, BT[h])); hr.append(th); });
   t.append(el('thead', null, [hr]), tb); host.append(t);
-  games.forEach((g, gi) => {
+  games.forEach(g => {
     const id = g.away + '|' + g.home + '|' + g.time, isOpen = allOpen || open.has(id), dk = g.dk || {};
-    const tr = el('tr', {className: 'game'});
-    tr.setAttribute('aria-expanded', isOpen);
+    const tr = el('tr', {className: 'parent'});
     const cell = (c, cls) => { const td = el('td', {className: cls || ''}); if (c instanceof Node) td.append(c); else td.textContent = c == null ? '' : c; return td; };
-    tr.append(cell(g.books.length ? (isOpen ? '▾' : '▸') : ''), cell(g.time), cell(g.away), cell(g.home),
-      cell(g.dk ? sp(dk.away_pt, dk.away_px) : 'n/a', 'n dkcell sp'), cell(g.dk ? sp(dk.home_pt, dk.home_px) : 'n/a', 'n dkcell sp'),
-      cell(ml(dk.away_ml), 'n dkcell'), cell(ml(dk.home_ml), 'n dkcell'), cell(g.books.length, 'n'),
+    tr.append(cell(g.books.length ? (isOpen ? '−' : '+') : '', 'tog'), cell(g.time), cell(g.away), cell(g.home),
+      cell(g.dk ? sp(dk.away_pt, dk.away_px) : 'n/a', 'n dk'), cell(g.dk ? sp(dk.home_pt, dk.home_px) : 'n/a', 'n dk'),
+      cell(ml(dk.away_ml), 'n dk'), cell(ml(dk.home_ml), 'n dk'), cell(g.books.length, 'n'),
       cell(g.better ? chip(g.better + (g.better === 1 ? ' book' : ' books'), 'hi') : '', 'n'));
     tr.title = g.dk ? 'Standard line: ' + dk.source : 'No DraftKings line for this game';
     tr.onclick = () => { if (open.has(id)) open.delete(id); else open.add(id); allOpen = false; drawBooks(); };
     tb.append(tr);
     if (!isOpen) return;
     g.books.forEach(b => {
-      const r = el('tr', {className: 'book'}), bt = b.better || {};
+      const r = el('tr', {className: 'child'}), bt = b.better || {};
       const c = (v, ok) => { const td = el('td', {className: 'n' + (ok ? ' better' : '')}); if (v instanceof Node) td.append(v); else td.textContent = v; if (ok) td.title = 'Better than DraftKings'; return td; };
       r.append(el('td'), el('td', {className: 'bk', textContent: b.book, colSpan: 3}),
         c(sp(b.away_pt, b.away_px), bt.away_sp), c(sp(b.home_pt, b.home_px), bt.home_sp),
@@ -669,9 +796,9 @@ $('bookSearch').oninput = drawBooks; $('betterOnly').onchange = drawBooks;
 $('expandAll').onclick = () => { allOpen = !allOpen; if (!allOpen) open.clear(); $('expandAll').textContent = allOpen ? 'Collapse all' : 'Expand all'; drawBooks(); };
 drawBooks();
 
-// ---------- Power rankings
+// ---------- 05 Power rankings
 const P = D.power || {cols: [], rows: []}, pi = n => P.cols.indexOf(n);
-$('powerSrc').textContent = P.source ? 'Ratings source: ' + P.source + '. Ranked by net rating (adjusted offense minus adjusted defense).' : '';
+$('powerSrc').textContent = P.source ? 'Source: ' + P.source : '';
 [...new Set(P.rows.map(r => r[pi('Conf')]).filter(Boolean))].sort().forEach(c => $('powerConf').append(el('option', {value: c, textContent: c})));
 function drawPower() {
   const cf = $('powerConf').value, q = $('powerSearch').value.trim().toLowerCase();
@@ -679,7 +806,7 @@ function drawPower() {
   table($('powerTbl'), P.cols, rows, (c, v) => {
     if (c === 'Net') return isNum(v) ? (v > 0 ? '+' : '') + v.toFixed(1) : '';
     if (c === 'Adj O' || c === 'Adj D' || c === 'Tempo') return isNum(v) ? v.toFixed(1) : '';
-    if (c === 'Change') { if (!isNum(v) || v === 0) return isNum(v) ? '–' : ''; return el('span', {className: v > 0 ? 'up' : 'down', textContent: (v > 0 ? '▲ ' : '▼ ') + Math.abs(v)}); }
+    if (c === 'Change') { if (!isNum(v)) return ''; if (v === 0) return '0'; return el('span', {className: v > 0 ? 'up' : 'down', textContent: (v > 0 ? '▲ ' : '▼ ') + Math.abs(v)}); }
     return null;
   }, (D.tips || {}).power);
 }

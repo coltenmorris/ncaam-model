@@ -1,7 +1,6 @@
 """Pick log, automatic grading, and success rates.
 
 Every pick is saved to data/pick_history.csv:
-  Watch   original "Games to Watch" screen, graded against the spread
   Model   original "Model Pick" (Enhanced columns), graded against the spread
   Edge    side the model's projected margin likes vs the sportsbook line, ATS
   Market  side where model win % beats the market's implied win %, straight up
@@ -100,8 +99,6 @@ def log_picks(results: pd.DataFrame, day: date, path: Path) -> int:
             new.append(pick)
 
         if has_line:
-            if r.get("Games to Watch") == "YES" and r.get("_watch_side"):
-                add("Watch", r["_watch_side"])
             if r.get("_model_side"):
                 ev = r.get("Enhanced Value")
                 add("Model", r["_model_side"], confidence=r.get("Confidence", ""),
@@ -148,10 +145,18 @@ def grade(path: Path, today: date | None = None, fetch=espn.get_games) -> int:
         try:
             games = {g["game_id"]: g for g in fetch(day)}
         except Exception as e:
-            print(f"  Could not get scores for {d}: {e}")
-            continue
+            print(f"  Scoreboard for {d} unavailable ({e}); looking games up one by one")
+            games = {}
         for idx in pend.index[pend["date"] == d]:
-            g = games.get(str(hist.at[idx, "game_id"]))
+            gid = str(hist.at[idx, "game_id"])
+            g = games.get(gid)
+            if g is None or (not g["completed"] and day < today):
+                try:
+                    g = espn.get_game_result(gid) or g   # look the game up directly
+                    if g:
+                        games[gid] = g
+                except Exception:
+                    pass
             if g and g["completed"] and g["away"]["score"] is not None and g["home"]["score"] is not None:
                 s1, s2 = g["away"]["score"], g["home"]["score"]
                 hist.at[idx, "t1_score"], hist.at[idx, "t2_score"] = s1, s2
@@ -199,7 +204,6 @@ def record_summary(path: Path) -> pd.DataFrame:
         sub = mk[(mk["edge"] >= lo) & (mk["edge"] < hi)]
         lab = f"  Win% edge {lo:.0%}+" if hi == float("inf") else f"  Win% edge {lo:.0%} to {hi:.0%}"
         rows.append(_line(lab, sub, ats=False))
-    rows.append(_line("Games to Watch", hist[hist["pick_type"] == "Watch"]))
     rows.append(_line("Model Pick (all)", hist[hist["pick_type"] == "Model"]))
     for tier in ("High", "Medium", "Low"):
         rows.append(_line(f"  Model Pick ({tier})",

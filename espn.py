@@ -170,3 +170,26 @@ def parse_games(payload: dict) -> list[dict]:
 
 def get_games(day: date) -> list[dict]:
     return parse_games(fetch_scoreboard(day))
+
+
+SUMMARY_URL = ("https://site.api.espn.com/apis/site/v2/sports/basketball/"
+               "mens-college-basketball/summary")
+
+
+def get_game_result(game_id: str) -> dict | None:
+    """Final score for one game from ESPN's game page data. Used when a game
+    doesn't appear on the day's scoreboard (late tip, date shift, etc.)."""
+    r = requests.get(SUMMARY_URL, params={"event": game_id},
+                     headers={"User-Agent": config.USER_AGENT}, timeout=config.HTTP_TIMEOUT)
+    r.raise_for_status()
+    comp = ((r.json().get("header") or {}).get("competitions") or [{}])[0]
+    teams = {c.get("homeAway"): c for c in comp.get("competitors") or []}
+    if "home" not in teams or "away" not in teams:
+        return None
+    status = ((comp.get("status") or {}).get("type")) or {}
+    return {
+        "game_id": str(game_id),
+        "completed": bool(status.get("completed")),
+        "away": {"score": _num(teams["away"].get("score"))},
+        "home": {"score": _num(teams["home"].get("score"))},
+    }

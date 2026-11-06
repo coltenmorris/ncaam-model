@@ -165,8 +165,132 @@ def _from_cbbd(season: int) -> pd.DataFrame:
                        f"no ratings returned for {season} or {season - 1}")
 
 
+ESPN_BPI_URL = ("https://site.web.api.espn.com/apis/fitt/v3/sports/basketball/"
+                "mens-college-basketball/powerindex")
+LEAGUE_AVG_EFF = 105.0   # D1 average points per 100 possessions, used to express BPI on that scale
+
+
+def _team_name(t: dict) -> str:
+    """School name from an ESPN team object ('Duke Blue Devils' -> 'Duke')."""
+    if t.get("location"):
+        return t["location"]
+    disp, mascot = t.get("displayName") or "", t.get("name") or ""
+    if mascot and disp.endswith(" " + mascot):
+        return disp[: -len(mascot) - 1]
+    return t.get("shortDisplayName") or t.get("nickname") or disp
+
+
+def _from_espn_bpi(season: int) -> pd.DataFrame:
+    """ESPN Basketball Power Index. It starts each season from a preseason
+    projection and updates with results, so it is usable from opening night.
+    BPI offense/defense are points above an average team per 70 possessions;
+    they are converted to a per-100-possession scale so the rest of the model
+    works unchanged."""
+    teams, page, pages, labels = [], 1, 1, None
+    while page <= pages and page <= 20:
+        r = requests.get(ESPN_BPI_URL, params={"season": season, "limit": 50, "page": page},
+                         headers={"User-Agent": config.USER_AGENT}, timeout=config.HTTP_TIMEOUT)
+        r.raise_for_status()
+        js = r.json()
+        got = (js.get("currentValues") or {}).get("season") or (js.get("requestedSeason") or {}).get("year")
+        if got and int(got) != season:
+            raise RuntimeError(f"ESPN BPI returned season {got}, not {season}")
+        pages = int((js.get("pagination") or {}).get("pages") or 1)
+        for cat in js.get("categories") or []:
+            if cat.get("name") == "bpi" and cat.get("names"):
+                labels = [str(n).lower() for n in cat["names"]]
+        teams += js.get("teams") or []
+        page += 1
+    i_bpi, i_off, i_def = 0, 3, 4
+    if labels:
+        for i, n in enumerate(labels):
+            if n in ("bpi",):
+                i_bpi = i
+            elif "off" in n and "rank" not in n:
+                i_off = i
+            elif "def" in n and "rank" not in n:
+                i_def = i
+    rows = []
+    for t in teams:
+        info = t.get("team") or {}
+        cat = next((c for c in t.get("categories") or [] if c.get("name") == "bpi"), None)
+        if not cat:
+            continue
+        v = cat.get("values") or []
+        try:
+            off, dfn = float(v[i_off]), float(v[i_def])
+        except (IndexError, TypeError, ValueError):
+            continue
+        scale = 100 / 70
+        rows.append({
+            "team": _team_name(info),
+            "conf": ((info.get("group") or {}).get("abbreviation") or "").upper(),
+            "record": "",
+            "adj_o": LEAGUE_AVG_EFF + off * scale,
+            "adj_d": LEAGUE_AVG_EFF - dfn * scale,
+            "barthag": None,
+            "bpi": float(v[i_bpi]) if len(v) > i_bpi and v[i_bpi] is not None else off + dfn,
+        })
+    if not rows:
+        raise RuntimeError("no teams returned")
+    df = pd.DataFrame(rows)
+    pace = _cbbd_tempo(season)
+    df["adj_t"] = df["team"].map(lambda n: _lookup(pace, n, "pace"))
+    df["record"] = df["team"].map(lambda n: _lookup(pace, n, "record") or "")
+    return _finish(df)
+
+
+def _lookup(table: dict, team: str, field: str):
+    from names import key
+    row = table.get(team) or table.get(key(team)) or {}
+    return row.get(field)
+
+
+def _cbbd_tempo(season: int) -> dict:
+    """Pace and record by team from CBBD (this season if posted, else last
+    season's pace). Keys are both the raw and normalized names."""
+    if not cbbd_key():
+        return {}
+    from names import key
+    out = {}
+    for label in (season, season - 1):
+        data = _cbbd_pace(label)
+        if data:
+            current = label == season or _cbbd_is_current(label, next(iter(data)), season)
+            for team, row in data.items():
+                row = dict(row)
+                if not current:
+                    row["record"] = ""
+                if team:
+                    out.setdefault(team, row)
+                    out.setdefault(key(team), row)
+            if current:
+                break
+    return out
+
+
+def _finish(df: pd.DataFrame) -> pd.DataFrame:
+    df["adj_t"] = pd.to_numeric(df["adj_t"], errors="coerce").fillna(config.TEMPO_BASELINE)
+    df["net_rtg"] = df["adj_o"] - df["adj_d"]
+    df["rank"] = df["net_rtg"].rank(ascending=False, method="min").astype(int)
+    df["adj_o_rank"] = df["adj_o"].rank(ascending=False, method="min").astype(int)
+    df["adj_d_rank"] = df["adj_d"].rank(ascending=True, method="min").astype(int)
+    df["adj_t_rank"] = df["adj_t"].rank(ascending=False, method="min").astype(int)
+    return df.sort_values("rank").reset_index(drop=True)[RATING_COLS]
+
+
+def _regress(df: pd.DataFrame, amount: float) -> pd.DataFrame:
+    """Pull last season's ratings part of the way back to average (rosters turn over)."""
+    df = df.copy()
+    for c in ("adj_o", "adj_d"):
+        mean = df[c].mean()
+        df[c] = mean + (df[c] - mean) * (1 - amount)
+    return _finish(df)
+
+
 def load_ratings(day: date, data_dir: Path, ratings_file: str | None = None) -> pd.DataFrame:
-    """Ratings in this order: Barttorvik, CollegeBasketballData.com, last saved copy."""
+    """Ratings in this order: Barttorvik, ESPN BPI, CollegeBasketballData.com,
+    last saved copy, then last season's final ratings pulled toward average."""
     if ratings_file:
         return _parse(Path(ratings_file).read_text(encoding="utf-8-sig"))
 
@@ -176,7 +300,8 @@ def load_ratings(day: date, data_dir: Path, ratings_file: str | None = None) -> 
         return _read_saved(cache)
 
     errors = []
-    for name, fn in (("Barttorvik", _from_barttorvik), ("CollegeBasketballData.com", _from_cbbd)):
+    for name, fn in (("Barttorvik", _from_barttorvik), ("ESPN BPI", _from_espn_bpi),
+                     ("CollegeBasketballData.com", _from_cbbd)):
         try:
             df = fn(season)
             if len(df) < 200:
@@ -186,7 +311,7 @@ def load_ratings(day: date, data_dir: Path, ratings_file: str | None = None) -> 
                 if c not in df:
                     df[c] = None
             df[RATING_COLS].to_csv(cache, index=False)
-            for old in sorted(data_dir.glob(f"ratings_{season}_*.csv"))[:-7]:
+            for old in sorted(data_dir.glob(f"ratings_{season}_*.csv"))[:-14]:
                 old.unlink(missing_ok=True)
             return df
         except Exception as e:
@@ -201,9 +326,10 @@ def load_ratings(day: date, data_dir: Path, ratings_file: str | None = None) -> 
         return df
     if season in _CBBD_STALE:
         rows, label = _CBBD_STALE[season]
-        df = _cbbd_frame(rows, _cbbd_pace(label))
-        df.attrs["source"] = ("CollegeBasketballData.com LAST SEASON final ratings "
-                              "(this season's not posted yet; switches automatically)")
+        amt = getattr(config, "LAST_SEASON_REGRESSION", 0.35)
+        df = _regress(_cbbd_frame(rows, _cbbd_pace(label)), amt)
+        df.attrs["source"] = (f"CollegeBasketballData.com LAST SEASON final ratings, pulled {amt:.0%} "
+                              "toward average (this season's not posted yet; switches automatically)")
         print("  Using last season's final ratings until this season's are posted.")
         return df
     raise RuntimeError("no ratings source worked. " + " | ".join(errors))
