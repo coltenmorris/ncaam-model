@@ -102,14 +102,15 @@ def run(args) -> int:
     print(f"  {n} pick(s) graded.")
     notes.append(f"Graded {n} pick(s)")
 
-    print(f"Downloading Barttorvik ratings (season {torvik.season_for(day)})...")
+    print(f"Downloading team ratings (season {torvik.season_for(day)})...")
     try:
         ratings = torvik.load_ratings(day, DATA, args.ratings_file)
     except Exception as e:
         print(f"\nERROR loading ratings: {e}")
         return 1
-    print(f"  {len(ratings)} teams.")
-    notes.append(f"Barttorvik: {len(ratings)} teams")
+    src = ratings.attrs.get("source", "Barttorvik")
+    print(f"  {len(ratings)} teams from {src}.")
+    notes.append(f"Ratings: {len(ratings)} teams from {src}")
 
     games, results, rows = [], pd.DataFrame(), []
     if not args.grade_only:

@@ -64,28 +64,106 @@ def _parse(text: str) -> pd.DataFrame:
     return df.sort_values("rank").reset_index(drop=True)
 
 
+RATING_COLS = ["rank", "team", "conf", "record", "adj_o", "adj_o_rank", "adj_d", "adj_d_rank",
+               "adj_t", "adj_t_rank", "net_rtg", "barthag"]
+BROWSER_HEADERS = {
+    "Accept": "text/csv,text/plain,text/html;q=0.9,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Referer": "https://barttorvik.com/trank.php",
+}
+CBBD_URL = "https://api.collegebasketballdata.com"
+
+
+def _from_barttorvik(season: int) -> pd.DataFrame:
+    url = config.TORVIK_URL.format(season=season)
+    resp = requests.get(url, headers={"User-Agent": config.USER_AGENT, **BROWSER_HEADERS},
+                        timeout=config.HTTP_TIMEOUT)
+    resp.raise_for_status()
+    return _parse(resp.text)
+
+
+def cbbd_key() -> str:
+    import os
+    return (getattr(config, "CBBD_API_KEY", "") or os.environ.get("CBBD_API_KEY", "")).strip()
+
+
+def _from_cbbd(season: int) -> pd.DataFrame:
+    """CollegeBasketballData.com adjusted efficiency + pace (free key)."""
+    key = cbbd_key()
+    if not key:
+        raise RuntimeError("no CBBD_API_KEY set")
+    h = {"Authorization": f"Bearer {key}", "Accept": "application/json"}
+    r = requests.get(f"{CBBD_URL}/ratings/adjusted", params={"season": season}, headers=h,
+                     timeout=config.HTTP_TIMEOUT)
+    r.raise_for_status()
+    rows = r.json()
+    if not rows:
+        raise RuntimeError(f"CBBD has no {season} ratings yet")
+    pace = {}
+    try:
+        p = requests.get(f"{CBBD_URL}/stats/team/season", params={"season": season}, headers=h,
+                         timeout=config.HTTP_TIMEOUT)
+        p.raise_for_status()
+        pace = {x.get("team"): x.get("pace") for x in p.json() if x.get("pace")}
+    except Exception as e:
+        print(f"  CBBD pace unavailable ({e}); using league-average tempo")
+    out = []
+    for x in rows:
+        rk = x.get("rankings") or {}
+        out.append({
+            "team": x.get("team"), "conf": x.get("conference"), "record": "",
+            "adj_o": x.get("offensiveRating"), "adj_d": x.get("defensiveRating"),
+            "rank": rk.get("net"), "adj_o_rank": rk.get("offense"), "adj_d_rank": rk.get("defense"),
+            "adj_t": pace.get(x.get("team")), "barthag": None,
+        })
+    df = pd.DataFrame(out).dropna(subset=["team", "adj_o", "adj_d"])
+    df["adj_t"] = pd.to_numeric(df["adj_t"], errors="coerce").fillna(config.TEMPO_BASELINE)
+    df["net_rtg"] = df["adj_o"] - df["adj_d"]
+    for col, src, asc in (("rank", "net_rtg", False), ("adj_o_rank", "adj_o", False), ("adj_d_rank", "adj_d", True)):
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+        df[col] = df[col].fillna(df[src].rank(ascending=asc, method="min")).astype(int)
+    df["adj_t_rank"] = df["adj_t"].rank(ascending=False, method="min").astype(int)
+    return df.sort_values("rank").reset_index(drop=True)[RATING_COLS]
+
+
 def load_ratings(day: date, data_dir: Path, ratings_file: str | None = None) -> pd.DataFrame:
-    """Return the ratings table. Uses a local file if given, else downloads."""
+    """Ratings in this order: Barttorvik, CollegeBasketballData.com, last saved copy."""
     if ratings_file:
         return _parse(Path(ratings_file).read_text(encoding="utf-8-sig"))
 
     season = season_for(day)
-    cache = data_dir / f"torvik_{season}_{date.today():%Y-%m-%d}.csv"
+    cache = data_dir / f"ratings_{season}_{date.today():%Y-%m-%d}.csv"
     if config.CACHE_RATINGS_SAME_DAY and cache.exists():
-        return _parse(cache.read_text(encoding="utf-8"))
+        return _read_saved(cache)
 
-    url = config.TORVIK_URL.format(season=season)
-    try:
-        resp = requests.get(url, headers={"User-Agent": config.USER_AGENT}, timeout=config.HTTP_TIMEOUT)
-        resp.raise_for_status()
-        df = _parse(resp.text)  # validate before caching
-    except Exception as e:
-        older = sorted(data_dir.glob(f"torvik_{season}_*.csv"))
-        if not older:
-            raise
-        print(f"  Barttorvik download failed ({e}); using last saved copy {older[-1].name}")
-        return _parse(older[-1].read_text(encoding="utf-8"))
-    cache.write_text(resp.text, encoding="utf-8")
-    for old in sorted(data_dir.glob(f"torvik_{season}_*.csv"))[:-7]:
-        old.unlink(missing_ok=True)  # keep the last week of downloads
+    errors = []
+    for name, fn in (("Barttorvik", _from_barttorvik), ("CollegeBasketballData.com", _from_cbbd)):
+        try:
+            df = fn(season)
+            if len(df) < 200:
+                raise RuntimeError(f"only {len(df)} teams returned")
+            df.attrs["source"] = name
+            for c in RATING_COLS:
+                if c not in df:
+                    df[c] = None
+            df[RATING_COLS].to_csv(cache, index=False)
+            for old in sorted(data_dir.glob(f"ratings_{season}_*.csv"))[:-7]:
+                old.unlink(missing_ok=True)
+            return df
+        except Exception as e:
+            errors.append(f"{name}: {e}")
+            print(f"  {name} unavailable ({e})")
+
+    older = sorted(data_dir.glob(f"ratings_{season}_*.csv"))
+    if older:
+        print(f"  Using last saved ratings {older[-1].name}")
+        df = _read_saved(older[-1])
+        df.attrs["source"] = f"saved copy {older[-1].stem.split('_')[-1]}"
+        return df
+    raise RuntimeError("no ratings source worked. " + " | ".join(errors))
+
+
+def _read_saved(path: Path) -> pd.DataFrame:
+    df = pd.read_csv(path)
+    df.attrs["source"] = "saved copy"
     return df
