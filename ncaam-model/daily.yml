@@ -1,0 +1,74 @@
+# Runs the NCAAM model on GitHub's servers every day and publishes the
+# dashboard to GitHub Pages. Times are UTC: 15:07 UTC = 10:07 AM Eastern and
+# 22:07 UTC = 5:07 PM Eastern in winter (one hour later after the March clock
+# change). GitHub can start scheduled runs 5 to 30 minutes late at busy times.
+name: Daily NCAAM update
+
+on:
+  schedule:
+    - cron: "7 15 * * *"
+    - cron: "7 22 * * *"
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "Date to run (today, tomorrow, or YYYY-MM-DD)"
+        required: false
+        default: "today"
+
+permissions:
+  contents: write     # save pick history and dashboard to the repo
+  pages: write        # publish the web page
+  id-token: write
+
+concurrency:
+  group: ncaam-daily
+  cancel-in-progress: false
+
+jobs:
+  run-model:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    env:
+      TZ: America/New_York
+      ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install requirements
+        run: pip install -r requirements.txt
+
+      - name: Run the model
+        run: python main.py --date "${{ github.event.inputs.date || 'today' }}"
+
+      - name: Save results to the repository
+        run: |
+          git config user.name  "ncaam-model-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A data docs
+          if git diff --cached --quiet; then
+            echo "Nothing changed."
+          else
+            git commit -m "Daily update $(date +'%Y-%m-%d %H:%M %Z')"
+            for i in 1 2 3; do
+              git pull --rebase --autostash && git push && break
+              sleep 10
+            done
+          fi
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+      - name: Publish the web page
+        id: deploy
+        uses: actions/deploy-pages@v4
