@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NCAAM Model</title>
+<meta name="robots" content="noindex">
+<style>
+:root{
+  color-scheme:light;
+  --bg:#f6f6f4; --surface:#fcfcfb; --surface-2:#f0efeb; --border:#e2e1dc;
+  --text:#0b0b0b; --text-2:#52514e; --muted:#7a7974;
+  --accent:#2a78d6; --series-1:#2a78d6; --grid:#e6e5e0;
+  --good:#0f7b3d; --good-bg:#e3f4e9; --bad:#b42318; --bad-bg:#fbe9e7;
+  --warn-bg:#fff4d6; --chip:#eceae4;
+}
+@media (prefers-color-scheme:dark){
+  :root:where(:not([data-theme="light"])){
+    color-scheme:dark;
+    --bg:#121211; --surface:#1a1a19; --surface-2:#232321; --border:#33332f;
+    --text:#f0efec; --text-2:#c3c2b7; --muted:#8f8e86;
+    --accent:#3987e5; --series-1:#3987e5; --grid:#2c2c29;
+    --good:#5cc98a; --good-bg:#16301f; --bad:#f08b80; --bad-bg:#3a1d1a;
+    --warn-bg:#3a3214; --chip:#2a2a27;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#121211; --surface:#1a1a19; --surface-2:#232321; --border:#33332f;
+  --text:#f0efec; --text-2:#c3c2b7; --muted:#8f8e86;
+  --accent:#3987e5; --series-1:#3987e5; --grid:#2c2c29;
+  --good:#5cc98a; --good-bg:#16301f; --bad:#f08b80; --bad-bg:#3a1d1a;
+  --warn-bg:#3a3214; --chip:#2a2a27;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 48px}
+header{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;justify-content:space-between}
+h1{font-size:22px;margin:0}
+.sub{color:var(--text-2);font-size:13px}
+nav{display:flex;gap:4px;margin:18px 0 14px;overflow-x:auto;border-bottom:1px solid var(--border)}
+nav button{background:none;border:0;border-bottom:2px solid transparent;color:var(--text-2);font:inherit;font-weight:600;padding:10px 12px;cursor:pointer;white-space:nowrap}
+nav button[aria-selected="true"]{color:var(--text);border-bottom-color:var(--accent)}
+section[hidden]{display:none}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:16px}
+.tile{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.tile .k{color:var(--text-2);font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+.tile .v{font-size:24px;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums}
+.tile .s{color:var(--muted);font-size:12px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:16px}
+.card h2{font-size:15px;margin:0 0 10px}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
+select,input[type=search]{background:var(--surface-2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:7px 10px;font:inherit;font-size:14px}
+input[type=search]{min-width:0;flex:1 1 180px}
+.tbl{overflow-x:auto;border:1px solid var(--border);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{padding:7px 10px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--border)}
+th{position:sticky;top:0;background:var(--surface-2);color:var(--text-2);font-weight:600;cursor:pointer;user-select:none}
+td.n,th.n{text-align:right}
+tbody tr:hover{background:var(--surface-2)}
+.chip{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;font-weight:600;background:var(--chip)}
+.W{background:var(--good-bg);color:var(--good)} .L{background:var(--bad-bg);color:var(--bad)}
+.hi{background:var(--good-bg);color:var(--good)} .md{background:var(--warn-bg)}
+.indent{padding-left:22px;color:var(--text-2)}
+.chart{position:relative}
+.chart svg{display:block;width:100%;height:auto}
+.tip{position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 9px;font-size:12px;box-shadow:0 4px 14px rgba(0,0,0,.15);display:none;white-space:nowrap}
+.empty{color:var(--muted);padding:18px 4px}
+footer{color:var(--muted);font-size:12px;margin-top:22px}
+footer ul{margin:6px 0 0;padding-left:18px}
+a{color:var(--accent)}
+.theme{background:none;border:1px solid var(--border);color:var(--text-2);border-radius:8px;padding:4px 10px;font:inherit;font-size:12px;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div><h1>NCAAM Model</h1><div class="sub" id="day"></div></div>
+    <div class="sub"><span id="updated"></span> &nbsp;<button class="theme" id="theme">Theme</button></div>
+  </header>
+  <nav role="tablist">
+    <button role="tab" aria-selected="true" data-tab="today">Today</button>
+    <button role="tab" aria-selected="false" data-tab="rate">Success Rate</button>
+    <button role="tab" aria-selected="false" data-tab="history">History</button>
+    <button role="tab" aria-selected="false" data-tab="books">Odds by Book</button>
+  </nav>
+
+  <section id="today">
+    <div class="tiles" id="todayTiles"></div>
+    <div class="controls">
+      <label class="sub" for="edgeMin">Show edges of at least</label>
+      <select id="edgeMin"></select>
+      <input type="search" id="todaySearch" placeholder="Search team">
+    </div>
+    <div class="tbl" id="todayTbl"></div>
+    <p class="sub">Away = T1, Home = T2. Edge = projected margin vs the line (points). Win % columns are for the away team.</p>
+  </section>
+
+  <section id="rate" hidden>
+    <div class="tiles" id="rateTiles"></div>
+    <div class="card"><h2>Cumulative success rate, sportsbook edge picks</h2>
+      <div class="chart" id="chart"></div>
+      <p class="sub">Dashed line = 52.4%, break-even against the spread at -110.</p>
+    </div>
+    <div class="card"><h2>Record by pick type</h2><div class="tbl" id="recordTbl"></div></div>
+    <div class="card"><h2>Edge picks by day</h2><div class="tbl" id="trendTbl"></div></div>
+  </section>
+
+  <section id="history" hidden>
+    <div class="controls">
+      <select id="histType"><option value="">All pick types</option><option>Edge</option><option>Market</option><option>Watch</option><option>Model</option></select>
+      <select id="histRes"><option value="">All results</option><option>W</option><option>L</option><option>P</option><option value="pending">Pending</option></select>
+      <input type="search" id="histSearch" placeholder="Search team or date">
+    </div>
+    <div class="tbl" id="histTbl"></div>
+  </section>
+
+  <section id="books" hidden>
+    <div class="controls"><input type="search" id="bookSearch" placeholder="Search team or book"></div>
+    <div class="tbl" id="bookTbl"></div>
+  </section>
+
+  <footer>
+    <div><a href="NCAAM_Dashboard.xlsx">Download the Excel dashboard</a> &middot; <a href="pick_history.csv">Pick history (CSV)</a></div>
+    <div id="mode"></div>
+    <ul id="notes"></ul>
+  </footer>
+</div>
+
+<script id="payload" type="application/json">{"day": "Thursday, November 5, 2026", "updated": "Nov 5, 2026 9:28 PM ET", "mode": "Standard", "edgeBuckets": [0, 2, 4, 6], "today": {"cols": ["Time", "Away", "Home", "Line", "Books", "Best away", "Best home", "Proj away margin", "Edge pick", "Edge", "Model away win", "Market away win", "Watch", "Conf.", "Model pick"], "rows": [["8:00 PM", "Coastal Carolina", "Duke", "DUKE -61.5", 5.0, 62.5, -59.5, -35.48175, "Coastal Carolina +61.5", 26.018250000000002, 0.0006285146157770649, 0.010000000000000009, "", "Low", "Duke covers"], ["8:00 PM", "Toledo", "Michigan State", "MSU -39.5", 5.0, 39.5, -38.5, -20.884, "Toledo +39.5", 18.616, 0.028812132971345106, 0.010000000000000009, "", "Low", "Michigan State covers"], ["7:30 PM", "Northwestern State", "Mississippi State", "MSST -32.5", 5.0, 33.5, -31.5, -14.0964, "Northwestern State +32.5", 18.4036, 0.10001064552019334, 0.010000000000000009, "", "Low", "Mississippi State covers"], ["7:00 PM", "Binghamton", "Saint Peter's", "BING -2.5", 2.0, -2.5, 3.5, -15.441599999999992, "Saint Peter's +2.5", 17.941599999999994, 0.0801919148814435, 0.99, "", "High", "Saint Peter's covers"], ["7:00 PM", "Chicago State", "Incarnate Word", "CHST -8.5", 4.0, -8.5, 13.5, -9.259200000000005, "Incarnate Word +8.5", 17.759200000000007, 0.1999652246759217, 0.9205479452054794, "", "Low", "Incarnate Word covers"], ["8:30 PM", "South Florida", "DePaul", "DEP -12.5", 5.0, 12.5, -11.5, 4.763399999999994, "South Florida +12.5", 17.263399999999994, 0.6675058238224487, 0.10499999999999998, "", "Low", "South Florida covers"], ["8:00 PM", "Le Moyne", "Creighton", "CREI -35.5", 5.0, 36.5, -32.5, -18.97215, "Le Moyne +35.5", 16.52785, 0.042287087529305545, 0.010000000000000009, "", "Low", "Creighton covers"], ["7:00 PM", "Cornell", "Lehigh", "LEH -7.5", 3.0, 8.5, -7.5, 6.34199999999999, "Cornell +7.5", 13.84199999999999, 0.7178767222783723, null, "", "Low", "Cornell covers"], ["7:30 PM", "Jackson State", "Tulane", "TULN -2.5", 4.0, 2.5, -2.5, -16.088249999999995, "Tulane -2.5", 13.588249999999995, 0.0717927874961593, 0.32999999999999996, "", "High", "Tulane covers"], ["8:00 PM", "Jacksonville State", "South Alabama", "JXST -7.5", 5.0, -6.5, 8.0, -3.9142000000000037, "South Alabama +7.5", 11.414200000000005, 0.3609815574269275, 0.875, "", "Low", "South Alabama covers"], ["8:00 PM", "East Texas A&M", "Rice", "ETAM -4.5", 4.0, -4.5, 4.5, -6.467999999999996, "Rice +4.5", 10.967999999999996, 0.27826614641229774, 0.7135678391959799, "", "Medium", "Rice covers"], ["7:00 PM", "New Hampshire", "Rider", "UNH -10.5", 2.0, -10.5, 11.5, 0.05439999999999667, "Rider +10.5", 10.445600000000002, 0.5019729428717667, null, "", "Low", "Rider covers"], ["8:30 PM", "Pennsylvania", "Illinois", "ILL -35.5", 5.0, 35.5, -34.5, -26.844050000000006, "Pennsylvania +35.5", 8.655949999999994, 0.007336149785449719, 0.010000000000000009, "", "Low", "Illinois covers"], ["7:00 PM", "Buffalo", "Pittsburgh", "PITT -17.5", 5.0, 17.5, -17.5, -9.414100000000007, "Buffalo +17.5", 8.085899999999993, 0.19604666370949791, 0.010000000000000009, "", "Low", "Pittsburgh covers"], ["8:00 PM", "VMI", "SMU", "SMU -26.5", 5.0, 27.5, -25.5, -34.068799999999996, "SMU -26.5", 7.568799999999996, 0.0009769099433545314, 0.010000000000000009, "", "Low", "SMU covers"], ["7:30 PM", "Stonehill", "Fordham", "FOR -21.5", 5.0, 23.5, -21.5, -14.960000000000004, "Stonehill +21.5", 6.539999999999996, 0.08691496194708498, 0.010000000000000009, "", "Low", "Fordham covers"], ["8:00 PM", "Northern Illinois", "Tulsa", "TLSA -31.5", 4.0, 32.5, -31.5, -26.238899999999994, "Northern Illinois +31.5", 5.261100000000006, 0.008531334159499637, 0.010000000000000009, "", "Low", "Tulsa covers"], ["8:00 PM", "Jacksonville", "Florida", "FLA -39.5", 5.0, 39.5, -37.5, -35.3979, "Jacksonville +39.5", 4.1021, 0.0006454595467011992, 0.010000000000000009, "", "Low", "Florida covers"], ["7:00 PM", "Howard", "Alcorn State", "HOW -8.5", 3.0, -8.5, 10.5, 12.0627, "Howard -8.5", 3.5626999999999995, 0.8635938441240499, 0.9897959183673469, "", "Low", "Howard covers"], ["10:30 PM", "Cal Poly", "Arizona", "ARIZ -31", 7.0, 31.0, -30.5, -34.341800000000006, "Arizona -31", 3.3418000000000063, 0.0008981901621982202, 0.010000000000000009, "", "Low", "Arizona covers"], ["7:00 PM", "UMBC", "Marist", "MRST -6.5", 2.0, 7.5, -6.5, -3.5315999999999983, "UMBC +6.5", 2.9684000000000017, 0.3740845278657914, 0.010101010101010055, "", "Low", "Marist covers"], ["9:00 PM", "Towson", "Utah", "UTAH -8.5", 5.0, 9.5, -7.5, -5.736300000000002, "Towson +8.5", 2.7636999999999983, 0.3010155840989319, 0.20398009950248763, "", "Low", "Utah covers"], ["9:00 PM", "Bethune-Cookman", "Texas Tech", "TTU -25.5", 5.0, 26.5, -25.5, -27.563999999999997, "Texas Tech -25.5", 2.0639999999999965, 0.006108421165997691, 0.010000000000000009, "", "Low", "Texas Tech covers"]]}, "record": {"cols": ["Pick Type", "W", "L", "P", "Picks", "Success Rate", "Units"], "rows": [["Sportsbook Edge (all)", 0, 0, 0, 0, null, null], ["  Edge 0 to 2 pts", 0, 0, 0, 0, null, null], ["  Edge 2 to 4 pts", 0, 0, 0, 0, null, null], ["  Edge 4 to 6 pts", 0, 0, 0, 0, null, null], ["  Edge 6+ pts", 0, 0, 0, 0, null, null], ["Market Edge (all, straight up)", 0, 0, 0, 0, null, null], ["  Win% edge 5% to 10%", 0, 0, 0, 0, null, null], ["  Win% edge 10% to 15%", 0, 0, 0, 0, null, null], ["  Win% edge 15%+", 0, 0, 0, 0, null, null], ["Games to Watch", 0, 0, 0, 0, null, null], ["Model Pick (all)", 0, 0, 0, 0, null, null], ["  Model Pick (High)", 0, 0, 0, 0, null, null], ["  Model Pick (Medium)", 0, 0, 0, 0, null, null], ["  Model Pick (Low)", 0, 0, 0, 0, null, null]]}, "trend": {"cols": ["Date", "W", "L", "P", "Day Rate", "Cum W", "Cum L", "Cum Rate"], "rows": []}, "history": {"cols": ["Date", "Type", "Away", "Home", "Pick", "Line", "Edge", "Conf.", "Away pts", "Home pts", "Result"], "rows": [["2026-11-05", "Model", "Cal Poly", "Arizona", "Arizona", -31.0, null, "Low", null, null, null], ["2026-11-05", "Edge", "Cal Poly", "Arizona", "Arizona", -31.0, 3.34, null, null, null, null]]}, "books": {"cols": ["Time", "T1 Team", "T2 Team", "Book", "T1 Line", "T2 Line", "T1 Price", "T2 Price", "T1 ML", "T2 ML"], "rows": [["8:00 PM", "Jacksonville", "Florida", "FanDuel", 39.5, -39.5, -128.0, -104.0, null, null], ["8:00 PM", "Jacksonville", "Florida", "BetRivers", 38.5, -38.5, -117.0, -125.0, null, null], ["8:00 PM", "Jacksonville", "Florida", "DraftKings", 39.5, -39.5, -115.0, -115.0, null, null], ["8:00 PM", "Jacksonville", "Florida", "Bovada", 39.5, -39.5, -115.0, -115.0, null, null], ["8:00 PM", "Jacksonville", "Florida", "BetMGM", 37.5, -37.5, -125.0, -105.0, 3300.0, -10000.0], ["8:00 PM", "Coastal Carolina", "Duke", "FanDuel", 62.5, -62.5, -122.0, -108.0, null, null], ["8:00 PM", "Coastal Carolina", "Duke", "DraftKings", 61.5, -61.5, -110.0, -120.0, null, null], ["8:00 PM", "Coastal Carolina", "Duke", "BetRivers", 59.5, -59.5, -134.0, -109.0, null, null], ["8:00 PM", "Coastal Carolina", "Duke", "BetMGM", 61.5, -61.5, -125.0, -105.0, null, null], ["8:00 PM", "Coastal Carolina", "Duke", "Bovada", 62.5, -62.5, -130.0, 100.0, null, null], ["8:30 PM", "Pennsylvania", "Illinois", "FanDuel", 35.5, -35.5, -112.0, -118.0, null, null], ["8:30 PM", "Pennsylvania", "Illinois", "DraftKings", 35.5, -35.5, -105.0, -125.0, null, null], ["8:30 PM", "Pennsylvania", "Illinois", "BetMGM", 34.5, -34.5, -105.0, -125.0, 3300.0, -10000.0], ["8:30 PM", "Pennsylvania", "Illinois", "BetRivers", 34.5, -34.5, -115.0, -127.0, null, null], ["8:30 PM", "Pennsylvania", "Illinois", "Bovada", 35.5, -35.5, -105.0, -125.0, null, null], ["8:00 PM", "Toledo", "Michigan State", "FanDuel", 39.5, -39.5, -125.0, -106.0, null, null], ["8:00 PM", "Toledo", "Michigan State", "DraftKings", 39.5, -39.5, -110.0, -120.0, null, null], ["8:00 PM", "Toledo", "Michigan State", "BetRivers", 38.5, -38.5, -139.0, -107.0, null, null], ["8:00 PM", "Toledo", "Michigan State", "BetMGM", 39.5, -39.5, -110.0, -118.0, 3300.0, -10000.0], ["8:00 PM", "Toledo", "Michigan State", "Bovada", 39.5, -39.5, -120.0, -110.0, null, null], ["9:00 PM", "Bethune-Cookman", "Texas Tech", "FanDuel", 26.5, -26.5, -114.0, -114.0, null, null], ["9:00 PM", "Bethune-Cookman", "Texas Tech", "DraftKings", 25.5, -25.5, -115.0, -115.0, null, null], ["9:00 PM", "Bethune-Cookman", "Texas Tech", "Bovada", 25.5, -25.5, -115.0, -115.0, null, null], ["9:00 PM", "Bethune-Cookman", "Texas Tech", "BetRivers", 25.5, -25.5, -110.0, -132.0, null, null], ["9:00 PM", "Bethune-Cookman", "Texas Tech", "BetMGM", 26.5, -26.5, -115.0, -115.0, 3300.0, -10000.0], ["7:00 PM", "Howard", "Alcorn State", "DraftKings", -8.5, 8.5, -110.0, -120.0, null, null], ["7:00 PM", "Howard", "Alcorn State", "Bovada", -8.5, 8.5, -110.0, -120.0, null, null], ["7:00 PM", "Howard", "Alcorn State", "BetMGM", -10.5, 10.5, -190.0, 145.0, null, null], ["7:00 PM", "Cornell", "Lehigh", "FanDuel", 7.5, -7.5, -130.0, -102.0, null, null], ["7:00 PM", "Cornell", "Lehigh", "DraftKings", 7.5, -7.5, -115.0, -115.0, null, null], ["7:00 PM", "Cornell", "Lehigh", "BetMGM", 8.5, -8.5, 110.0, -145.0, null, null], ["7:00 PM", "New Hampshire", "Rider", "FanDuel", -11.5, 11.5, -180.0, 134.0, null, null], ["7:00 PM", "New Hampshire", "Rider", "BetMGM", -10.5, 10.5, -525.0, 340.0, null, null], ["7:00 PM", "UMBC", "Marist", "FanDuel", 7.5, -7.5, -108.0, -122.0, null, null], ["7:00 PM", "UMBC", "Marist", "DraftKings", 6.5, -6.5, -135.0, 105.0, 4000.0, -100000.0], ["7:00 PM", "Chicago State", "Incarnate Word", "DraftKings", -11.5, 11.5, -115.0, -115.0, null, null], ["7:00 PM", "Chicago State", "Incarnate Word", "Bovada", -8.5, 8.5, -115.0, -115.0, -2800.0, 1100.0], ["7:00 PM", "Chicago State", "Incarnate Word", "BetRivers", -8.5, 8.5, -137.0, -107.0, null, null], ["7:00 PM", "Chicago State", "Incarnate Word", "BetMGM", -13.5, 13.5, -220.0, 165.0, null, null], ["7:00 PM", "Binghamton", "Saint Peter's", "FanDuel", -3.5, 3.5, -132.0, 100.0, null, null], ["7:00 PM", "Binghamton", "Saint Peter's", "DraftKings", null, null, null, null, -410.0, 290.0], ["7:00 PM", "Binghamton", "Saint Peter's", "BetMGM", -2.5, 2.5, -180.0, 135.0, null, null], ["7:00 PM", "Buffalo", "Pittsburgh", "FanDuel", 17.5, -17.5, -125.0, -106.0, null, null], ["7:00 PM", "Buffalo", "Pittsburgh", "DraftKings", 17.5, -17.5, -110.0, -120.0, null, null], ["7:00 PM", "Buffalo", "Pittsburgh", "BetMGM", 17.5, -17.5, 100.0, -130.0, null, null], ["7:00 PM", "Buffalo", "Pittsburgh", "BetRivers", 17.5, -17.5, -141.0, -105.0, null, null], ["7:00 PM", "Buffalo", "Pittsburgh", "Bovada", 17.5, -17.5, -110.0, -120.0, null, null], ["7:30 PM", "Jackson State", "Tulane", "FanDuel", 2.5, -2.5, -112.0, -118.0, 186.0, -245.0], ["7:30 PM", "Jackson State", "Tulane", "DraftKings", 2.5, -2.5, -105.0, -125.0, 270.0, -375.0], ["7:30 PM", "Jackson State", "Tulane", "Bovada", null, null, null, null, 115.0, -150.0], ["7:30 PM", "Jackson State", "Tulane", "BetRivers", 2.5, -2.5, -109.0, -134.0, 210.0, -335.0], ["7:30 PM", "Jackson State", "Tulane", "BetMGM", 2.5, -2.5, 100.0, -130.0, 260.0, -350.0], ["7:30 PM", "Stonehill", "Fordham", "FanDuel", 22.5, -22.5, -144.0, 108.0, null, null], ["7:30 PM", "Stonehill", "Fordham", "DraftKings", 21.5, -21.5, 110.0, -140.0, null, null], ["7:30 PM", "Stonehill", "Fordham", "Bovada", 23.5, -23.5, -145.0, 110.0, null, null], ["7:30 PM", "Stonehill", "Fordham", "BetRivers", 21.5, -21.5, 102.0, -148.0, null, null], ["7:30 PM", "Stonehill", "Fordham", "BetMGM", 23.5, -23.5, -145.0, 110.0, null, null], ["7:30 PM", "Northwestern State", "Mississippi State", "FanDuel", 32.5, -32.5, -114.0, -114.0, null, null], ["7:30 PM", "Northwestern State", "Mississippi State", "DraftKings", 32.5, -32.5, 100.0, -130.0, null, null], ["7:30 PM", "Northwestern State", "Mississippi State", "Bovada", 32.5, -32.5, 100.0, -130.0, null, null], ["7:30 PM", "Northwestern State", "Mississippi State", "BetRivers", 33.5, -33.5, -143.0, -105.0, null, null], ["7:30 PM", "Northwestern State", "Mississippi State", "BetMGM", 31.5, -31.5, -130.0, 100.0, 3300.0, -10000.0], ["8:00 PM", "Jacksonville State", "South Alabama", "FanDuel", -6.5, 6.5, -122.0, -108.0, -850.0, 500.0], ["8:00 PM", "Jacksonville State", "South Alabama", "DraftKings", -7.5, 7.5, -110.0, -120.0, -1050.0, 600.0], ["8:00 PM", "Jacksonville State", "South Alabama", "BetMGM", -7.5, 7.5, -110.0, -118.0, -750.0, 475.0], ["8:00 PM", "Jacksonville State", "South Alabama", "BetRivers", -7.5, 7.5, -117.0, -125.0, -1667.0, 550.0], ["8:00 PM", "Jacksonville State", "South Alabama", "Bovada", -8.0, 8.0, -110.0, -120.0, -1100.0, 600.0], ["8:00 PM", "East Texas A&M", "Rice", "DraftKings", -4.5, 4.5, -125.0, -105.0, -345.0, 250.0], ["8:00 PM", "East Texas A&M", "Rice", "Bovada", -4.5, 4.5, -125.0, -105.0, -350.0, 250.0], ["8:00 PM", "East Texas A&M", "Rice", "BetRivers", -4.5, 4.5, -114.0, -127.0, -335.0, 210.0], ["8:00 PM", "East Texas A&M", "Rice", "BetMGM", -4.5, 4.5, -110.0, -118.0, -250.0, 190.0], ["8:00 PM", "Northern Illinois", "Tulsa", "FanDuel", 31.5, -31.5, -106.0, -125.0, null, null], ["8:00 PM", "Northern Illinois", "Tulsa", "DraftKings", 31.5, -31.5, -125.0, -105.0, null, null], ["8:00 PM", "Northern Illinois", "Tulsa", "BetMGM", null, null, null, null, 3300.0, -10000.0], ["8:00 PM", "Northern Illinois", "Tulsa", "BetRivers", 32.5, -32.5, -122.0, -120.0, null, null], ["8:00 PM", "Northern Illinois", "Tulsa", "Bovada", 31.5, -31.5, -130.0, 100.0, null, null], ["8:00 PM", "VMI", "SMU", "FanDuel", 26.5, -26.5, -130.0, -102.0, null, null], ["8:00 PM", "VMI", "SMU", "DraftKings", 27.5, -27.5, -125.0, -105.0, null, null], ["8:00 PM", "VMI", "SMU", "BetMGM", 26.5, -26.5, -105.0, -125.0, 3300.0, -10000.0], ["8:00 PM", "VMI", "SMU", "BetRivers", 27.5, -27.5, -125.0, -117.0, null, null], ["8:00 PM", "VMI", "SMU", "Bovada", 25.5, -25.5, -105.0, -125.0, null, null], ["8:00 PM", "Le Moyne", "Creighton", "FanDuel", 35.5, -35.5, -112.0, -118.0, null, null], ["8:00 PM", "Le Moyne", "Creighton", "BetRivers", 36.5, -36.5, -110.0, -132.0, null, null], ["8:00 PM", "Le Moyne", "Creighton", "DraftKings", 32.5, -32.5, -105.0, -125.0, null, null], ["8:00 PM", "Le Moyne", "Creighton", "Bovada", 35.5, -35.5, -120.0, -110.0, null, null], ["8:00 PM", "Le Moyne", "Creighton", "BetMGM", 34.5, -34.5, -102.0, -125.0, 3300.0, -10000.0], ["8:30 PM", "South Florida", "DePaul", "FanDuel", 11.5, -11.5, -102.0, -130.0, 870.0, -2200.0], ["8:30 PM", "South Florida", "DePaul", "DraftKings", 12.5, -12.5, -120.0, -110.0, 700.0, -1300.0], ["8:30 PM", "South Florida", "DePaul", "BetMGM", 12.5, -12.5, -118.0, -110.0, 675.0, -1400.0], ["8:30 PM", "South Florida", "DePaul", "BetRivers", 12.5, -12.5, -132.0, -112.0, 700.0, -3335.0], ["8:30 PM", "South Florida", "DePaul", "Bovada", 12.0, -12.0, -115.0, -115.0, 550.0, -1000.0], ["9:00 PM", "Towson", "Utah", "FanDuel", 8.5, -8.5, -118.0, -112.0, 340.0, -500.0], ["9:00 PM", "Towson", "Utah", "DraftKings", 8.5, -8.5, -120.0, -110.0, 340.0, -500.0], ["9:00 PM", "Towson", "Utah", "BetMGM", 9.5, -9.5, -125.0, -105.0, 375.0, -550.0], ["9:00 PM", "Towson", "Utah", "BetRivers", 7.5, -7.5, -120.0, -122.0, 300.0, -530.0], ["9:00 PM", "Towson", "Utah", "Bovada", 7.5, -7.5, -115.0, -115.0, 300.0, -450.0], ["10:30 PM", "Cal Poly", "Arizona", "BetOnline.ag", 31.0, -31.0, -110.0, -110.0, null, null], ["10:30 PM", "Cal Poly", "Arizona", "LowVig.ag", 31.0, -31.0, -106.0, -106.0, null, null], ["10:30 PM", "Cal Poly", "Arizona", "FanDuel", 30.5, -30.5, -102.0, -120.0, null, null], ["10:30 PM", "Cal Poly", "Arizona", "DraftKings", 30.5, -30.5, -105.0, -115.0, 5000.0, -100000.0], ["10:30 PM", "Cal Poly", "Arizona", "BetRivers", 30.5, -30.5, -108.0, -115.0, null, null], ["10:30 PM", "Cal Poly", "Arizona", "BetMGM", null, null, null, null, 3300.0, -10000.0], ["10:30 PM", "Cal Poly", "Arizona", "Bovada", 31.0, -31.0, -115.0, -105.0, 4500.0, -100000.0], ["10:30 PM", "Cal Poly", "Arizona", "BetUS", 31.0, -31.0, -110.0, -110.0, null, null]]}, "notes": ["Run started 2026-11-05 21:28", "Graded 0 pick(s)", "Ratings: 365 teams from CollegeBasketballData.com LAST SEASON final ratings (this season's not posted yet; switches automatically)", "ESPN: 65 games, 1 with a DraftKings line", "The Odds API: 68 games, 498 requests left this month", "Kalshi: 224 open game markets (KXNCAAMBAPRANK, KXNCAAMBAWARD, KXNCAAMBSTATLEADER, KXNCAAMBWINMARGIN, KXNCAAMBBOTHQUAL, KXNCAAMBKENPOMTOP, KXNCAAMBD3GAME, KXNCAAMBMOP, KXNCAAMBCOTY, KXNCAAMBKENPOMRANK, KXNCAAMBTEAMSQUAL, KXNCAAMBAPCHURN, KXNCAAMBNAISMITH, KXNCAAMBUNDEFEATEDHOME, KXNCAAMBTOPAPRANK, KXNCAAMBNEXTCOACH, KXNCAAMBGAME, KXNCAAMBOT, KXNCAAMBCBC, KXNCAAMBFIRST3PT)", "Polymarket: 0 open game markets (series 39)", "Logged 2 pick(s)"], "games": 65}</script>
+<script>
+(function(){
+const D = JSON.parse(document.getElementById('payload').textContent);
+const $ = id => document.getElementById(id);
+const el = (tag, props, kids) => { const e = document.createElement(tag); if (props) Object.assign(e, props); (kids||[]).forEach(k => e.append(k)); return e; };
+const isNum = v => typeof v === 'number' && isFinite(v);
+const pct = v => isNum(v) ? (v*100).toFixed(1) + '%' : '';
+const sgn = v => isNum(v) ? (v > 0 ? '+' : '') + (Math.round(v*10)/10).toFixed(1) : '';
+
+// theme toggle
+const root = document.documentElement;
+try { const t = localStorage.getItem('theme'); if (t) root.dataset.theme = t; } catch(e) {}
+$('theme').onclick = () => {
+  const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  root.dataset.theme = dark ? 'light' : 'dark';
+  try { localStorage.setItem('theme', root.dataset.theme); } catch(e) {}
+  drawChart();
+};
+
+$('day').textContent = D.day;
+$('updated').textContent = 'Updated ' + D.updated;
+$('mode').textContent = 'Model mode: ' + D.mode;
+D.notes.forEach(n => $('notes').append(el('li', {textContent: n})));
+
+// tabs
+document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('nav button').forEach(x => x.setAttribute('aria-selected', x === b));
+  document.querySelectorAll('section').forEach(s => s.hidden = s.id !== b.dataset.tab);
+  if (b.dataset.tab === 'rate') drawChart();
+  try { localStorage.setItem('tab', b.dataset.tab); } catch(e) {}
+});
+try { const t = localStorage.getItem('tab'); if (t) { const b = document.querySelector('nav button[data-tab="'+t+'"]'); if (b) b.click(); } } catch(e) {}
+
+// generic sortable table
+function table(host, cols, rows, fmt) {
+  host.replaceChildren();
+  if (!rows.length) { host.append(el('div', {className: 'empty', textContent: 'Nothing to show yet.'})); return; }
+  let sortI = -1, dir = 1;
+  const numCol = cols.map((_, i) => rows.some(r => isNum(r[i])) && rows.every(r => r[i] == null || isNum(r[i])));
+  const t = el('table'), thead = el('thead'), tb = el('tbody'), hr = el('tr');
+  cols.forEach((c, i) => {
+    const th = el('th', {textContent: c, className: numCol[i] ? 'n' : ''});
+    th.onclick = () => { dir = sortI === i ? -dir : (numCol[i] ? -1 : 1); sortI = i; body(); };
+    hr.append(th);
+  });
+  thead.append(hr); t.append(thead, tb); host.append(t);
+  function body() {
+    const rs = rows.slice();
+    if (sortI >= 0) rs.sort((a, b) => {
+      const x = a[sortI], y = b[sortI];
+      if (x == null) return 1; if (y == null) return -1;
+      return (x > y ? 1 : x < y ? -1 : 0) * dir;
+    });
+    tb.replaceChildren(...rs.map(r => {
+      const tr = el('tr');
+      r.forEach((v, i) => {
+        const td = el('td', {className: numCol[i] ? 'n' : ''});
+        const out = fmt ? fmt(cols[i], v, r) : null;
+        if (out instanceof Node) td.append(out); else td.textContent = out != null ? out : (v == null ? '' : String(v));
+        tr.append(td);
+      });
+      return tr;
+    }));
+  }
+  body();
+}
+const chip = (text, cls) => el('span', {className: 'chip ' + (cls || ''), textContent: text});
+
+// ---------- Today
+const T = D.today, ti = name => T.cols.indexOf(name);
+const buckets = D.edgeBuckets.length ? D.edgeBuckets : [0, 2, 4, 6];
+buckets.forEach(b => $('edgeMin').append(el('option', {value: b, textContent: b === 0 ? 'Any edge' : b + '+ pts'})));
+if (buckets.length > 1) $('edgeMin').value = buckets[1];
+const strong = T.rows.filter(r => isNum(r[ti('Edge')]) && r[ti('Edge')] >= (buckets[1] || 2)).length;
+const big = T.rows.filter(r => isNum(r[ti('Edge')]) && r[ti('Edge')] >= (buckets[2] || 4)).length;
+const watch = T.rows.filter(r => r[ti('Watch')] === 'YES').length;
+[['Games', D.games, 'on the ESPN slate'], ['With a line', T.rows.length, 'priced by books'],
+ ['Edges ' + (buckets[1] || 2) + '+ pts', strong, (big) + ' at ' + (buckets[2] || 4) + '+ pts'],
+ ['Games to Watch', watch, 'original screen']].forEach(([k, v, s]) =>
+  $('todayTiles').append(el('div', {className: 'tile'}, [el('div', {className: 'k', textContent: k}), el('div', {className: 'v', textContent: v}), el('div', {className: 's', textContent: s})])));
+function fmtToday(c, v) {
+  if (v == null) return '';
+  if (c === 'Edge') return chip(v.toFixed(1), v >= (buckets[2] || 4) ? 'hi' : v >= (buckets[1] || 2) ? 'md' : '');
+  if (c === 'Conf.') return v ? chip(v, v === 'High' ? 'hi' : v === 'Medium' ? 'md' : '') : '';
+  if (c === 'Watch') return v === 'YES' ? chip('YES', 'md') : '';
+  if (c.indexOf('win') >= 0) return pct(v);
+  if (c.indexOf('margin') >= 0 || c.indexOf('Best') === 0) return sgn(v);
+  return null;
+}
+function drawToday() {
+  const min = +$('edgeMin').value, q = $('todaySearch').value.trim().toLowerCase();
+  const rows = T.rows.filter(r => (min === 0 || (isNum(r[ti('Edge')]) && r[ti('Edge')] >= min)) &&
+    (!q || (String(r[ti('Away')]) + ' ' + String(r[ti('Home')])).toLowerCase().includes(q)));
+  table($('todayTbl'), T.cols, rows, fmtToday);
+}
+$('edgeMin').onchange = drawToday; $('todaySearch').oninput = drawToday; drawToday();
+
+// ---------- Success rate
+const R = D.record, ri = n => R.cols.indexOf(n);
+function recRow(label) { return R.rows.find(r => String(r[0]).trim() === label); }
+const e = recRow('Sportsbook Edge (all)') || [], m = recRow('Market Edge (all, straight up)') || [];
+const tile = (k, v, s) => $('rateTiles').append(el('div', {className: 'tile'}, [el('div', {className: 'k', textContent: k}), el('div', {className: 'v', textContent: v}), el('div', {className: 's', textContent: s})]));
+tile('Edge record', e.length ? e[ri('W')] + '-' + e[ri('L')] + '-' + e[ri('P')] : '0-0-0', 'W-L-P against the spread');
+tile('Edge success', pct(e[ri('Success Rate')]) || 'n/a', 'break-even 52.4%');
+tile('Edge units', isNum(e[ri('Units')]) ? (e[ri('Units')] > 0 ? '+' : '') + e[ri('Units')].toFixed(2) : 'n/a', '1 unit per pick at -110');
+tile('Market picks', m.length ? m[ri('W')] + '-' + m[ri('L')] : '0-0', (isNum(m[ri('Success Rate')]) ? pct(m[ri('Success Rate')]) + ' ' : '') + 'straight up');
+table($('recordTbl'), R.cols, R.rows, (c, v, r) => {
+  if (c === 'Pick Type') { const s = String(v); return el('span', {className: s.startsWith('  ') ? 'indent' : '', textContent: s.trim()}); }
+  if (c === 'Success Rate') return pct(v);
+  if (c === 'Units') return isNum(v) ? (v > 0 ? '+' : '') + v.toFixed(2) : '';
+  return null;
+});
+table($('trendTbl'), D.trend.cols, D.trend.rows.slice().reverse(), (c, v) => (c.indexOf('Rate') >= 0 ? pct(v) : null));
+
+function drawChart() {
+  const host = $('chart'); host.replaceChildren();
+  const tc = D.trend.cols, rows = D.trend.rows, di = tc.indexOf('Date'), ci = tc.indexOf('Cum Rate'), wi = tc.indexOf('Cum W'), li = tc.indexOf('Cum L');
+  const pts = rows.filter(r => isNum(r[ci]));
+  if (pts.length < 2) { host.append(el('div', {className: 'empty', textContent: 'The chart appears after two days of graded edge picks.'})); return; }
+  const W = Math.max(host.clientWidth || 640, 300), H = 240, pad = {l: 44, r: 14, t: 12, b: 28};
+  const cs = getComputedStyle(document.documentElement), col = n => cs.getPropertyValue(n).trim();
+  const ys = pts.map(p => p[ci]).concat([0.524]);
+  let lo = Math.max(0, Math.floor((Math.min(...ys) - 0.05) * 10) / 10), hi = Math.min(1, Math.ceil((Math.max(...ys) + 0.05) * 10) / 10);
+  const x = i => pad.l + i * (W - pad.l - pad.r) / (pts.length - 1), y = v => pad.t + (hi - v) * (H - pad.t - pad.b) / (hi - lo);
+  const NS = 'http://www.w3.org/2000/svg', s = document.createElementNS(NS, 'svg');
+  s.setAttribute('viewBox', '0 0 ' + W + ' ' + H); s.setAttribute('role', 'img');
+  s.setAttribute('aria-label', 'Cumulative success rate of edge picks by day');
+  const add = (tag, at) => { const n = document.createElementNS(NS, tag); for (const k in at) n.setAttribute(k, at[k]); s.append(n); return n; };
+  for (let v = lo; v <= hi + 1e-9; v += 0.1) {
+    add('line', {x1: pad.l, x2: W - pad.r, y1: y(v), y2: y(v), stroke: col('--grid'), 'stroke-width': 1});
+    add('text', {x: pad.l - 6, y: y(v) + 4, 'text-anchor': 'end', 'font-size': 11, fill: col('--muted')}).textContent = Math.round(v * 100) + '%';
+  }
+  add('line', {x1: pad.l, x2: W - pad.r, y1: y(0.524), y2: y(0.524), stroke: col('--text-2'), 'stroke-width': 1, 'stroke-dasharray': '4 4'});
+  const step = Math.ceil(pts.length / 6);
+  pts.forEach((p, i) => { if (i % step === 0 || i === pts.length - 1) add('text', {x: x(i), y: H - 8, 'text-anchor': 'middle', 'font-size': 11, fill: col('--muted')}).textContent = String(p[di]).slice(5); });
+  add('path', {d: pts.map((p, i) => (i ? 'L' : 'M') + x(i) + ' ' + y(p[ci])).join(' '), fill: 'none', stroke: col('--series-1'), 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round'});
+  const last = pts.length - 1;
+  add('circle', {cx: x(last), cy: y(pts[last][ci]), r: 4, fill: col('--series-1'), stroke: col('--surface'), 'stroke-width': 2});
+  const hair = add('line', {y1: pad.t, y2: H - pad.b, stroke: col('--text-2'), 'stroke-width': 1, visibility: 'hidden'});
+  const dot = add('circle', {r: 4, fill: col('--series-1'), stroke: col('--surface'), 'stroke-width': 2, visibility: 'hidden'});
+  const tip = el('div', {className: 'tip'});
+  host.append(s, tip);
+  const hit = add('rect', {x: pad.l, y: 0, width: W - pad.l - pad.r, height: H, fill: 'transparent'});
+  const show = ev => {
+    const b = s.getBoundingClientRect(), px = (ev.clientX - b.left) * W / b.width;
+    const i = Math.max(0, Math.min(last, Math.round((px - pad.l) / ((W - pad.l - pad.r) / last)))), p = pts[i];
+    hair.setAttribute('x1', x(i)); hair.setAttribute('x2', x(i)); hair.setAttribute('visibility', 'visible');
+    dot.setAttribute('cx', x(i)); dot.setAttribute('cy', y(p[ci])); dot.setAttribute('visibility', 'visible');
+    tip.replaceChildren(el('div', {textContent: p[di]}), el('div', {textContent: 'Cumulative ' + pct(p[ci]) + ' (' + p[wi] + '-' + p[li] + ')'}));
+    tip.style.display = 'block';
+    const left = x(i) * b.width / W;
+    tip.style.left = Math.min(left + 10, b.width - tip.offsetWidth - 4) + 'px'; tip.style.top = '8px';
+  };
+  hit.addEventListener('pointermove', show); hit.addEventListener('pointerdown', show);
+  hit.addEventListener('pointerleave', () => { tip.style.display = 'none'; hair.setAttribute('visibility', 'hidden'); dot.setAttribute('visibility', 'hidden'); });
+}
+addEventListener('resize', () => { if (!$('rate').hidden) drawChart(); });
+if (!$('rate').hidden) drawChart();
+
+// ---------- History
+const Hh = D.history, hi_ = n => Hh.cols.indexOf(n);
+function drawHist() {
+  const ty = $('histType').value, rs = $('histRes').value, q = $('histSearch').value.trim().toLowerCase();
+  const rows = Hh.rows.filter(r => (!ty || r[hi_('Type')] === ty) &&
+    (!rs || (rs === 'pending' ? !r[hi_('Result')] : r[hi_('Result')] === rs)) &&
+    (!q || r.join(' ').toLowerCase().includes(q)));
+  table($('histTbl'), Hh.cols, rows, (c, v, r) => {
+    if (c === 'Result') return v ? chip(v, v === 'W' ? 'W' : v === 'L' ? 'L' : '') : chip('Pending');
+    if (c === 'Line') return isNum(v) ? (v > 0 ? '+' : '') + v : '';
+    if (c === 'Edge') return isNum(v) ? (r[hi_('Type')] === 'Market' ? pct(v) : v.toFixed(1)) : '';
+    return null;
+  });
+}
+['histType', 'histRes'].forEach(i => $(i).onchange = drawHist); $('histSearch').oninput = drawHist; drawHist();
+
+// ---------- Books
+function drawBooks() {
+  const q = $('bookSearch').value.trim().toLowerCase();
+  table($('bookTbl'), D.books.cols, D.books.rows.filter(r => !q || r.join(' ').toLowerCase().includes(q)),
+    (c, v) => (c.indexOf('Line') >= 0 ? sgn(v) : null));
+}
+$('bookSearch').oninput = drawBooks; drawBooks();
+})();
+</script>
+</body>
+</html>

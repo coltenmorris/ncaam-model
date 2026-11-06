@@ -1,0 +1,3 @@
+date,start,game_id,pick_type,t1,t2,pick_team,pick_side,pick_line,line_source,confidence,enhanced_value,edge,market_prob,model_prob,result,t1_score,t2_score,logged_at,graded_on
+2026-11-05,2026-11-05T22:30:00-05:00,401909739,Model,Cal Poly,Arizona,Arizona,T2,-31.0,Consensus (7 books),Low,0.873,,,0.9991,,,,2026-11-05 21:28,
+2026-11-05,2026-11-05T22:30:00-05:00,401909739,Edge,Cal Poly,Arizona,Arizona,T2,-31.0,Consensus (7 books),,,3.34,,0.9991,,,,2026-11-05 21:28,
