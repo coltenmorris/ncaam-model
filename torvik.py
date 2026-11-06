@@ -87,26 +87,31 @@ def cbbd_key() -> str:
     return (getattr(config, "CBBD_API_KEY", "") or os.environ.get("CBBD_API_KEY", "")).strip()
 
 
-def _from_cbbd(season: int) -> pd.DataFrame:
-    """CollegeBasketballData.com adjusted efficiency + pace (free key)."""
+def _cbbd_get(path: str, params: dict):
     key = cbbd_key()
     if not key:
         raise RuntimeError("no CBBD_API_KEY set")
-    h = {"Authorization": f"Bearer {key}", "Accept": "application/json"}
-    r = requests.get(f"{CBBD_URL}/ratings/adjusted", params={"season": season}, headers=h,
-                     timeout=config.HTTP_TIMEOUT)
+    r = requests.get(f"{CBBD_URL}{path}", params=params, timeout=config.HTTP_TIMEOUT,
+                     headers={"Authorization": f"Bearer {key}", "Accept": "application/json"})
     r.raise_for_status()
-    rows = r.json()
-    if not rows:
-        raise RuntimeError(f"CBBD has no {season} ratings yet")
-    pace = {}
+    return r.json()
+
+
+def _cbbd_is_current(label: int, team: str, season: int) -> bool:
+    """CBBD's season label may be the start or end year. Look at one team's
+    game dates to see if this label is the season we're in."""
     try:
-        p = requests.get(f"{CBBD_URL}/stats/team/season", params={"season": season}, headers=h,
-                         timeout=config.HTTP_TIMEOUT)
-        p.raise_for_status()
-        pace = {x.get("team"): x.get("pace") for x in p.json() if x.get("pace")}
-    except Exception as e:
-        print(f"  CBBD pace unavailable ({e}); using league-average tempo")
+        games = _cbbd_get("/games", {"season": label, "team": team})
+        dates = [str(g.get("startDate") or g.get("start_date") or "")[:10] for g in games]
+        dates = [d for d in dates if d]
+        if dates:
+            return max(dates) >= f"{season - 1}-08-01"
+    except Exception:
+        pass
+    return label == season
+
+
+def _cbbd_frame(rows: list, pace: dict) -> pd.DataFrame:
     out = []
     for x in rows:
         rk = x.get("rankings") or {}
@@ -124,6 +129,34 @@ def _from_cbbd(season: int) -> pd.DataFrame:
         df[col] = df[col].fillna(df[src].rank(ascending=asc, method="min")).astype(int)
     df["adj_t_rank"] = df["adj_t"].rank(ascending=False, method="min").astype(int)
     return df.sort_values("rank").reset_index(drop=True)[RATING_COLS]
+
+
+def _cbbd_pace(label: int) -> dict:
+    try:
+        return {x.get("team"): x.get("pace") for x in _cbbd_get("/stats/team/season", {"season": label})
+                if x.get("pace")}
+    except Exception as e:
+        print(f"  CBBD pace unavailable ({e}); using league-average tempo")
+        return {}
+
+
+_CBBD_STALE: dict = {}
+
+
+def _from_cbbd(season: int) -> pd.DataFrame:
+    """CollegeBasketballData.com, current season only. Last season's final
+    ratings are kept aside in _CBBD_STALE as a last resort."""
+    found_any = False
+    for label in (season, season - 1):
+        rows = _cbbd_get("/ratings/adjusted", {"season": label})
+        if not rows:
+            continue
+        found_any = True
+        if _cbbd_is_current(label, rows[0].get("team", "Duke"), season):
+            return _cbbd_frame(rows, _cbbd_pace(label))
+        _CBBD_STALE[season] = (rows, label)
+    raise RuntimeError("current-season ratings not posted yet" if found_any else
+                       f"no ratings returned for {season} or {season - 1}")
 
 
 def load_ratings(day: date, data_dir: Path, ratings_file: str | None = None) -> pd.DataFrame:
@@ -159,6 +192,13 @@ def load_ratings(day: date, data_dir: Path, ratings_file: str | None = None) -> 
         print(f"  Using last saved ratings {older[-1].name}")
         df = _read_saved(older[-1])
         df.attrs["source"] = f"saved copy {older[-1].stem.split('_')[-1]}"
+        return df
+    if season in _CBBD_STALE:
+        rows, label = _CBBD_STALE[season]
+        df = _cbbd_frame(rows, _cbbd_pace(label))
+        df.attrs["source"] = ("CollegeBasketballData.com LAST SEASON final ratings "
+                              "(this season's not posted yet; switches automatically)")
+        print("  Using last season's final ratings until this season's are posted.")
         return df
     raise RuntimeError("no ratings source worked. " + " | ".join(errors))
 
