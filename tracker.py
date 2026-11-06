@@ -18,10 +18,10 @@ import espn
 
 COLUMNS = [
     "date", "start", "game_id", "pick_type", "t1", "t2", "pick_team", "pick_side", "pick_line",
-    "line_source", "confidence", "enhanced_value", "edge", "market_prob", "model_prob",
+    "line_source", "confidence", "enhanced_value", "edge", "cover_prob", "market_prob", "model_prob",
     "result", "t1_score", "t2_score", "logged_at", "graded_on",
 ]
-NUMERIC = ("pick_line", "enhanced_value", "edge", "market_prob", "model_prob", "t1_score", "t2_score")
+NUMERIC = ("pick_line", "enhanced_value", "edge", "cover_prob", "market_prob", "model_prob", "t1_score", "t2_score")
 
 
 def load(path: Path) -> pd.DataFrame:
@@ -101,10 +101,12 @@ def log_picks(results: pd.DataFrame, day: date, path: Path) -> int:
         if has_line:
             if r.get("_model_side"):
                 ev = r.get("Enhanced Value")
-                add("Model", r["_model_side"], confidence=r.get("Confidence", ""),
+                add("Model", r["_model_side"],
                     enhanced_value=round(float(ev), 3) if ev is not None else None)
             if r.get("_edge_side") and (r.get("_edge") or 0) >= config.EDGE_LOG_MIN:
-                add("Edge", r["_edge_side"], edge=round(float(r["_edge"]), 2))
+                add("Edge", r["_edge_side"], edge=round(float(r["_edge"]), 2),
+                    confidence=r.get("Confidence", ""),
+                    cover_prob=round(float(r["_cover"]), 4) if r.get("_cover") is not None else None)
         if r.get("_mkt_side") and r.get("_mkt_prob") is not None:
             add("Market", r["_mkt_side"], edge=round(float(r["_p_edge"]), 4),
                 market_prob=round(float(r["_mkt_prob"]), 4))
@@ -197,6 +199,9 @@ def record_summary(path: Path) -> pd.DataFrame:
     for lo, hi in zip(b[:-1], b[1:]):
         sub = edges[(edges["edge"] >= lo) & (edges["edge"] < hi)]
         rows.append(_line(f"  Edge {lo:g}+ pts" if hi == float("inf") else f"  Edge {lo:g} to {hi:g} pts", sub))
+    for tier in ("High", "Medium", "Low"):
+        rows.append(_line(f"  Confidence {tier}",
+                          edges[(edges["confidence"] == tier)]))
     rows.append(_line("Market Edge (all, straight up)", hist[hist["pick_type"] == "Market"], ats=False))
     mk = hist[hist["pick_type"] == "Market"]
     mb = list(config.MARKET_EDGE_BUCKETS) + [float("inf")]
@@ -205,9 +210,6 @@ def record_summary(path: Path) -> pd.DataFrame:
         lab = f"  Win% edge {lo:.0%}+" if hi == float("inf") else f"  Win% edge {lo:.0%} to {hi:.0%}"
         rows.append(_line(lab, sub, ats=False))
     rows.append(_line("Model Pick (all)", hist[hist["pick_type"] == "Model"]))
-    for tier in ("High", "Medium", "Low"):
-        rows.append(_line(f"  Model Pick ({tier})",
-                          hist[(hist["pick_type"] == "Model") & (hist["confidence"] == tier)]))
     return pd.DataFrame(rows)
 
 

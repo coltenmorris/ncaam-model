@@ -37,6 +37,29 @@ def _confidence(ev):
     return "Low"
 
 
+# Cover probability settings (can be overridden in config.py)
+COVER_MODEL_WEIGHT = getattr(config, "COVER_MODEL_WEIGHT", 0.35)
+COVER_STDEV = getattr(config, "COVER_STDEV", 11.0)
+COVER_HIGH = getattr(config, "COVER_HIGH", 0.57)
+COVER_MEDIUM = getattr(config, "COVER_MEDIUM", 0.54)
+
+
+def cover_probability(edge_pts):
+    """Chance the Edge pick covers. The model's projection is blended with the
+    betting line (lines are usually close to right), so only part of the
+    disagreement counts: P = Normal CDF(weight x edge / stdev)."""
+    if edge_pts is None:
+        return None
+    z = COVER_MODEL_WEIGHT * abs(edge_pts) / COVER_STDEV
+    return 0.5 * (1 + math.erf(z / math.sqrt(2)))
+
+
+def cover_tier(p):
+    if p is None:
+        return ""
+    return "High" if p >= COVER_HIGH else "Medium" if p >= COVER_MEDIUM else "Low"
+
+
 def _t1(home_val):
     """Flip a home-team number to the T1 (away) side."""
     return None if home_val is None else -home_val
@@ -214,6 +237,7 @@ def run_model(rows: list[dict], ratings: pd.DataFrame) -> pd.DataFrame:
             "Edge Pick": (f"{edge_team} {'PK' if t1_line == 0 else format(t1_line if edge_side == 'T1' else -t1_line, '+g')}"
                           if edge_side else ""),
             "Edge Size": abs(edge) if edge is not None else None,
+            "Cover %": cover_probability(edge),
             "Model T1 Win%": model_p,
             "Book T1 Win%": row.get("book_t1_prob"),
             "Kalshi T1 Win%": row.get("kalshi_t1_prob"),
@@ -221,10 +245,14 @@ def run_model(rows: list[dict], ratings: pd.DataFrame) -> pd.DataFrame:
             "Market T1 Win%": mkt_p,
             "Win% Edge (T1)": p_edge,
         })
+        if not legacy:
+            # Confidence = chance the Edge pick covers (replaces the old Enhanced Value tiers)
+            rec["Confidence"] = cover_tier(rec["Cover %"])
 
         rec.update({
             "game_id": row["game_id"], "_start": row.get("start"),
             "_watch_side": pick_side, "_model_side": BE_side, "_t1_line": t1_line,
+            "_cover": cover_probability(edge),
             "_edge_side": edge_side, "_edge": abs(edge) if edge is not None else None,
             "_mkt_side": mkt_side, "_p_edge": abs(p_edge) if p_edge is not None else None,
             "_mkt_prob": (mkt_p if mkt_side == "T1" else 1 - mkt_p) if mkt_side else None,

@@ -17,7 +17,7 @@ import config
 TODAY_COLS = [
     ("Time", "Time"), ("T1 Team", "Away"), ("T2 Team", "Home"), ("Line", "Line"),
     ("Books", "Books"), ("Best T1", "Best away"), ("Best T2", "Best home"),
-    ("Proj T1 Margin", "Proj away margin"), ("Edge Pick", "Edge pick"), ("Edge Size", "Edge"),
+    ("Proj T1 Margin", "Proj away margin"), ("Edge Pick", "Edge pick"), ("Edge Size", "Edge"), ("Cover %", "Cover %"),
     ("Model T1 Win%", "Model away win"), ("Market T1 Win%", "Market away win"),
     ("Confidence", "Conf."), ("Model Pick", "Model pick"),
 ]
@@ -195,7 +195,8 @@ def tips() -> dict:
             "Edge": "How many points the model disagrees with the line. |Proj away margin + away line|. Example: model Arizona by 34.3, line Arizona -31, edge 3.3 on Arizona. Yellow = 2+, green = 4+.",
             "Model away win": f"Model's chance the away team wins outright (spread ignored). Normal distribution of the projected margin with a standard deviation of {config.MARGIN_STDEV:g} points.",
             "Market away win": "The market's chance the away team wins outright: average of Kalshi and Polymarket prices, or the sportsbooks' moneylines with the bookmaker's cut removed if neither lists the game.",
-            "Conf.": f"Enhanced Value tier. Wtd Eff = {config.OFFENSE_WEIGHT:g} x offensive gap + {config.DEFENSE_WEIGHT:g} x defensive gap (home team gets {hca:g} pts). Enhanced Value = |Wtd Eff / spread| x (avg tempo / {config.TEMPO_BASELINE:g}). High {config.HIGH_THRESHOLD:g}+, Medium {config.MEDIUM_THRESHOLD:g} to {config.HIGH_THRESHOLD:g}, Low under {config.MEDIUM_THRESHOLD:g}. Measures the efficiency gap relative to the spread, not cover likelihood.",
+            "Cover %": "Estimated chance the Edge pick covers the spread. The model's projected margin is blended with the betting line (lines are usually close to right), keeping " + f"{getattr(config, 'COVER_MODEL_WEIGHT', 0.35):.0%}" + " of the model's disagreement, then turned into a probability using the typical " + f"{getattr(config, 'COVER_STDEV', 11.0):g}" + "-point spread of game results around projections. 52.4% is break-even at -110.",
+            "Conf.": "Confidence tier for the Edge pick, from Cover %: High " + f"{getattr(config, 'COVER_HIGH', 0.57):.0%}" + "+, Medium " + f"{getattr(config, 'COVER_MEDIUM', 0.54):.0%}" + " to " + f"{getattr(config, 'COVER_HIGH', 0.57):.0%}" + ", Low below that. The Success Rate tab tracks how each tier actually performs.",
             "Model pick": "The team with the better weighted efficiency (Wtd Eff). It always backs the stronger team and does not check whether it is stronger by more than the line. Use Edge for that.",
         },
         "power": {
@@ -232,7 +233,7 @@ def history_groups(history: pd.DataFrame, limit_days: int = 120) -> list[dict]:
             picks.append(_sanitize({
                 "type": r["pick_type"], "team": r["pick_team"], "side": r["pick_side"],
                 "line": r.get("pick_line"), "edge": r.get("edge"), "conf": r.get("confidence"),
-                "ev": r.get("enhanced_value"), "mprob": r.get("market_prob"), "modelp": r.get("model_prob"),
+                "ev": r.get("enhanced_value"), "cover": r.get("cover_prob"), "mprob": r.get("market_prob"), "modelp": r.get("model_prob"),
                 "result": r.get("result"), "source": r.get("line_source"),
             }))
         out.append(_sanitize({
@@ -637,11 +638,11 @@ function fmtToday(c, v) {
   if (v == null) return '';
   if (c === 'Edge') return chip(v.toFixed(1), v >= b2 ? 'hi' : v >= b1 ? 'md' : '');
   if (c === 'Conf.') return v ? chip(v, v === 'High' ? 'hi' : v === 'Medium' ? 'md' : '') : '';
-  if (c.indexOf('win') >= 0) return pct(v);
+  if (c.indexOf('win') >= 0 || c === 'Cover %') return pct(v);
   if (c.indexOf('margin') >= 0 || c.indexOf('Best') === 0) return sgn(v);
   return null;
 }
-const MAIN = ['Time', 'Matchup', 'Line', 'Edge pick', 'Edge', 'Model pick', 'Conf.'];
+const MAIN = ['Time', 'Matchup', 'Line', 'Edge pick', 'Edge', 'Cover %', 'Conf.', 'Model pick'];
 const MORE = ['Proj away margin', 'Model away win', 'Market away win', 'Books', 'Best away', 'Best home'];
 const short = v => v == null ? '' : String(v).replace(/ covers$/, '');
 function todayRows() {
@@ -666,8 +667,9 @@ function drawToday() {
       el('div', {className: 'grid'}, [
         kv('Edge pick', r[ti('Edge pick')]),
         kv('Edge', isNum(edge) ? chip(edge.toFixed(1), edge >= b2 ? 'hi' : edge >= b1 ? 'md' : '') : ''),
-        kv('Model pick', short(r[ti('Model pick')])),
+        kv('Cover %', pct(r[ti('Cover %')])),
         kv('Confidence', conf ? chip(conf, conf === 'High' ? 'hi' : conf === 'Medium' ? 'md' : '') : ''),
+        kv('Model pick', short(r[ti('Model pick')])),
         kv('Proj away margin', sgn(r[ti('Proj away margin')])),
         kv('Away win: model / market', pct(r[ti('Model away win')]) + (isNum(r[ti('Market away win')]) ? ' / ' + pct(r[ti('Market away win')]) : ''))
       ])]));
@@ -775,8 +777,8 @@ function drawHist() {
     if (!open) return;
     g.picks.forEach(x => {
       let detail = '';
-      if (x.type === 'Edge') detail = isNum(x.edge) ? x.edge.toFixed(1) + ' pt edge' : '';
-      else if (x.type === 'Model') detail = (x.conf ? x.conf + ' confidence' : '') + (isNum(x.ev) ? ' (value ' + x.ev.toFixed(2) + ')' : '');
+      if (x.type === 'Edge') detail = (isNum(x.edge) ? x.edge.toFixed(1) + ' pt edge' : '') + (isNum(x.cover) ? ', ' + pct(x.cover) + ' to cover' : '') + (x.conf ? ' (' + x.conf + ')' : '');
+      else if (x.type === 'Model') detail = 'Stronger team by efficiency';
       else if (x.type === 'Market') detail = 'Model ' + pct(x.modelp) + ' vs market ' + pct(x.mprob) + ' to win';
       const label = x.type === 'Market' ? x.team + ' to win' : x.team + ' ' + line(x.line);
       const c = el('tr', {className: 'child'});
