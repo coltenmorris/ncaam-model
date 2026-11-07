@@ -464,6 +464,7 @@ tr.child td.bk{padding-left:30px;color:var(--ink-2)}
 /* live: ticker ribbon */
 .ticker{position:sticky;top:0;z-index:40;background:var(--block);color:var(--on-block);height:34px;overflow:hidden;display:flex;align-items:center;border-bottom:3px solid var(--blue)}
 .ticker[hidden]{display:none}
+.ticker .tlabel[hidden]{display:none}
 .ticker .tlabel{flex:0 0 auto;height:100%;display:flex;align-items:center;gap:6px;padding:0 12px;background:var(--blue);color:var(--on-blue);font:700 11px/1 inherit;letter-spacing:.1em;text-transform:uppercase;z-index:1}
 .ticker .viewport{flex:1;overflow:hidden;height:100%;position:relative}
 .ticker .track{display:inline-flex;white-space:nowrap;height:100%;align-items:center;will-change:transform;animation:tick var(--dur,60s) linear infinite}
@@ -514,6 +515,34 @@ tr.child td.bk{padding-left:30px;color:var(--ink-2)}
 .dock .sec{padding:7px 14px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);background:var(--paper)}
 @media (max-width:620px){.dock{right:0;left:0;width:auto}}
 body.has-dock .wrap{padding-bottom:90px}
+/* mobile list rows (History, Odds by Book) */
+.mlist .mi{padding:12px 12px;border-bottom:1px solid var(--line)}
+.mlist .mi.alt{background:var(--stripe)}
+.mlist .mi.tap{cursor:pointer}
+.mlist .mt{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.mlist .mt b{font-size:14px;letter-spacing:-.01em}
+.mlist .ms{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.mlist .mg{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;margin-top:8px}
+.mlist .mg .k{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.mlist .mg .v{font-size:13px;font-weight:600;margin-top:1px}
+.mlist .mx{margin-top:10px;border-top:1px solid var(--line);padding-top:8px;display:grid;gap:6px}
+.mlist .mx .xr{display:grid;grid-template-columns:minmax(0,1.1fr) 1fr 1fr;gap:6px;font-size:12.5px;align-items:center}
+.mlist .mx .xr.h{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.mlist .mx .xr span{padding:3px 4px}
+.mlist .more{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--blue);margin-top:8px}
+.psub{display:block;font-size:11px;color:var(--muted);margin-top:2px;white-space:normal}
+@media (max-width:720px){
+  th,td{padding:8px 8px;font-size:12.5px}
+  th{font-size:9.5px;letter-spacing:.06em}
+  .card{padding:12px}
+  .card-h{flex-wrap:wrap;gap:4px}
+  .card-h h2{font-size:19px}
+  .controls{gap:8px}
+  .controls select,.controls input[type=search],.controls .btn{flex:1 1 100%}
+  .legend{font-size:12px}
+  #recordTbl td:first-child,#powerTbl td:nth-child(2){white-space:normal}
+  #recordTbl .indent{padding-left:12px}
+}
 /* chart */
 .chart{position:relative}
 .chart svg{display:block;width:100%;height:auto}
@@ -542,7 +571,7 @@ footer a{color:var(--ink)}
 </head>
 <body class="has-dock">
 <div class="ticker" id="ticker" hidden aria-label="Live scores">
-  <div class="tlabel"><span class="dot live"></span>Live</div>
+  <div class="tlabel" id="tickerLabel" hidden><span class="dot live"></span>Live</div>
   <div class="viewport"><div class="track" id="tickerTrack"></div></div>
 </div>
 <div class="wrap">
@@ -677,6 +706,9 @@ const sgn = v => isNum(v) ? (v > 0 ? '+' : '') + (Math.round(v*10)/10).toFixed(1
 const line = v => !isNum(v) ? '' : v === 0 ? 'PK' : (v > 0 ? '+' : '') + v;
 const chip = (text, cls) => el('span', {className: 'chip ' + (cls || ''), textContent: text});
 const pad2 = n => String(n).padStart(2, '0');
+const MQ = matchMedia('(max-width: 720px)');
+const mobile = () => MQ.matches;
+const kv2 = (k, v) => el('div', null, [el('div', {className: 'k', textContent: k}), (() => { const d = el('div', {className: 'v'}); if (v instanceof Node) d.append(v); else d.textContent = v == null ? '' : v; return d; })()]);
 
 // theme
 const root = document.documentElement;
@@ -835,13 +867,37 @@ tile($('rateTiles'), 1, 'Edge record', e.length ? e[ri('W')] + '-' + e[ri('L')] 
 tile($('rateTiles'), 2, 'Edge success', pct(e[ri('Success Rate')]) || 'n/a', 'Break-even is 52.4%', 'blue');
 tile($('rateTiles'), 3, 'Edge units', isNum(e[ri('Units')]) ? (e[ri('Units')] > 0 ? '+' : '') + e[ri('Units')].toFixed(2) : 'n/a', '1 unit per pick at -110', '');
 tile($('rateTiles'), 4, 'Market picks', m.length ? m[ri('W')] + '-' + m[ri('L')] : '0-0', (isNum(m[ri('Success Rate')]) ? pct(m[ri('Success Rate')]) + ' ' : '') + 'straight up', 'black');
-table($('recordTbl'), R.cols, R.rows, (c, v) => {
-  if (c === 'Pick Type') { const s = String(v); return el('span', {className: s.startsWith('  ') ? 'indent' : '', textContent: s.trim()}); }
-  if (c === 'Success Rate') return pct(v);
-  if (c === 'Units') return isNum(v) ? (v > 0 ? '+' : '') + v.toFixed(2) : '';
-  return null;
-});
-table($('trendTbl'), D.trend.cols, D.trend.rows.slice().reverse(), (c, v) => (c.indexOf('Rate') >= 0 ? pct(v) : null));
+const units = v => isNum(v) ? (v > 0 ? '+' : '') + v.toFixed(2) : '';
+function drawRecord() {
+  if (mobile()) {
+    const cols = ['Pick type', 'W-L-P', 'Rate', 'Units'];
+    const rows = R.rows.map(r => [r[0], r[ri('W')] + '-' + r[ri('L')] + '-' + r[ri('P')], r[ri('Success Rate')], r[ri('Units')]]);
+    table($('recordTbl'), cols, rows, (c, v) => {
+      if (c === 'Pick type') { const s = String(v); return el('span', {className: s.startsWith('  ') ? 'indent' : '', textContent: s.trim()}); }
+      if (c === 'Rate') return pct(v);
+      if (c === 'Units') return units(v);
+      return null;
+    });
+    return;
+  }
+  table($('recordTbl'), R.cols, R.rows, (c, v) => {
+    if (c === 'Pick Type') { const s = String(v); return el('span', {className: s.startsWith('  ') ? 'indent' : '', textContent: s.trim()}); }
+    if (c === 'Success Rate') return pct(v);
+    if (c === 'Units') return units(v);
+    return null;
+  });
+}
+function drawTrend() {
+  const tc = D.trend.cols, t = n => tc.indexOf(n), rows = D.trend.rows.slice().reverse();
+  if (mobile()) {
+    const data = rows.map(r => [r[t('Date')], r[t('W')] + '-' + r[t('L')] + '-' + r[t('P')], r[t('Day Rate')],
+      r[t('Cumulative W')] + '-' + r[t('Cumulative L')] + (isNum(r[t('Cumulative Rate')]) ? ' (' + pct(r[t('Cumulative Rate')]) + ')' : '')]);
+    table($('trendTbl'), ['Date', 'W-L-P', 'Day', 'Cumulative'], data, (c, v) => (c === 'Day' ? pct(v) : c === 'Date' ? String(v).slice(5) : null));
+    return;
+  }
+  table($('trendTbl'), tc, rows, (c, v) => (c.indexOf('Rate') >= 0 ? pct(v) : null));
+}
+drawRecord(); drawTrend();
 
 function drawChart() {
   const host = $('chart'); host.replaceChildren();
@@ -898,6 +954,38 @@ const HT = {
   'Result': 'Edge pick result against the spread: W, L, P (push). Pending until the game is final.',
   'Other picks': 'Results of the other picks on this game (Model Pick and Market pick). Click the row for details.'
 };
+function pickDetail(x) {
+  if (x.type === 'Edge') return (isNum(x.edge) ? x.edge.toFixed(1) + ' pt edge' : '') + (isNum(x.cover) ? ', ' + pct(x.cover) + ' to cover' : '') + (x.conf ? ' (' + x.conf + ')' : '');
+  if (x.type === 'Model') return 'Stronger team by efficiency';
+  if (x.type === 'Market') return 'Model ' + pct(x.modelp) + ' vs market ' + pct(x.mprob);
+  return '';
+}
+function histMobile(host, games) {
+  const list = el('div', {className: 'mlist'});
+  games.forEach((g, gi) => {
+    const id = g.date + '|' + g.gid, open = histAll || histOpen.has(id), p = primary(g);
+    const others = g.picks.filter(x => x !== p);
+    const card = el('div', {className: 'mi tap' + (gi % 2 ? ' alt' : '')});
+    const score = isNum(g.s1) && isNum(g.s2) ? Math.round(g.s1) + ' - ' + Math.round(g.s2) : 'Not final';
+    const oth = el('span'); others.forEach((o, i) => { if (i) oth.append(document.createTextNode(' ')); oth.append(document.createTextNode(o.type + ' '), resChip(o.result)); });
+    card.append(
+      el('div', {className: 'mt'}, [el('b', {textContent: g.away + ' @ ' + g.home}), el('span', {className: 'ms', textContent: String(g.date).slice(5)})]),
+      el('div', {className: 'mg'}, [
+        kv2('Edge pick', p.team ? p.team + ' ' + line(p.line) : ''), kv2('Result', resChip(p.result)),
+        kv2('Final', score), kv2('Edge', p.type === 'Edge' && isNum(p.edge) ? p.edge.toFixed(1) + ' pts' : '')]));
+    if (others.length) card.append(el('div', {className: 'mg'}, [kv2('Other picks', oth)]));
+    if (open) {
+      const x = el('div', {className: 'mx'});
+      g.picks.forEach(pk => x.append(el('div', null, [
+        el('div', {className: 'mt'}, [el('b', {textContent: (pk.type === 'Market' ? 'Market: ' + pk.team + ' to win' : pk.type + ': ' + pk.team + ' ' + line(pk.line))}), resChip(pk.result)]),
+        el('div', {className: 'psub', textContent: pickDetail(pk)})])));
+      card.append(x);
+    } else if (g.picks.length) card.append(el('div', {className: 'more', textContent: 'Tap for pick details'}));
+    card.onclick = () => { if (histOpen.has(id)) histOpen.delete(id); else histOpen.add(id); histAll = false; drawHist(); };
+    list.append(card);
+  });
+  host.append(list);
+}
 function drawHist() {
   const host = $('histTbl'); host.replaceChildren();
   const rf = $('histRes').value, q = $('histSearch').value.trim().toLowerCase();
@@ -907,6 +995,7 @@ function drawHist() {
     return !q || (g.date + ' ' + g.away + ' ' + g.home).toLowerCase().includes(q);
   });
   if (!games.length) { host.append(el('div', {className: 'empty', textContent: HG.length ? 'No games match.' : 'Nothing logged yet.'})); return; }
+  if (mobile()) { histMobile(host, games); return; }
   const t = el('table'), tb = el('tbody'), hr = el('tr');
   HH.forEach(h => { const th = el('th', {textContent: h, className: h === 'Edge' ? 'n' : ''}); if (HT[h]) th.append(infoBtn(h, HT[h])); hr.append(th); });
   t.append(el('thead', null, [hr]), tb); host.append(t);
@@ -955,11 +1044,43 @@ const BT = {
   'Books': 'Other sportsbooks with a line on this game. Click the row to see them.',
   'Better than DK': 'How many other books offer at least one number better than DraftKings: more points on a side, the same points at a better price, or a better moneyline.'
 };
+function booksMobile(host, games) {
+  const list = el('div', {className: 'mlist'});
+  games.forEach((g, gi) => {
+    const id = g.away + '|' + g.home + '|' + g.time, isOpen = allOpen || open.has(id), dk = g.dk || {};
+    const card = el('div', {className: 'mi' + (g.books.length ? ' tap' : '') + (gi % 2 ? ' alt' : '')});
+    card.append(
+      el('div', {className: 'mt'}, [el('b', {textContent: g.away + ' @ ' + g.home}), el('span', {className: 'ms', textContent: g.time})]),
+      el('div', {className: 'mg'}, [
+        kv2('DK ' + (g.awayAbbr || 'away'), g.dk ? sp(dk.away_pt, dk.away_px) : 'n/a'), kv2('DK ' + (g.homeAbbr || 'home'), g.dk ? sp(dk.home_pt, dk.home_px) : 'n/a'),
+        kv2('Moneyline', (ml(dk.away_ml) || '-') + ' / ' + (ml(dk.home_ml) || '-')),
+        kv2('Better than DK', g.better ? chip(g.better + (g.better === 1 ? ' book' : ' books'), 'hi') : (g.books.length ? 'None' : 'No other books'))]));
+    if (isOpen && g.books.length) {
+      const x = el('div', {className: 'mx'});
+      x.append(el('div', {className: 'xr h'}, [el('span', {textContent: 'Book'}), el('span', {textContent: g.awayAbbr || 'Away'}), el('span', {textContent: g.homeAbbr || 'Home'})]));
+      g.books.forEach(b => {
+        const bt = b.better || {};
+        const cell = (pt, px, mlv, okS, okM) => {
+          const c = el('span', {className: okS || okM ? 'better' : ''});
+          c.append(sp(pt, px)); if (isNum(mlv)) c.append(el('span', {className: 'psub', textContent: 'ML ' + ml(mlv)}));
+          return c;
+        };
+        x.append(el('div', {className: 'xr'}, [el('span', {textContent: b.book}),
+          cell(b.away_pt, b.away_px, b.away_ml, bt.away_sp, bt.away_ml), cell(b.home_pt, b.home_px, b.home_ml, bt.home_sp, bt.home_ml)]));
+      });
+      card.append(x);
+    } else if (g.books.length) card.append(el('div', {className: 'more', textContent: 'Tap to compare ' + g.books.length + ' books'}));
+    if (g.books.length) card.onclick = () => { if (open.has(id)) open.delete(id); else open.add(id); allOpen = false; drawBooks(); };
+    list.append(card);
+  });
+  host.append(list);
+}
 function drawBooks() {
   const host = $('bookTbl'); host.replaceChildren();
   const q = $('bookSearch').value.trim().toLowerCase(), only = $('betterOnly').checked;
   const games = O.filter(g => (!q || (g.away + ' ' + g.home).toLowerCase().includes(q)) && (!only || g.better > 0));
   if (!games.length) { host.append(el('div', {className: 'empty', textContent: O.length ? 'No games match.' : 'No lines posted yet for this slate.'})); return; }
+  if (mobile()) { booksMobile(host, games); return; }
   const t = el('table'), hr = el('tr'), tb = el('tbody');
   BH.forEach(h => { const th = el('th', {textContent: h, className: /spread|ML|Books|Better/.test(h) ? 'n' : ''}); if (BT[h]) th.append(infoBtn(h, BT[h])); hr.append(th); });
   t.append(el('thead', null, [hr]), tb); host.append(t);
@@ -996,6 +1117,23 @@ $('powerSrc').textContent = P.source ? 'Source: ' + P.source : '';
 function drawPower() {
   const cf = $('powerConf').value, q = $('powerSearch').value.trim().toLowerCase();
   const rows = P.rows.filter(r => (!cf || r[pi('Conf')] === cf) && (!q || String(r[pi('Team')]).toLowerCase().includes(q)));
+  if (mobile()) {
+    const info = {};
+    rows.forEach(r => { info[r[pi('Team')]] = r; });
+    const data = rows.map(r => [r[pi('Rk')], r[pi('Team')], r[pi('Net')], r[pi('Change')]]);
+    const f1 = v => isNum(v) ? v.toFixed(1) : '';
+    table($('powerTbl'), ['Rk', 'Team', 'Net', 'Change'], data, (c, v) => {
+      if (c === 'Team') {
+        const r = info[v] || [];
+        const sub = [r[pi('Conf')], r[pi('Record')], 'O ' + f1(r[pi('Adj O')]) + ' (' + r[pi('O Rk')] + ')', 'D ' + f1(r[pi('Adj D')]) + ' (' + r[pi('D Rk')] + ')', 'Tempo ' + f1(r[pi('Tempo')])].filter(Boolean).join(' · ');
+        return el('span', null, [el('b', {textContent: v}), el('span', {className: 'psub', textContent: sub})]);
+      }
+      if (c === 'Net') return isNum(v) ? (v > 0 ? '+' : '') + v.toFixed(1) : '';
+      if (c === 'Change') { if (!isNum(v)) return ''; if (v === 0) return '0'; return el('span', {className: v > 0 ? 'up' : 'down', textContent: (v > 0 ? '\u25B2 ' : '\u25BC ') + Math.abs(v)}); }
+      return null;
+    }, (D.tips || {}).power);
+    return;
+  }
   table($('powerTbl'), P.cols, rows, (c, v) => {
     if (c === 'Net') return isNum(v) ? (v > 0 ? '+' : '') + v.toFixed(1) : '';
     if (c === 'Adj O' || c === 'Adj D' || c === 'Tempo') return isNum(v) ? v.toFixed(1) : '';
@@ -1004,6 +1142,7 @@ function drawPower() {
   }, (D.tips || {}).power);
 }
 $('powerConf').onchange = drawPower; $('powerSearch').oninput = drawPower; drawPower();
+MQ.addEventListener('change', () => { drawToday(); drawRecord(); drawTrend(); drawHist(); drawBooks(); drawPower(); });
 
 // ---------- Live scores (ticker, Live tab, dock)
 const SCORE_URL = 'https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard';
@@ -1074,6 +1213,7 @@ function drawTicker() {
   track.replaceChildren();
   for (let k = 0; k < 2; k++) games.forEach(g => track.append(tickerItem(g)));   // two copies for a seamless loop
   bar.hidden = false;
+  $('tickerLabel').hidden = !LIVE.some(g => g.state === 'in');   // "LIVE" only while games are in progress
   requestAnimationFrame(() => { const w = track.scrollWidth / 2; track.style.setProperty('--dur', Math.max(20, w / 60) + 's'); });
 }
 
