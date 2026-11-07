@@ -192,22 +192,35 @@ def portfolio(history: pd.DataFrame) -> dict:
     return {"stake": stake, "price": price, "win": round(win, 2), "bets": bets}
 
 
-def live_picks(results: pd.DataFrame) -> dict:
-    """Today's Edge pick per ESPN game id, so the page can show live cover status."""
+def live_picks(results: pd.DataFrame, history: pd.DataFrame | None = None) -> dict:
+    """Edge pick per ESPN game id for the Live tab. The pick that was logged
+    (pick history) wins, so finished games keep their pick even after the
+    sportsbooks take the line down; today's board fills in the rest."""
     out = {}
-    if results is None or results.empty or "_edge_side" not in results:
-        return out
-    for _, r in results.iterrows():
-        side, t1_line = r.get("_edge_side"), r.get("_t1_line")
-        if not isinstance(side, str) or t1_line is None or pd.isna(t1_line):
-            continue
-        line = float(t1_line) if side == "T1" else -float(t1_line)
-        out[str(r["game_id"])] = _sanitize({
-            "side": "away" if side == "T1" else "home",
-            "team": r["T1 Team"] if side == "T1" else r["T2 Team"],
-            "line": line, "edge": r.get("Edge Size"), "cover": r.get("Cover %"),
-            "conf": r.get("Confidence"), "model": str(r.get("Model Pick") or "").replace(" covers", ""),
-        })
+    if results is not None and not results.empty and "_edge_side" in results:
+        for _, r in results.iterrows():
+            side, t1_line = r.get("_edge_side"), r.get("_t1_line")
+            if not isinstance(side, str) or t1_line is None or pd.isna(t1_line):
+                continue
+            line = float(t1_line) if side == "T1" else -float(t1_line)
+            out[str(r["game_id"])] = _sanitize({
+                "side": "away" if side == "T1" else "home",
+                "team": r["T1 Team"] if side == "T1" else r["T2 Team"],
+                "line": line, "edge": r.get("Edge Size"), "cover": r.get("Cover %"),
+                "conf": r.get("Confidence"), "model": str(r.get("Model Pick") or "").replace(" covers", ""),
+            })
+    if history is not None and not history.empty:
+        cutoff = (pd.Timestamp.today().normalize() - pd.Timedelta(days=2)).strftime("%Y-%m-%d")
+        h = history[(history["pick_type"] == "Edge") & (history["date"] >= cutoff)]
+        for _, r in h.iterrows():
+            line = r.get("pick_line")
+            if line is None or pd.isna(line) or r.get("pick_side") not in ("T1", "T2"):
+                continue
+            out[str(r["game_id"])] = _sanitize({
+                "side": "away" if r["pick_side"] == "T1" else "home", "team": r["pick_team"],
+                "line": float(line), "edge": r.get("edge"), "cover": r.get("cover_prob"),
+                "conf": r.get("confidence"), "logged": True,
+            })
     return out
 
 
@@ -320,7 +333,7 @@ def build_payload(day: date, results: pd.DataFrame, record: pd.DataFrame, trend:
         "record": {"cols": list(record.columns), "rows": _records(record, [(c, c) for c in record.columns])},
         "trend": {"cols": list(trend.columns), "rows": _records(trend, [(c, c) for c in trend.columns])},
         "history": history_groups(history),
-        "livePicks": live_picks(results),
+        "livePicks": live_picks(results, history),
         "portfolio": portfolio(history),
         "marketEval": _market_eval(data_dir),
         "marketEdges": int((results["Win% Edge (T1)"].abs() >= config.MARKET_EDGE_MIN).sum())
@@ -575,6 +588,9 @@ body.has-dock .wrap{padding-bottom:90px}
 .pos{color:var(--good);font-weight:700}.neg{color:var(--bad);font-weight:700}
 .legend .li{display:inline-flex;align-items:center;gap:6px}
 .legend .li i{display:inline-block;width:14px;height:3px}
+/* snowfall (behind everything; cards stay readable) */
+#snow{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.wrap{position:relative;z-index:1}
 /* chart */
 .chart{position:relative}
 .chart svg{display:block;width:100%;height:auto}
@@ -602,6 +618,7 @@ footer a{color:var(--ink)}
 </style>
 </head>
 <body class="has-dock">
+<canvas id="snow" aria-hidden="true"></canvas>
 <div class="ticker" id="ticker" hidden aria-label="Live scores">
   <div class="tlabel" id="tickerLabel" hidden><span class="dot live"></span>Live</div>
   <div class="viewport"><div class="track" id="tickerTrack"></div></div>
@@ -614,6 +631,7 @@ footer a{color:var(--ink)}
       <div class="meta"><div id="day"></div><div id="updated"></div></div>
       <button class="theme" id="theme" type="button">Theme</button>
       <button class="theme" id="tickerToggle" type="button" aria-pressed="true">Live ticker: On</button>
+      <button class="theme" id="snowToggle" type="button" aria-pressed="true">Snow: On</button>
     </div>
   </header>
 
@@ -621,10 +639,10 @@ footer a{color:var(--ink)}
     <button role="tab" aria-selected="true" data-tab="today"><span class="n">01</span>Today</button>
     <button role="tab" aria-selected="false" data-tab="live"><span class="n">02</span>Live</button>
     <button role="tab" aria-selected="false" data-tab="rate"><span class="n">03</span>Success Rate</button>
-    <button role="tab" aria-selected="false" data-tab="portfolio"><span class="n">04</span>Portfolio</button>
-    <button role="tab" aria-selected="false" data-tab="history"><span class="n">05</span>History</button>
-    <button role="tab" aria-selected="false" data-tab="books"><span class="n">06</span>Odds by Book</button>
-    <button role="tab" aria-selected="false" data-tab="power"><span class="n">07</span>Power Rankings</button>
+    <button role="tab" aria-selected="false" data-tab="history"><span class="n">04</span>History</button>
+    <button role="tab" aria-selected="false" data-tab="books"><span class="n">05</span>Odds by Book</button>
+    <button role="tab" aria-selected="false" data-tab="power"><span class="n">06</span>Power Rankings</button>
+    <button role="tab" aria-selected="false" data-tab="portfolio"><span class="n">07</span>Portfolio</button>
   </nav>
 
   <section id="today">
@@ -673,30 +691,16 @@ footer a{color:var(--ink)}
       <p class="sub" style="margin:0">A <b>unit</b> is one standard bet. <b>Units</b> = profit or loss if you bet 1 unit on every pick in a group. Against the spread at the usual -110 price, a win pays <b>+0.91</b>, a loss costs <b>-1</b>, and a push is <b>0</b>. So +5.00 units means you would be up five bets' worth; with $100 bets that is +$500. Because a loss costs more than a win pays, you need to win <b>52.4%</b> just to break even. Market picks are paid at the market's own price instead of -110.</p>
     </div>
     <div class="card"><div class="card-h"><h2>Record by pick type</h2><button class="btn" id="recExpand" type="button">Expand all</button></div><div class="tbl" id="recordTbl"></div>
-      <p class="sub">Click a group to show its breakdown. Confidence uses the current rules for every pick, so all tiers are measured the same way.</p></div>
-    <div class="card"><div class="card-h"><h2>Model odds vs market odds</h2><span class="lbl muted">Market picks</span></div>
+      <p class="sub">Click a group to show its breakdown. Success is judged on the Sportsbook Edge picks; Model and Market picks are tracked as supplemental information only. Confidence uses the current rules for every pick.</p></div>
+    <div class="card"><div class="card-h"><h2>Model odds vs market odds</h2><span class="lbl muted">Supplemental</span></div>
       <div id="mktEval"></div>
     </div>
     <div class="card"><div class="card-h"><h2>Edge picks by day</h2><span class="lbl muted">Against the spread</span></div><div class="tbl" id="trendTbl"></div></div>
   </section>
 
-  <section id="portfolio" hidden>
-    <div class="tiles" id="pfTiles"></div>
-    <div class="card">
-      <div class="card-h"><h2>Bankroll</h2><span class="lbl muted" id="pfRule"></span></div>
-      <div class="controls">
-        <div class="seg" id="pfSections" role="group" aria-label="Sections to show"></div>
-        <select id="pfRange" aria-label="Date range"><option value="all">Whole season</option><option value="30">Last 30 days</option><option value="7">Last 7 days</option></select>
-      </div>
-      <div class="chart" id="pfChart"></div>
-      <div class="legend" id="pfLegend"></div>
-    </div>
-    <div id="pfCards"></div>
-  </section>
-
   <section id="history" hidden>
     <div class="card">
-      <div class="card-h"><h2>Pick history</h2><span class="lbl muted">One row per game. Click to see every pick.</span></div>
+      <div class="card-h"><h2>Pick history</h2><span class="lbl muted">Judged on the Edge pick. Click a game for supplemental picks.</span></div>
       <div class="controls">
         <select id="histRes"><option value="">All edge results</option><option>W</option><option>L</option><option>P</option><option value="pending">Pending</option></select>
         <input type="search" id="histSearch" placeholder="Search team or date">
@@ -729,6 +733,20 @@ footer a{color:var(--ink)}
       </div>
       <div class="tbl" id="powerTbl"></div>
     </div>
+  </section>
+
+  <section id="portfolio" hidden>
+    <div class="tiles" id="pfTiles"></div>
+    <div class="card">
+      <div class="card-h"><h2>Bankroll</h2><span class="lbl muted" id="pfRule"></span></div>
+      <div class="controls">
+        <div class="seg" id="pfSections" role="group" aria-label="Sections to show"></div>
+        <select id="pfRange" aria-label="Date range"><option value="all">Whole season</option><option value="30">Last 30 days</option><option value="7">Last 7 days</option></select>
+      </div>
+      <div class="chart" id="pfChart"></div>
+      <div class="legend" id="pfLegend"></div>
+    </div>
+    <div id="pfCards"></div>
   </section>
 
   <footer>
@@ -867,7 +885,7 @@ const nBig = T.rows.filter(r => isNum(r[ti('Edge')]) && r[ti('Edge')] >= b2).len
 tile($('todayTiles'), 1, 'Games', D.games, 'On the ESPN schedule', '');
 tile($('todayTiles'), 2, 'Edges ' + b2 + '+', nBig, nStrong + ' at ' + b1 + '+ points', 'blue');
 tile($('todayTiles'), 3, 'With a line', T.rows.length, 'Priced by sportsbooks', '');
-tile($('todayTiles'), 4, 'Market edges', D.marketEdges || 0, 'Model vs prediction markets', 'black');
+tile($('todayTiles'), 4, 'High confidence', T.rows.filter(r => r[ti('Conf.')] === 'High').length, T.rows.filter(r => r[ti('Conf.')] === 'Medium').length + ' Medium \u00b7 ' + T.rows.filter(r => r[ti('Conf.')] === 'Check').length + ' Check', 'black');
 let lineTags = {};
 const subTag = t => t && t !== 'DK' && t !== 'CONS';
 function fmtToday(c, v, r) {
@@ -934,8 +952,9 @@ tile($('rateTiles'), 1, 'Edge record', e.length ? e[ri('W')] + '-' + e[ri('L')] 
 tile($('rateTiles'), 2, 'Edge success', pct(e[ri('Success Rate')]) || 'n/a', 'Break-even is 52.4%', 'blue');
 tile($('rateTiles'), 3, 'Edge units', isNum(e[ri('Units')]) ? (e[ri('Units')] > 0 ? '+' : '') + e[ri('Units')].toFixed(2) : 'n/a', '1 unit per pick at -110', '');
 const ME = D.marketEval || {};
-tile($('rateTiles'), 4, 'Model vs market', ME.picks ? (ME.brier_model <= ME.brier_market ? 'Model' : 'Market') : 'n/a',
-  ME.picks ? 'Closer odds on ' + ME.picks + ' disputed games' : 'Needs graded market picks', 'black');
+const l7 = recRow('Last 7 days') || [];
+tile($('rateTiles'), 4, 'Last 7 days', l7.length ? l7[ri('W')] + '-' + l7[ri('L')] + '-' + l7[ri('P')] : '0-0-0',
+  (isNum(l7[ri('Success Rate')]) ? pct(l7[ri('Success Rate')]) + ' \u00b7 ' : '') + 'Edge picks against the spread', 'black');
 const units = v => isNum(v) ? (v > 0 ? '+' : '') + v.toFixed(2) : '';
 const recOpen = new Set(); let recAll = false;
 const REC_TIPS = {
@@ -1204,13 +1223,13 @@ const HG = D.history || [];
 const histOpen = new Set(); let histAll = false;
 const resChip = r => r ? chip(r, r === 'W' ? 'W' : r === 'L' ? 'L' : '') : chip('Pending');
 const primary = g => g.picks.find(p => p.type === 'Edge') || g.picks[0] || {};
-const HH = ['', 'Date', 'Away', 'Home', 'Final', 'Edge pick', 'Edge', 'Result', 'Other picks'];
+const HH = ['', 'Date', 'Away', 'Home', 'Final', 'Edge pick', 'Edge', 'Conf.', 'Result'];
 const HT = {
   'Final': 'Final score, away first, from ESPN. Blank until the game is final.',
   'Edge pick': 'The side the model liked against the line when the pick was logged, with that line.',
   'Edge': 'Points of disagreement between the model and the line when logged.',
   'Result': 'Edge pick result against the spread: W, L, P (push). Pending until the game is final.',
-  'Other picks': 'Results of the other picks on this game (Model Pick and Market pick). Click the row for details.'
+  'Conf.': 'Confidence of the Edge pick (current rules).'
 };
 function pickDetail(x) {
   if (x.type === 'Edge') return (isNum(x.edge) ? x.edge.toFixed(1) + ' pt edge' : '') + (isNum(x.cover) ? ', ' + pct(x.cover) + ' to cover' : '') + (x.conf ? ' (' + x.conf + ')' : '');
@@ -1225,20 +1244,20 @@ function histMobile(host, games) {
     const others = g.picks.filter(x => x !== p);
     const card = el('div', {className: 'mi tap' + (gi % 2 ? ' alt' : '')});
     const score = isNum(g.s1) && isNum(g.s2) ? Math.round(g.s1) + ' - ' + Math.round(g.s2) : 'Not final';
-    const oth = el('span'); others.forEach((o, i) => { if (i) oth.append(document.createTextNode(' ')); oth.append(document.createTextNode(o.type + ' '), resChip(o.result)); });
     card.append(
       el('div', {className: 'mt'}, [el('b', {textContent: g.away + ' @ ' + g.home}), el('span', {className: 'ms', textContent: String(g.date).slice(5)})]),
       el('div', {className: 'mg'}, [
         kv2('Edge pick', p.team ? p.team + ' ' + line(p.line) : ''), kv2('Result', resChip(p.result)),
-        kv2('Final', score), kv2('Edge', p.type === 'Edge' && isNum(p.edge) ? p.edge.toFixed(1) + ' pts' : '')]));
-    if (others.length) card.append(el('div', {className: 'mg'}, [kv2('Other picks', oth)]));
+        kv2('Final', score), kv2('Edge', p.type === 'Edge' && isNum(p.edge) ? p.edge.toFixed(1) + ' pts' + (p.conf ? ' \u00b7 ' + p.conf : '') : '')]));
+
     if (open) {
       const x = el('div', {className: 'mx'});
-      g.picks.forEach(pk => x.append(el('div', null, [
-        el('div', {className: 'mt'}, [el('b', {textContent: (pk.type === 'Market' ? 'Market: ' + pk.team + ' to win' : pk.type + ': ' + pk.team + ' ' + line(pk.line))}), resChip(pk.result)]),
-        el('div', {className: 'psub', textContent: pickDetail(pk)})])));
+      g.picks.forEach(pk => { const supp = pk.type !== 'Edge'; x.append(el('div', null, [
+        el('div', {className: 'mt'}, [el(supp ? 'span' : 'b', {textContent: (pk.type === 'Market' ? 'Market: ' + pk.team + ' to win' : pk.type + ': ' + pk.team + ' ' + line(pk.line)) + (supp ? ' (supplemental)' : '')}),
+          supp ? el('span', {className: 'muted', textContent: pk.result ? (pk.result === 'W' ? 'Won' : pk.result === 'L' ? 'Lost' : pk.result) : 'Pending'}) : resChip(pk.result)]),
+        el('div', {className: 'psub', textContent: pickDetail(pk)})])); });
       card.append(x);
-    } else if (g.picks.length) card.append(el('div', {className: 'more', textContent: 'Tap for pick details'}));
+    } else if (g.picks.length > 1) card.append(el('div', {className: 'more', textContent: 'Tap for details'}));
     card.onclick = () => { if (histOpen.has(id)) histOpen.delete(id); else histOpen.add(id); histAll = false; drawHist(); };
     list.append(card);
   });
@@ -1262,11 +1281,11 @@ function drawHist() {
     const others = g.picks.filter(x => x !== p);
     const tr = el('tr', {className: 'parent' + (gi % 2 ? ' alt' : '')});
     const td = (c, cls) => { const d = el('td', {className: cls || ''}); if (c instanceof Node) d.append(c); else d.textContent = c == null ? '' : c; return d; };
-    const oth = el('span'); others.forEach((o, i) => { if (i) oth.append(document.createTextNode('  ')); oth.append(document.createTextNode(o.type + ' '), resChip(o.result)); });
-    tr.append(td(g.picks.length > 1 ? (open ? '−' : '+') : '', 'tog'), td(g.date), td(g.away), td(g.home),
+    const confChip = v => v ? chip(v, v === 'High' ? 'hi' : v === 'Medium' ? 'md' : v === 'Check' ? 'L' : '') : '';
+    tr.append(td(g.picks.length > 1 ? (open ? '\u2212' : '+') : '', 'tog'), td(g.date), td(g.away), td(g.home),
       td(isNum(g.s1) && isNum(g.s2) ? Math.round(g.s1) + ' - ' + Math.round(g.s2) : ''),
       td(p.team ? p.team + ' ' + line(p.line) : ''), td(p.type === 'Edge' && isNum(p.edge) ? p.edge.toFixed(1) : '', 'n'),
-      td(resChip(p.result)), td(oth));
+      td(p.type === 'Edge' ? confChip(p.conf) : ''), td(resChip(p.result)));
     tr.setAttribute('aria-expanded', open);
     tr.onclick = () => { if (histOpen.has(id)) histOpen.delete(id); else histOpen.add(id); histAll = false; drawHist(); };
     tb.append(tr);
@@ -1277,9 +1296,11 @@ function drawHist() {
       else if (x.type === 'Model') detail = 'Stronger team by efficiency';
       else if (x.type === 'Market') detail = 'Model ' + pct(x.modelp) + ' vs market ' + pct(x.mprob) + ' to win';
       const label = x.type === 'Market' ? x.team + ' to win' : x.team + ' ' + line(x.line);
+      const supp = x.type !== 'Edge';
       const c = el('tr', {className: 'child'});
-      c.append(el('td'), el('td', {className: 'bk', textContent: x.type === 'Model' ? 'Model pick' : x.type === 'Market' ? 'Market pick' : 'Edge pick'}),
-        el('td', {textContent: label, colSpan: 3}), el('td', {textContent: detail, colSpan: 2}), td(resChip(x.result)), el('td', {textContent: x.source || '', className: 'muted'}));
+      c.append(el('td'), el('td', {className: 'bk', textContent: supp ? (x.type === 'Model' ? 'Model pick' : 'Market pick') + ' (supplemental)' : 'Edge pick'}),
+        el('td', {textContent: label, colSpan: 3}), el('td', {textContent: detail, colSpan: 2}),
+        supp ? el('td', {className: 'muted', textContent: x.result ? (x.result === 'W' ? 'Won' : x.result === 'L' ? 'Lost' : x.result) : 'Pending'}) : td(resChip(x.result)));
       tb.append(c);
     });
   });
@@ -1407,6 +1428,47 @@ function drawPower() {
 }
 $('powerConf').onchange = drawPower; $('powerSearch').oninput = drawPower; drawPower();
 MQ.addEventListener('change', () => { drawToday(); drawRecord(); drawTrend(); drawHist(); drawBooks(); drawPower(); drawPortfolio(); });
+
+
+// ---------- Snowfall (light flurries in the page background)
+(function snow() {
+  const cv = $('snow'), ctx = cv.getContext('2d'), btn = $('snowToggle');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let on = store.get('snow', reduce ? 'off' : 'on') === 'on', flakes = [], raf = null, w = 0, h = 0, dpr = 1;
+  const label = () => { btn.textContent = 'Snow: ' + (on ? 'On' : 'Off'); btn.setAttribute('aria-pressed', on); };
+  function size() {
+    dpr = Math.min(devicePixelRatio || 1, 2); w = innerWidth; h = innerHeight;
+    cv.width = w * dpr; cv.height = h * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const n = Math.round(Math.min(110, (w * h) / 16000));   // fewer flakes on small screens
+    while (flakes.length < n) flakes.push(make(true));
+    flakes.length = n;
+  }
+  function make(anywhere) {
+    return {x: Math.random() * w, y: anywhere ? Math.random() * h : -6, r: 0.8 + Math.random() * 2.2,
+            vy: 0.25 + Math.random() * 0.6, vx: -0.15 + Math.random() * 0.3, ph: Math.random() * 6.28, a: 0.35 + Math.random() * 0.45};
+  }
+  function color() {
+    const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    return dark ? '255,255,255' : '120,132,158';   // white flakes on dark, soft blue-gray on the light background
+  }
+  function frame(t) {
+    ctx.clearRect(0, 0, w, h);
+    const c = color();
+    for (const f of flakes) {
+      f.y += f.vy * f.r * 0.6; f.x += f.vx + Math.sin(t / 1600 + f.ph) * 0.25;
+      if (f.y > h + 6) Object.assign(f, make(false));
+      if (f.x < -6) f.x = w + 6; else if (f.x > w + 6) f.x = -6;
+      ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, 6.2832); ctx.fillStyle = 'rgba(' + c + ',' + f.a + ')'; ctx.fill();
+    }
+    raf = requestAnimationFrame(frame);
+  }
+  function start() { if (raf || !on || document.hidden) return; size(); raf = requestAnimationFrame(frame); }
+  function stop() { if (raf) cancelAnimationFrame(raf); raf = null; ctx.clearRect(0, 0, w, h); }
+  btn.onclick = () => { on = !on; store.set('snow', on ? 'on' : 'off'); label(); on ? start() : stop(); };
+  addEventListener('resize', () => { if (raf) size(); });
+  document.addEventListener('visibilitychange', () => { document.hidden ? stop() : start(); });
+  label(); start();
+})();
 
 // ---------- Live scores (ticker, Live tab, dock)
 const SCORE_URL = 'https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard';

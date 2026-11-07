@@ -205,14 +205,16 @@ def record_summary(path: Path) -> pd.DataFrame:
     for tier in ("High", "Medium", "Low", "Check"):
         rows.append(_line(f"  Confidence {tier}",
                           edges[(edges["confidence"] == tier)]))
-    rows.append(_line("Market Edge (all, straight up)", hist[hist["pick_type"] == "Market"], ats=False))
+    recent = (pd.Timestamp.today().normalize() - pd.Timedelta(days=7)).strftime("%Y-%m-%d")
+    rows.insert(1, _line("  Last 7 days", edges[edges["date"] >= recent]))
+    rows.append(_line("Supplemental: Model Pick", hist[hist["pick_type"] == "Model"]))
+    rows.append(_line("Supplemental: Market (straight up)", hist[hist["pick_type"] == "Market"], ats=False))
     mk = hist[hist["pick_type"] == "Market"]
     mb = list(config.MARKET_EDGE_BUCKETS) + [float("inf")]
     for lo, hi in zip(mb[:-1], mb[1:]):
         sub = mk[(mk["edge"] >= lo) & (mk["edge"] < hi)]
         lab = f"  Win% edge {lo:.0%}+" if hi == float("inf") else f"  Win% edge {lo:.0%} to {hi:.0%}"
         rows.append(_line(lab, sub, ats=False))
-    rows.append(_line("Model Pick (all)", hist[hist["pick_type"] == "Model"]))
     return pd.DataFrame(rows)
 
 
