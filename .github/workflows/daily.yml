@@ -1,13 +1,13 @@
 # Runs the NCAAM model on GitHub's servers every day and publishes the
-# dashboard to GitHub Pages. Times are UTC: 15:07 UTC = 10:07 AM Eastern and
-# 22:07 UTC = 5:07 PM Eastern in winter (one hour later after the March clock
-# change). GitHub can start scheduled runs 5 to 30 minutes late at busy times.
+# dashboard to GitHub Pages. 15:07 UTC = 10:07 AM Eastern, 22:07 UTC = 5:07 PM
+# Eastern in winter. It finds main.py wherever it sits in the repo.
 name: Daily NCAAM update
 
 on:
   schedule:
     - cron: "7 15 * * *"
     - cron: "7 22 * * *"
+    - cron: "37 6 * * *"     # 1:37 AM Eastern: grades the night's games
   workflow_dispatch:
     inputs:
       date:
@@ -16,8 +16,8 @@ on:
         default: "today"
 
 permissions:
-  contents: write     # save pick history and dashboard to the repo
-  pages: write        # publish the web page
+  contents: write
+  pages: write
   id-token: write
 
 concurrency:
@@ -41,15 +41,33 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
-          cache: pip
+
+      - name: Find the project files
+        run: |
+          echo "Files in the repo:"
+          git ls-files
+          MAIN=$(git ls-files | grep -E '(^|/)main\.py$' | head -1)
+          if [ -z "$MAIN" ]; then
+            echo "::error::main.py is not in the repo. Upload it, then run again."
+            exit 1
+          fi
+          PROJ=$(dirname "$MAIN")
+          echo "PROJ=$PROJ" >> "$GITHUB_ENV"
+          echo "Project folder: $PROJ"
+          for f in config.py espn.py markets.py model.py names.py odds_api.py report.py torvik.py tracker.py web.py; do
+            [ -f "$PROJ/$f" ] || { echo "::error::$f is missing next to main.py. Upload it, then run again."; MISSING=1; }
+          done
+          [ -z "$MISSING" ] || exit 1
 
       - name: Install requirements
-        run: pip install -r requirements.txt
+        run: pip install requests pandas openpyxl
 
       - name: Run the model
+        working-directory: ${{ env.PROJ }}
         run: python main.py --date "${{ github.event.inputs.date || 'today' }}"
 
       - name: Save results to the repository
+        working-directory: ${{ env.PROJ }}
         run: |
           git config user.name  "ncaam-model-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -68,7 +86,7 @@ jobs:
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: docs
+          path: ${{ env.PROJ }}/docs
 
       - name: Publish the web page
         id: deploy
