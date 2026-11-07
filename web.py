@@ -330,6 +330,8 @@ body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 "Inter Tight"
 .mast .side{position:relative;text-align:left;min-width:180px;padding:4px 0 0 18px}
 .mast .side:before{content:"";position:absolute;left:0;top:0;bottom:0;border-left:1px solid var(--rule)}
 .mast .side .stack{font-size:13px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;line-height:1.25}
+.mast .side .credit{color:var(--blue);text-decoration:none;border-bottom:1px solid currentColor}
+.mast .side .credit:hover{color:var(--ink)}
 .mast .side .meta{margin-top:26px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}
 .theme{margin-top:10px;background:none;border:1px solid var(--rule);color:var(--ink);padding:5px 10px;font:600 10.5px/1 inherit;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
 .sub{color:var(--ink-2);font-size:12.5px}
@@ -425,7 +427,9 @@ footer a{color:var(--ink)}
   .mast{grid-template-columns:1fr}
   .mast .side{padding:12px 0 0;border-top:1px solid var(--rule)}
   .mast .side:before{display:none}
-  .mast .side .meta{margin-top:10px}
+  .mast .side .credit{color:var(--blue);text-decoration:none;border-bottom:1px solid currentColor}
+.mast .side .credit:hover{color:var(--ink)}
+.mast .side .meta{margin-top:10px}
   .tiles{grid-template-columns:1fr 1fr;gap:10px}
   .tile{min-height:118px;padding:12px}.tile .v{font-size:36px;padding-top:12px}
   footer{grid-template-columns:auto 1fr}
@@ -437,7 +441,7 @@ footer a{color:var(--ink)}
   <header class="mast">
     <h1>ncaam<br>model</h1>
     <div class="side">
-      <div class="stack">Ratings.<br>Lines.<br>Edge.</div>
+      <div class="stack">Designed by<br>Colten Morris<br><a class="credit" href="https://www.linkedin.com/in/colten-morris/" target="_blank" rel="noopener">LinkedIn &#8599;</a></div>
       <div class="meta"><div id="day"></div><div id="updated"></div></div>
       <button class="theme" id="theme" type="button">Theme</button>
     </div>
