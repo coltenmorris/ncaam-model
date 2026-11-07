@@ -6,7 +6,7 @@ with a little plain JavaScript, so it works on GitHub Pages and on a phone.
 
 from __future__ import annotations
 
-VERSION = "2026-11-07"
+VERSION = "2026-11-07.2"
 
 import json
 import math
@@ -179,6 +179,24 @@ def power_table(ratings: pd.DataFrame, data_dir: Path | None) -> pd.DataFrame:
     return out
 
 
+def conf_key() -> list[dict]:
+    hi = getattr(config, "COVER_HIGH", 0.56)
+    md = getattr(config, "COVER_MEDIUM", 0.54)
+    ce = getattr(config, "CHECK_EDGE", 10.0)
+    cs = getattr(config, "CHECK_SPREAD_SHARE", 0.30)
+    return [
+        {"tier": "High", "range": f"Cover {hi:.0%}+",
+         "text": "The model's strongest spots: a solid edge the market hasn't closed."},
+        {"tier": "Medium", "range": f"Cover {md:.0%} to {hi:.0%}",
+         "text": "A real but modest edge. Worth a look alongside injury news and line moves."},
+        {"tier": "Low", "range": f"Cover under {md:.0%}",
+         "text": "Small disagreement with the line. Close to break-even (52.4% at -110)."},
+        {"tier": "Check", "range": f"Edge {ce:g}+ pts, or {cs:.0%} of the spread if larger",
+         "text": "The model and the books disagree too much to trust. Usually injuries, roster changes or "
+                 "a stale rating. Check the news first; if nothing explains it, pass."},
+    ]
+
+
 def tips() -> dict:
     line_src = ("the median line across all sportsbooks from The Odds API (falls back to DraftKings via ESPN)"
                 if config.LINE_SOURCE == "consensus" else "DraftKings via ESPN (falls back to the multi-book consensus)")
@@ -199,7 +217,7 @@ def tips() -> dict:
             "Model away win": f"Model's chance the away team wins outright (spread ignored). Normal distribution of the projected margin with a standard deviation of {config.MARGIN_STDEV:g} points.",
             "Market away win": "The market's chance the away team wins outright: average of Kalshi and Polymarket prices, or the sportsbooks' moneylines with the bookmaker's cut removed if neither lists the game.",
             "Cover %": "Estimated chance the Edge pick covers. Very large edges are flattened (they are usually a model miss, not value), only " + f"{getattr(config, 'COVER_MODEL_WEIGHT', 0.35):.0%}" + " of the model's disagreement with the line is trusted, and lopsided games get a wider range of outcomes. A 3 point edge is about 53.5%, 7 points about 56%. Realistic values stay between 50% and 58%. Break-even at -110 is 52.4%.",
-            "Conf.": "From Cover %: High " + f"{getattr(config, 'COVER_HIGH', 0.56):.0%}" + "+, Medium " + f"{getattr(config, 'COVER_MEDIUM', 0.54):.0%}" + "+, Low below that. CHECK = edge of " + f"{getattr(config, 'CHECK_EDGE', 12.0):g}" + "+ points or a spread of " + f"{getattr(config, 'CHECK_SPREAD', 30.0):g}" + "+: the model and the books disagree too much to trust; look for injuries or roster news first.",
+            "Conf.": "From Cover %: High " + f"{getattr(config, 'COVER_HIGH', 0.56):.0%}" + "+, Medium " + f"{getattr(config, 'COVER_MEDIUM', 0.54):.0%}" + "+, Low below that. Check = an edge of " + f"{getattr(config, 'CHECK_EDGE', 10.0):g}" + "+ points (or " + f"{getattr(config, 'CHECK_SPREAD_SHARE', 0.30):.0%}" + " of the spread in lopsided games): the model and the books disagree too much to trust. See the key below the table.",
             "Model pick": "The team with the better weighted efficiency (Wtd Eff). It always backs the stronger team and does not check whether it is stronger by more than the line. Use Edge for that.",
         },
         "power": {
@@ -264,6 +282,8 @@ def build_payload(day: date, results: pd.DataFrame, record: pd.DataFrame, trend:
         "mode": "Legacy Excel" if config.LEGACY_EXCEL_MODE else "Standard",
         "edgeBuckets": list(config.EDGE_BUCKETS),
         "tips": tips(),
+        "ratingsSource": ratings_source,
+        "confKey": conf_key(),
         "today": {"cols": [h for _, h in TODAY_COLS], "rows": _records(today, TODAY_COLS)},
         "record": {"cols": list(record.columns), "rows": _records(record, [(c, c) for c in record.columns])},
         "trend": {"cols": list(trend.columns), "rows": _records(trend, [(c, c) for c in trend.columns])},
@@ -413,6 +433,14 @@ tr.child td.bk{padding-left:30px;color:var(--ink-2)}
 .gcard .k{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .gcard .v{font-size:13.5px;font-weight:600;margin-top:2px}
 @media (max-width:720px){ #todayTbl{display:none} .cards{display:block} label[for=todayMore],#todayMoreWrap{display:none} }
+.key{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--rule);margin-top:14px}
+.key>div{padding:12px 14px 4px 0}
+.key>div+div{padding-left:14px;border-left:1px solid var(--line)}
+.key .kt{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.key .kr{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.key p{margin:0;font-size:12.5px;color:var(--ink-2)}
+@media (max-width:900px){.key{grid-template-columns:1fr 1fr}.key>div:nth-child(3){padding-left:0;border-left:0}}
+@media (max-width:520px){.key{grid-template-columns:1fr}.key>div{padding-left:0!important;border-left:0!important;border-bottom:1px solid var(--line);padding-bottom:10px}}
 /* chart */
 .chart{position:relative}
 .chart svg{display:block;width:100%;height:auto}
@@ -470,7 +498,8 @@ footer a{color:var(--ink)}
       </div>
       <div class="tbl" id="todayTbl"></div>
       <div class="cards" id="todayCards"></div>
-      <p class="sub">Away = T1, Home = T2. Hover or tap &#9432; for what each column means.</p>
+      <p class="sub">Away = T1, Home = T2. Hover or tap &#9432; for what each column means. <span id="ratingsSrc"></span></p>
+      <div class="key" id="confKey" aria-label="Confidence key"></div>
     </div>
   </section>
 
@@ -683,6 +712,13 @@ function drawToday() {
   });
 }
 $('todayMore').onchange = drawToday;
+(D.confKey || []).forEach(k => {
+  const cls = k.tier === 'High' ? 'hi' : k.tier === 'Medium' ? 'md' : k.tier === 'Check' ? 'L' : '';
+  $('confKey').append(el('div', null, [
+    el('div', {className: 'kt'}, [chip(k.tier, cls), el('span', {className: 'kr', textContent: k.range})]),
+    el('p', {textContent: k.text})]));
+});
+if (D.ratingsSource) $('ratingsSrc').textContent = 'Ratings: ' + D.ratingsSource + '.';
 $('edgeMin').onchange = drawToday; $('todaySearch').oninput = drawToday; drawToday();
 
 // ---------- 02 Success rate
@@ -703,7 +739,7 @@ table($('trendTbl'), D.trend.cols, D.trend.rows.slice().reverse(), (c, v) => (c.
 
 function drawChart() {
   const host = $('chart'); host.replaceChildren();
-  const tc = D.trend.cols, rows = D.trend.rows, di = tc.indexOf('Date'), ci = tc.indexOf('Cum Rate'), wi = tc.indexOf('Cum W'), li = tc.indexOf('Cum L');
+  const tc = D.trend.cols, rows = D.trend.rows, di = tc.indexOf('Date'), ci = tc.indexOf('Cumulative Rate'), wi = tc.indexOf('Cumulative W'), li = tc.indexOf('Cumulative L');
   const pts = rows.filter(r => isNum(r[ci]));
   if (pts.length < 2) { host.append(el('div', {className: 'empty', textContent: 'The chart appears after two days of graded edge picks.'})); return; }
   const W = Math.max(host.clientWidth || 640, 300), H = 240, pad = {l: 44, r: 14, t: 12, b: 28};

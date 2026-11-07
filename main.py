@@ -39,7 +39,7 @@ import espn, markets, odds_api, report, torvik, tracker, web  # noqa: E402
 from model import build_rows, run_model  # noqa: E402
 from names import TeamMatcher  # noqa: E402
 
-VERSION = "2026-11-07"
+VERSION = "2026-11-07.2"
 CODE_FILES = ("config", "espn", "markets", "model", "names", "odds_api", "report", "torvik", "tracker", "web")
 
 
@@ -136,6 +136,8 @@ def run(args) -> int:
     src = ratings.attrs.get("source", "Barttorvik")
     print(f"  {len(ratings)} teams from {src}.")
     notes.append(f"Ratings: {len(ratings)} teams from {src}")
+    for err in ratings.attrs.get("skipped", []):
+        notes.append(f"Ratings source skipped: {err}")
 
     games, results, rows = [], pd.DataFrame(), []
     if not args.grade_only:

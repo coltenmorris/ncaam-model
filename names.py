@@ -10,7 +10,7 @@ listed in the console, so you can add a line to data/team_aliases.csv.
 
 from __future__ import annotations
 
-VERSION = "2026-11-07"
+VERSION = "2026-11-07.2"
 
 import csv
 import re

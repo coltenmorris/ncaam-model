@@ -11,7 +11,7 @@ console message and set KALSHI_SERIES / POLYMARKET_SERIES_ID in config.py.
 
 from __future__ import annotations
 
-VERSION = "2026-11-07"
+VERSION = "2026-11-07.2"
 
 import json
 from datetime import datetime, timedelta

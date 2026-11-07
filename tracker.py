@@ -9,7 +9,7 @@ Grading pulls final scores from ESPN and marks W, L, P (push) or NR (no result).
 
 from __future__ import annotations
 
-VERSION = "2026-11-07"
+VERSION = "2026-11-07.2"
 
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
@@ -220,13 +220,13 @@ def daily_trend(path: Path, pick_type: str = "Edge") -> pd.DataFrame:
     hist = load(path)
     hist = hist[(hist["pick_type"] == pick_type) & hist["result"].isin(["W", "L", "P"])]
     if hist.empty:
-        return pd.DataFrame(columns=["Date", "W", "L", "P", "Day Rate", "Cum W", "Cum L", "Cum Rate"])
+        return pd.DataFrame(columns=["Date", "W", "L", "P", "Day Rate", "Cumulative W", "Cumulative L", "Cumulative Rate"])
     g = hist.groupby("date")["result"].value_counts().unstack(fill_value=0)
     for c in ("W", "L", "P"):
         if c not in g:
             g[c] = 0
     g = g[["W", "L", "P"]].sort_index().reset_index().rename(columns={"date": "Date"})
     g["Day Rate"] = g["W"] / (g["W"] + g["L"]).where((g["W"] + g["L"]) > 0)
-    g["Cum W"], g["Cum L"] = g["W"].cumsum(), g["L"].cumsum()
-    g["Cum Rate"] = g["Cum W"] / (g["Cum W"] + g["Cum L"]).where((g["Cum W"] + g["Cum L"]) > 0)
+    g["Cumulative W"], g["Cumulative L"] = g["W"].cumsum(), g["L"].cumsum()
+    g["Cumulative Rate"] = g["Cumulative W"] / (g["Cumulative W"] + g["Cumulative L"]).where((g["Cumulative W"] + g["Cumulative L"]) > 0)
     return g

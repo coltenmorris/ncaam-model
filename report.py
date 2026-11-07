@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-VERSION = "2026-11-07"
+VERSION = "2026-11-07.2"
 
 from datetime import date, datetime
 from pathlib import Path
@@ -36,7 +36,7 @@ NUM_FORMATS = {
     "T1 Line": SIGNED, "DK Line (T1)": SIGNED, "Consensus (T1)": SIGNED, "Best T1": SIGNED, "Best T2": SIGNED,
     "OR Diff (HCA)": "0.0", "DR Diff": "0.0", "Success Rate": PCT, "Units": "+0.00;-0.00;0.00",
     "Model T1 Win%": PCT, "Market T1 Win%": PCT, "Book T1 Win%": PCT, "Kalshi T1 Win%": PCT,
-    "Poly T1 Win%": PCT, "Win% Edge (T1)": "+0.0%;-0.0%;0.0%", "Day Rate": PCT, "Cum Rate": PCT,
+    "Poly T1 Win%": PCT, "Win% Edge (T1)": "+0.0%;-0.0%;0.0%", "Day Rate": PCT, "Cumulative Rate": PCT,
     "market_prob": PCT, "model_prob": PCT, "pick_line": SIGNED,
     "adj_o": "0.0", "adj_d": "0.0", "adj_t": "0.0", "net_rtg": "0.0", "barthag": "0.000",
 }
@@ -222,7 +222,7 @@ def write_dashboard(path: Path, day: date, results: pd.DataFrame, rows: list[dic
             ch = LineChart()
             ch.title, ch.y_axis.title, ch.height, ch.width = "Cumulative Edge success rate", "Win %", 7.5, 16
             ch.y_axis.number_format = "0%"
-            ci = list(trend.columns).index("Cum Rate") + 1
+            ci = list(trend.columns).index("Cumulative Rate") + 1
             ch.add_data(Reference(ws, min_col=ci, min_row=hdr, max_row=hdr + len(trend)), titles_from_data=True)
             ch.set_categories(Reference(ws, min_col=1, min_row=hdr + 1, max_row=hdr + len(trend)))
             ws.add_chart(ch, f"J{start}")

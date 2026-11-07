@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import math
 
-VERSION = "2026-11-07"
+VERSION = "2026-11-07.2"
 
 import pandas as pd
 
@@ -45,8 +45,14 @@ COVER_STDEV = getattr(config, "COVER_STDEV", 11.0)
 COVER_SATURATION = getattr(config, "COVER_SATURATION", 6.0)
 COVER_HIGH = getattr(config, "COVER_HIGH", 0.56)
 COVER_MEDIUM = getattr(config, "COVER_MEDIUM", 0.54)
-CHECK_EDGE = getattr(config, "CHECK_EDGE", 12.0)
-CHECK_SPREAD = getattr(config, "CHECK_SPREAD", 30.0)
+CHECK_EDGE = getattr(config, "CHECK_EDGE", 10.0)
+CHECK_SPREAD_SHARE = getattr(config, "CHECK_SPREAD_SHARE", 0.30)
+
+
+def check_threshold(spread) -> float:
+    """Edge size that triggers "Check": CHECK_EDGE points, or 30% of the spread
+    in lopsided games (a 6 point miss on a 40 point line is normal noise)."""
+    return max(CHECK_EDGE, CHECK_SPREAD_SHARE * abs(spread or 0))
 
 
 def _effective_edge(edge_pts: float) -> float:
@@ -75,7 +81,7 @@ def cover_probability(edge_pts, spread=None):
 def cover_tier(p, edge_pts=None, spread=None):
     if p is None:
         return ""
-    if (edge_pts is not None and abs(edge_pts) >= CHECK_EDGE) or (spread is not None and abs(spread) >= CHECK_SPREAD):
+    if edge_pts is not None and abs(edge_pts) >= check_threshold(spread):
         return "Check"
     return "High" if p >= COVER_HIGH else "Medium" if p >= COVER_MEDIUM else "Low"
 

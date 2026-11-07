@@ -5,7 +5,7 @@ Replaces pasting the ESPN schedule page into the "ESPN Game Schedule" sheet.
 
 from __future__ import annotations
 
-VERSION = "2026-11-07"
+VERSION = "2026-11-07.2"
 
 import re
 from datetime import date, datetime

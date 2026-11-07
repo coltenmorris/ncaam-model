@@ -5,7 +5,7 @@ Every number that drives the model lives here (this replaces the old
 "Assumptions" sheet). Change a value, save, and run main.py again.
 """
 
-VERSION = "2026-11-07"
+VERSION = "2026-11-07.2"
 
 # ---------------------------------------------------------------------------
 # Model mode
@@ -120,10 +120,12 @@ COVER_STDEV = 11.0
 COVER_SATURATION = 6.0     # edges flatten out around this many points
 COVER_HIGH = 0.56
 COVER_MEDIUM = 0.54
-# Picks with an edge this large, or a spread this big, are labeled "Check"
-# instead of High/Medium/Low: usually the model is missing something.
-CHECK_EDGE = 12.0
-CHECK_SPREAD = 30.0
+# Picks are labeled "Check" instead of High/Medium/Low when the edge is at
+# least CHECK_EDGE points, or CHECK_SPREAD_SHARE of the spread if that is
+# bigger (e.g. 12 points on a 40 point line): the model is probably missing
+# something.
+CHECK_EDGE = 10.0
+CHECK_SPREAD_SHARE = 0.30
 # Log a sportsbook Edge pick when |projected margin + line| is at least this.
 EDGE_LOG_MIN = 0.0
 # Success-rate buckets for Edge picks (points of edge)

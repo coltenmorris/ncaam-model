@@ -5,7 +5,7 @@ Replaces pasting data into the old "KenPom" sheet.
 
 from __future__ import annotations
 
-VERSION = "2026-11-07"
+VERSION = "2026-11-07.2"
 
 import io
 from datetime import date
@@ -189,21 +189,48 @@ def _from_espn_bpi(season: int) -> pd.DataFrame:
     BPI offense/defense are points above an average team per 70 possessions;
     they are converted to a per-100-possession scale so the rest of the model
     works unchanged."""
-    teams, page, pages, labels = [], 1, 1, None
-    while page <= pages and page <= 20:
-        r = requests.get(ESPN_BPI_URL, params={"season": season, "limit": 50, "page": page},
-                         headers={"User-Agent": config.USER_AGENT}, timeout=config.HTTP_TIMEOUT)
+    def season_of(js):
+        for k in ("requestedSeason", "currentSeason"):
+            y = (js.get(k) or {}).get("year")
+            if y:
+                return int(y)
+        y = (js.get("currentValues") or {}).get("season")
+        return int(y) if y else None
+
+    def get(params):
+        r = requests.get(ESPN_BPI_URL, params=params, headers={"User-Agent": config.USER_AGENT},
+                         timeout=config.HTTP_TIMEOUT)
         r.raise_for_status()
-        js = r.json()
-        got = (js.get("currentValues") or {}).get("season") or (js.get("requestedSeason") or {}).get("year")
-        if got and int(got) != season:
-            raise RuntimeError(f"ESPN BPI returned season {got}, not {season}")
-        pages = int((js.get("pagination") or {}).get("pages") or 1)
+        return r.json()
+
+    # ESPN has used different parameter names; use whichever returns this season.
+    base, js, seen = None, None, []
+    for extra in ({"season": season}, {"year": season}, {"season": season, "seasontype": 1},
+                  {"season": season, "seasontype": 2}, {}):
+        try:
+            js = get({**extra, "limit": 50, "page": 1})
+        except Exception as e:
+            seen.append(f"{extra}: {e.__class__.__name__}")
+            continue
+        got = season_of(js)
+        seen.append(f"{extra or 'default'} -> {got}")
+        if got == season and js.get("teams"):
+            base = extra
+            break
+    if base is None:
+        raise RuntimeError(f"no {season} BPI posted yet ({'; '.join(seen)})")
+    teams, labels = [], None
+    pages = int((js.get("pagination") or {}).get("pages") or 1)
+    page = 1
+    while True:
         for cat in js.get("categories") or []:
             if cat.get("name") == "bpi" and cat.get("names"):
                 labels = [str(n).lower() for n in cat["names"]]
         teams += js.get("teams") or []
         page += 1
+        if page > min(pages, 20):
+            break
+        js = get({**base, "limit": 50, "page": page})
     i_bpi, i_off, i_def = 0, 3, 4
     if labels:
         for i, n in enumerate(labels):
@@ -310,6 +337,7 @@ def load_ratings(day: date, data_dir: Path, ratings_file: str | None = None) -> 
             if len(df) < 200:
                 raise RuntimeError(f"only {len(df)} teams returned")
             df.attrs["source"] = name
+            df.attrs["skipped"] = list(errors)
             for c in RATING_COLS:
                 if c not in df:
                     df[c] = None
@@ -318,7 +346,7 @@ def load_ratings(day: date, data_dir: Path, ratings_file: str | None = None) -> 
                 old.unlink(missing_ok=True)
             return df
         except Exception as e:
-            errors.append(f"{name}: {e}")
+            errors.append(f"{name}: {str(e)[:160]}")
             print(f"  {name} unavailable ({e})")
 
     older = sorted(data_dir.glob(f"ratings_{season}_*.csv"))
@@ -326,6 +354,7 @@ def load_ratings(day: date, data_dir: Path, ratings_file: str | None = None) -> 
         print(f"  Using last saved ratings {older[-1].name}")
         df = _read_saved(older[-1])
         df.attrs["source"] = f"saved copy {older[-1].stem.split('_')[-1]}"
+        df.attrs["skipped"] = list(errors)
         return df
     if season in _CBBD_STALE:
         rows, label = _CBBD_STALE[season]
@@ -334,6 +363,7 @@ def load_ratings(day: date, data_dir: Path, ratings_file: str | None = None) -> 
         df.attrs["source"] = (f"CollegeBasketballData.com LAST SEASON final ratings, pulled {amt:.0%} "
                               "toward average (this season's not posted yet; switches automatically)")
         print("  Using last season's final ratings until this season's are posted.")
+        df.attrs["skipped"] = list(errors)
         return df
     raise RuntimeError("no ratings source worked. " + " | ".join(errors))
 
