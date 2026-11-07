@@ -23,6 +23,7 @@ TODAY_COLS = [
     ("Proj T1 Margin", "Proj away margin"), ("Edge Pick", "Edge pick"), ("Edge Size", "Edge"), ("Cover %", "Cover %"),
     ("Model T1 Win%", "Model away win"), ("Market T1 Win%", "Market away win"),
     ("Confidence", "Conf."), ("Model Pick", "Model pick"),
+    ("Line Source", "Line source"), ("Line Tag", "Line tag"),
 ]
 HIST_COLS = [
     ("date", "Date"), ("pick_type", "Type"), ("t1", "Away"), ("t2", "Home"), ("pick_team", "Pick"),
@@ -101,29 +102,11 @@ def _better_ml(ml, ref_ml) -> bool:
 def odds_compare(games: list[dict], rows: list[dict]) -> list[dict]:
     """One entry per game: the DraftKings line (from ESPN) and every other book,
     flagging any number that is better than DraftKings for that side."""
-    from espn import home_line
     names = {r["game_id"]: (r.get("t1") or r.get("espn_t1"), r.get("t2") or r.get("espn_t2")) for r in rows}
     out = []
     for g in sorted(games, key=lambda x: str(x.get("start") or "")):
-        books = dict(g.get("books") or {})
-        dk_api = next((books.pop(k) for k in list(books) if k.lower().startswith("draftkings")), None)
-        h = home_line(g)
-        if h is not None:
-            dk = {"source": "DraftKings (ESPN)", "home_pt": h, "away_pt": -h,
-                  "home_px": g.get("spread_price_home"), "away_px": g.get("spread_price_away"),
-                  "home_ml": g.get("ml_home"), "away_ml": g.get("ml_away")}
-            if dk_api:  # fill any prices ESPN didn't include
-                for k_dk, k_api in (("home_px", "home_price"), ("away_px", "away_price"),
-                                    ("home_ml", "ml_home"), ("away_ml", "ml_away")):
-                    if dk[k_dk] is None:
-                        dk[k_dk] = dk_api.get(k_api)
-        elif dk_api and dk_api.get("home_point") is not None:
-            dk = {"source": "DraftKings (The Odds API)", "home_pt": dk_api.get("home_point"),
-                  "away_pt": dk_api.get("away_point"), "home_px": dk_api.get("home_price"),
-                  "away_px": dk_api.get("away_price"), "home_ml": dk_api.get("ml_home"),
-                  "away_ml": dk_api.get("ml_away")}
-        else:
-            dk = None
+        from odds_api import standard_line
+        dk, books = standard_line(g)
         if dk is None and not books:
             continue
         others, n_better = [], 0
@@ -217,8 +200,8 @@ def conf_key() -> list[dict]:
 
 
 def tips() -> dict:
-    line_src = ("the median line across all sportsbooks from The Odds API (falls back to DraftKings via ESPN)"
-                if config.LINE_SOURCE == "consensus" else "DraftKings via ESPN (falls back to the multi-book consensus)")
+    line_src = ("the most common line across all sportsbooks from The Odds API (falls back to DraftKings)"
+                if config.LINE_SOURCE == "consensus" else "DraftKings via the ESPN schedule")
     hca = config.HOME_COURT_POINTS
     return {
         "today": {
@@ -226,7 +209,7 @@ def tips() -> dict:
             "Matchup": "Away team @ home team. Away is T1 in the original spreadsheet; the win % and margin columns are from the away team's side.",
             "Away": "Away team (T1 in the original spreadsheet). Win % and margin columns are from this team's side.",
             "Home": "Home team (T2). On a neutral court no home-court points are applied.",
-            "Line": f"The spread the model compares against: {line_src}.",
+            "Line": f"The spread the model compares against: {line_src}. If DraftKings has no line for a game, the next biggest book is used and a small tag shows which (FD = FanDuel, MGM = BetMGM, CZR = Caesars).",
             "Books": "How many sportsbooks posted a spread for this game (The Odds API).",
             "Best away": "The most points available on the away team at any single book. Higher is better for an away bet.",
             "Best home": "The most points available on the home team at any single book. Higher is better for a home bet.",
@@ -440,6 +423,8 @@ tr.child td.bk{padding-left:30px;color:var(--ink-2)}
 .better{background:var(--good-bg)!important;color:var(--good);font-weight:700}
 .better:before{content:"\25B2 ";font-size:9px}
 .dk{font-weight:700}
+.src{display:inline-block;font-size:9px;font-weight:700;letter-spacing:.06em;color:var(--muted);border:1px solid var(--line);padding:0 3px;margin-left:5px;vertical-align:2px;line-height:1.4}
+.srcnote{display:block;font-size:10.5px;color:var(--muted);margin-top:2px;font-weight:400}
 .legend{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;font-size:12.5px;color:var(--ink-2);margin:0 0 12px}
 .legend .sw{display:inline-block;padding:1px 6px}
 
@@ -657,11 +642,11 @@ footer a{color:var(--ink)}
       <div class="card-h"><h2>Odds by book</h2><span class="lbl muted">DraftKings is the standard line</span></div>
       <div class="controls">
         <input type="search" id="bookSearch" placeholder="Search team">
-        <label class="chk"><input type="checkbox" id="betterOnly"> Only games with a better number than DraftKings</label>
+        <label class="chk"><input type="checkbox" id="betterOnly"> Only games where another book beats the standard line</label>
         <button class="btn" id="expandAll" type="button">Expand all</button>
       </div>
-      <div class="legend"><span>DraftKings comes from the ESPN schedule. Click a game to see every book.</span>
-        <span><span class="sw better">better</span> more points, a better price, or a better moneyline than DraftKings for that side</span></div>
+      <div class="legend"><span>DraftKings is the standard line. If it has no line for a game, the next biggest book is used and tagged (e.g. <span class="src" style="margin:0">FD</span> = FanDuel). Click a game to see every book.</span>
+        <span><span class="sw better">better</span> more points, a better price, or a better moneyline than the standard line for that side</span></div>
       <div class="tbl" id="bookTbl"></div>
     </div>
   </section>
@@ -808,8 +793,14 @@ tile($('todayTiles'), 1, 'Games', D.games, 'On the ESPN schedule', '');
 tile($('todayTiles'), 2, 'Edges ' + b2 + '+', nBig, nStrong + ' at ' + b1 + '+ points', 'blue');
 tile($('todayTiles'), 3, 'With a line', T.rows.length, 'Priced by sportsbooks', '');
 tile($('todayTiles'), 4, 'Market edges', D.marketEdges || 0, 'Model vs prediction markets', 'black');
-function fmtToday(c, v) {
+let lineTags = {};
+const subTag = t => t && t !== 'DK' && t !== 'CONS';
+function fmtToday(c, v, r) {
   if (v == null) return '';
+  if (c === 'Line' && r) {
+    const [tag, src] = lineTags[r[1]] || [];
+    if (subTag(tag)) return el('span', null, [document.createTextNode(v), el('span', {className: 'src', textContent: tag, title: 'From ' + src})]);
+  }
   if (c === 'Edge') return chip(v.toFixed(1), v >= b2 ? 'hi' : v >= b1 ? 'md' : '');
   if (c === 'Conf.') return v ? chip(v === 'Check' ? 'Check' : v, v === 'High' ? 'hi' : v === 'Medium' ? 'md' : v === 'Check' ? 'L' : '') : '';
   if (c.indexOf('win') >= 0 || c === 'Cover %') return pct(v);
@@ -829,6 +820,7 @@ function drawToday() {
   const cols = MAIN.concat(more ? MORE : []);
   const data = rows.map(r => cols.map(c => c === 'Matchup' ? r[ti('Away')] + ' @ ' + r[ti('Home')]
     : c === 'Model pick' ? short(r[ti(c)]) : r[ti(c)]));
+  lineTags = {}; rows.forEach(r => { lineTags[r[ti('Away')] + ' @ ' + r[ti('Home')]] = [r[ti('Line tag')], r[ti('Line source')]]; });
   table($('todayTbl'), cols, data, fmtToday, (D.tips || {}).today);
   // phone: one card per game
   const host = $('todayCards'); host.replaceChildren();
@@ -837,7 +829,7 @@ function drawToday() {
     const kv = (k, v) => el('div', null, [el('div', {className: 'k', textContent: k}), (() => { const d = el('div', {className: 'v'}); if (v instanceof Node) d.append(v); else d.textContent = v == null ? '' : v; return d; })()]);
     const edge = r[ti('Edge')], conf = r[ti('Conf.')];
     host.append(el('div', {className: 'gcard'}, [
-      el('div', {className: 'row1'}, [el('div', {className: 'teams', textContent: r[ti('Away')] + ' @ ' + r[ti('Home')]}), el('div', {className: 'meta', textContent: (r[ti('Time')] || '') + '  ' + (r[ti('Line')] || '')})]),
+      el('div', {className: 'row1'}, [el('div', {className: 'teams', textContent: r[ti('Away')] + ' @ ' + r[ti('Home')]}), el('div', {className: 'meta'}, [document.createTextNode((r[ti('Time')] || '') + '  ' + (r[ti('Line')] || '')), ...(subTag(r[ti('Line tag')]) ? [el('span', {className: 'src', textContent: r[ti('Line tag')], title: 'From ' + r[ti('Line source')]})] : [])])]),
       el('div', {className: 'grid'}, [
         kv('Edge pick', r[ti('Edge pick')]),
         kv('Edge', isNum(edge) ? chip(edge.toFixed(1), edge >= b2 ? 'hi' : edge >= b1 ? 'md' : '') : ''),
@@ -1035,15 +1027,20 @@ const O = D.odds || [];
 const sp = (pt, px) => { const f = el('span'); f.append(document.createTextNode(line(pt))); if (isNum(px)) f.append(el('span', {className: 'px', textContent: '(' + (px > 0 ? '+' : '') + Math.round(px) + ')'})); return f; };
 const ml = v => isNum(v) ? (v > 0 ? '+' : '') + Math.round(v) : '';
 const open = new Set(); let allOpen = false;
-const BH = ['', 'Time', 'Away', 'Home', 'Away spread', 'Home spread', 'Away ML', 'Home ML', 'Books', 'Better than DK'];
+const BH = ['', 'Time', 'Away', 'Home', 'Away spread', 'Home spread', 'Away ML', 'Home ML', 'Books', 'Better books'];
 const BT = {
-  'Away spread': 'Points on the away team, price in parentheses. Game rows show DraftKings from the ESPN schedule.',
-  'Home spread': 'Points on the home team, price in parentheses. Game rows show DraftKings from the ESPN schedule.',
+  'Away spread': 'Points on the away team, price in parentheses. Game rows show DraftKings. If DraftKings has no line, the next biggest book is used and a small tag shows which (FD = FanDuel, MGM = BetMGM, CZR = Caesars).',
+  'Home spread': 'Points on the home team, price in parentheses. Game rows show DraftKings. If DraftKings has no line, the next biggest book is used and a small tag shows which (FD = FanDuel, MGM = BetMGM, CZR = Caesars).',
   'Away ML': 'Moneyline for the away team to win outright (American odds).',
   'Home ML': 'Moneyline for the home team to win outright (American odds).',
   'Books': 'Other sportsbooks with a line on this game. Click the row to see them.',
-  'Better than DK': 'How many other books offer at least one number better than DraftKings: more points on a side, the same points at a better price, or a better moneyline.'
+  'Better books': 'How many other books beat the standard line (DraftKings, or the tagged substitute) on at least one number: more points on a side, the same points at a better price, or a better moneyline.'
 };
+function srcTag(node, dk) {
+  if (!dk || dk.is_dk) return node;
+  const w = el('span', null, [node, el('span', {className: 'src', textContent: dk.tag, title: 'From ' + dk.source + ' (no DraftKings line)'})]);
+  return w;
+}
 function booksMobile(host, games) {
   const list = el('div', {className: 'mlist'});
   games.forEach((g, gi) => {
@@ -1051,10 +1048,11 @@ function booksMobile(host, games) {
     const card = el('div', {className: 'mi' + (g.books.length ? ' tap' : '') + (gi % 2 ? ' alt' : '')});
     card.append(
       el('div', {className: 'mt'}, [el('b', {textContent: g.away + ' @ ' + g.home}), el('span', {className: 'ms', textContent: g.time})]),
+      ...(g.dk && !dk.is_dk ? [el('span', {className: 'srcnote', textContent: 'Line from ' + dk.source + ' (no DraftKings line)'})] : []),
       el('div', {className: 'mg'}, [
-        kv2('DK ' + (g.awayAbbr || 'away'), g.dk ? sp(dk.away_pt, dk.away_px) : 'n/a'), kv2('DK ' + (g.homeAbbr || 'home'), g.dk ? sp(dk.home_pt, dk.home_px) : 'n/a'),
+        kv2((dk.tag || 'DK') + ' ' + (g.awayAbbr || 'away'), g.dk ? sp(dk.away_pt, dk.away_px) : 'n/a'), kv2((dk.tag || 'DK') + ' ' + (g.homeAbbr || 'home'), g.dk ? sp(dk.home_pt, dk.home_px) : 'n/a'),
         kv2('Moneyline', (ml(dk.away_ml) || '-') + ' / ' + (ml(dk.home_ml) || '-')),
-        kv2('Better than DK', g.better ? chip(g.better + (g.better === 1 ? ' book' : ' books'), 'hi') : (g.books.length ? 'None' : 'No other books'))]));
+        kv2('Better books', g.better ? chip(g.better + (g.better === 1 ? ' book' : ' books'), 'hi') : (g.books.length ? 'None' : 'No other books'))]));
     if (isOpen && g.books.length) {
       const x = el('div', {className: 'mx'});
       x.append(el('div', {className: 'xr h'}, [el('span', {textContent: 'Book'}), el('span', {textContent: g.awayAbbr || 'Away'}), el('span', {textContent: g.homeAbbr || 'Home'})]));
@@ -1089,10 +1087,10 @@ function drawBooks() {
     const tr = el('tr', {className: 'parent' + (gi % 2 ? ' alt' : '')});
     const cell = (c, cls) => { const td = el('td', {className: cls || ''}); if (c instanceof Node) td.append(c); else td.textContent = c == null ? '' : c; return td; };
     tr.append(cell(g.books.length ? (isOpen ? '−' : '+') : '', 'tog'), cell(g.time), cell(g.away), cell(g.home),
-      cell(g.dk ? sp(dk.away_pt, dk.away_px) : 'n/a', 'n dk'), cell(g.dk ? sp(dk.home_pt, dk.home_px) : 'n/a', 'n dk'),
+      cell(g.dk ? srcTag(sp(dk.away_pt, dk.away_px), dk) : 'n/a', 'n dk'), cell(g.dk ? srcTag(sp(dk.home_pt, dk.home_px), dk) : 'n/a', 'n dk'),
       cell(ml(dk.away_ml), 'n dk'), cell(ml(dk.home_ml), 'n dk'), cell(g.books.length, 'n'),
       cell(g.better ? chip(g.better + (g.better === 1 ? ' book' : ' books'), 'hi') : '', 'n'));
-    tr.title = g.dk ? 'Standard line: ' + dk.source : 'No DraftKings line for this game';
+    tr.title = g.dk ? 'Standard line: ' + dk.source + (dk.is_dk ? '' : ' (no DraftKings line)') + ', via ' + dk.via : 'No line for this game';
     tr.onclick = () => { if (open.has(id)) open.delete(id); else open.add(id); allOpen = false; drawBooks(); };
     tb.append(tr);
     if (!isOpen) return;

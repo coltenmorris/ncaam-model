@@ -99,14 +99,19 @@ def build_rows(games: list[dict], matcher) -> list[dict]:
         t1 = matcher.match(a["location"], a["short"], a["display"])
         t2 = matcher.match(h["location"], h["short"], h["display"])
 
+        from odds_api import standard_line
         espn_home = espn.home_line(g)
         cons_home = g.get("cons_home_line")
+        std, _ = standard_line(g)
+        std_label = None
+        if std:
+            std_label = std["source"] if std["is_dk"] else f"{std['source']} (no DraftKings line)"
         if config.LINE_SOURCE == "consensus" and cons_home is not None:
-            primary, source = cons_home, f"Consensus ({g.get('n_books', 0)} books)"
-        elif espn_home is not None:
-            primary, source = espn_home, "ESPN (DraftKings)"
+            primary, source, tag = cons_home, f"Consensus ({g.get('n_books', 0)} books)", "CONS"
+        elif std:
+            primary, source, tag = std["home_pt"], std_label, std["tag"]
         else:
-            primary, source = cons_home, (f"Consensus ({g.get('n_books', 0)} books)" if cons_home is not None else "")
+            primary, source, tag = cons_home, (f"Consensus ({g.get('n_books', 0)} books)" if cons_home is not None else ""), "CONS"
 
         fav = None if not primary else ("T2" if primary < 0 else "T1")
         if primary is None:
@@ -132,6 +137,7 @@ def build_rows(games: list[dict], matcher) -> list[dict]:
             "neutral": g.get("neutral", False),
             "line_text": line_text,
             "line_source": source,
+            "line_tag": tag if primary is not None else "",
             "over_under": g.get("over_under"),
             "spread": None if primary is None else abs(primary),
             "fav": fav,
@@ -252,6 +258,7 @@ def run_model(rows: list[dict], ratings: pd.DataFrame) -> pd.DataFrame:
         edge_team = (t1 if edge_side == "T1" else t2) if edge_side else ""
         rec.update({
             "Line Source": row.get("line_source", ""),
+            "Line Tag": row.get("line_tag", ""),
             "T1 Line": t1_line,
             "DK Line (T1)": row.get("dk_t1"),
             "Consensus (T1)": row.get("cons_t1"),
