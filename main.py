@@ -126,6 +126,12 @@ def run(args) -> int:
     n = tracker.grade(HISTORY)
     print(f"  {n} pick(s) graded.")
     notes.append(f"Graded {n} pick(s)")
+    try:
+        rl = tracker.relabel_edge_picks(HISTORY)
+        if rl:
+            notes.append(f"Re-scored {rl} Edge pick(s) with the current confidence rules")
+    except Exception as e:
+        notes.append(f"Confidence re-score skipped ({e.__class__.__name__})")
 
     print(f"Downloading team ratings (season {torvik.season_for(day)})...")
     try:

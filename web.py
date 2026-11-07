@@ -162,6 +162,36 @@ def power_table(ratings: pd.DataFrame, data_dir: Path | None) -> pd.DataFrame:
     return out
 
 
+def _market_eval(data_dir):
+    try:
+        import tracker
+        return tracker.market_check(Path(data_dir) / "pick_history.csv") if data_dir else {}
+    except Exception:
+        return {}
+
+
+def portfolio(history: pd.DataFrame) -> dict:
+    """Every Edge pick as a flat bet at -110 (default $100 per pick)."""
+    stake = float(getattr(config, "PORTFOLIO_STAKE", 100))
+    price = float(getattr(config, "PORTFOLIO_PRICE", -110))
+    win = stake * (100 / -price if price < 0 else price / 100)
+    bets = []
+    if history is not None and not history.empty:
+        h = history[(history["pick_type"] == "Edge") & (history["result"] != "NR")].copy()
+        h = h.sort_values(["date", "start"], na_position="last")
+        for _, r in h.iterrows():
+            res = r.get("result")
+            res = res if res in ("W", "L", "P") else None
+            pl = None if res is None else (win if res == "W" else -stake if res == "L" else 0.0)
+            bets.append(_sanitize({
+                "date": r["date"], "away": r["t1"], "home": r["t2"], "team": r["pick_team"],
+                "line": r.get("pick_line"), "edge": r.get("edge"), "cover": r.get("cover_prob"),
+                "conf": r.get("confidence") or "Low", "result": res, "pl": pl,
+                "s1": r.get("t1_score"), "s2": r.get("t2_score"),
+            }))
+    return {"stake": stake, "price": price, "win": round(win, 2), "bets": bets}
+
+
 def live_picks(results: pd.DataFrame) -> dict:
     """Today's Edge pick per ESPN game id, so the page can show live cover status."""
     out = {}
@@ -291,6 +321,8 @@ def build_payload(day: date, results: pd.DataFrame, record: pd.DataFrame, trend:
         "trend": {"cols": list(trend.columns), "rows": _records(trend, [(c, c) for c in trend.columns])},
         "history": history_groups(history),
         "livePicks": live_picks(results),
+        "portfolio": portfolio(history),
+        "marketEval": _market_eval(data_dir),
         "marketEdges": int((results["Win% Edge (T1)"].abs() >= config.MARKET_EDGE_MIN).sum())
                        if not results.empty and "Win% Edge (T1)" in results else 0,
         "odds": _sanitize(odds_compare(games, rows)),
@@ -328,6 +360,7 @@ TEMPLATE = r"""<!doctype html>
   --line:#c8c8c3; --rule:#0a0a0a; --blue:#1f3fe6; --on-blue:#ffffff; --block:#0a0a0a; --on-block:#f3f3f1;
   --good:#0d7a3c; --good-bg:#d9efe1; --bad:#b3261e; --bad-bg:#f6dcd9; --warn-bg:#fdeec2;
   --grid:#d4d4cf; --stripe:#ebebe8; --hover:#e1e1dc; --child:#e5e5e1;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4;
 }
 @media (prefers-color-scheme:dark){
   :root:where(:not([data-theme="light"])){
@@ -335,6 +368,7 @@ TEMPLATE = r"""<!doctype html>
     --bg:#0c0c0c; --paper:#151515; --paper-2:#1d1d1c; --ink:#f1f1ee; --ink-2:#c4c4bf; --muted:#8c8c87;
     --line:#2f2f2d; --rule:#f1f1ee; --blue:#3b5bff; --on-blue:#ffffff; --block:#f1f1ee; --on-block:#0c0c0c;
     --good:#5fd08f; --good-bg:#13301f; --bad:#f2897f; --bad-bg:#3a1a17; --warn-bg:#3a3110; --grid:#262625; --stripe:#1d1d1c; --hover:#252524; --child:#202020;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181;
   }
 }
 :root[data-theme="dark"]{
@@ -342,6 +376,7 @@ TEMPLATE = r"""<!doctype html>
   --bg:#0c0c0c; --paper:#151515; --paper-2:#1d1d1c; --ink:#f1f1ee; --ink-2:#c4c4bf; --muted:#8c8c87;
   --line:#2f2f2d; --rule:#f1f1ee; --blue:#3b5bff; --on-blue:#ffffff; --block:#f1f1ee; --on-block:#0c0c0c;
   --good:#5fd08f; --good-bg:#13301f; --bad:#f2897f; --bad-bg:#3a1a17; --warn-bg:#3a3110; --grid:#262625; --stripe:#1d1d1c; --hover:#252524; --child:#202020;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181;
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
@@ -377,6 +412,7 @@ section[hidden]{display:none}
 .tile .v{font-size:52px;font-weight:700;letter-spacing:-.04em;line-height:1;margin-top:auto;padding-top:18px}
 .tile .s{font-size:12.5px;margin-top:8px;color:var(--ink-2)}
 .tile .arrow{position:absolute;right:14px;bottom:12px;font-size:16px}
+.tile .v.long{font-size:clamp(28px,3.4vw,44px)}
 .tile.blue{background:var(--blue);border-color:var(--blue);color:var(--on-blue)}
 .tile.blue .s,.tile.blue .lbl{color:var(--on-blue)}
 .tile.black{background:var(--block);border-color:var(--block);color:var(--on-block)}
@@ -525,9 +561,20 @@ body.has-dock .wrap{padding-bottom:90px}
   .controls{gap:8px}
   .controls select,.controls input[type=search],.controls .btn{flex:1 1 100%}
   .legend{font-size:12px}
+  .controls .seg{display:flex !important;flex-wrap:wrap;width:100%;max-width:100%}
+  .controls .seg button{flex:1 1 auto;padding:8px 6px}
   #recordTbl td:first-child,#powerTbl td:nth-child(2){white-space:normal}
   #recordTbl .indent{padding-left:12px}
 }
+/* portfolio */
+.pfsec .card-h{cursor:pointer}
+.pfsec .card-h h2{display:flex;align-items:center;gap:10px}
+.pfsec .sw{display:inline-block;width:12px;height:12px}
+.pfsum{display:flex;flex-wrap:wrap;gap:6px 22px;font-size:12.5px;color:var(--ink-2);margin-bottom:10px}
+.pfsum b{color:var(--ink);font-size:14px;margin-left:4px}
+.pos{color:var(--good);font-weight:700}.neg{color:var(--bad);font-weight:700}
+.legend .li{display:inline-flex;align-items:center;gap:6px}
+.legend .li i{display:inline-block;width:14px;height:3px}
 /* chart */
 .chart{position:relative}
 .chart svg{display:block;width:100%;height:auto}
@@ -566,7 +613,7 @@ footer a{color:var(--ink)}
       <div class="stack">Designed by<br>Colten Morris<br><a class="credit" href="https://www.linkedin.com/in/colten-morris/" target="_blank" rel="noopener">LinkedIn &#8599;</a></div>
       <div class="meta"><div id="day"></div><div id="updated"></div></div>
       <button class="theme" id="theme" type="button">Theme</button>
-      <button class="theme" id="tickerToggle" type="button" aria-pressed="true">Ticker: On</button>
+      <button class="theme" id="tickerToggle" type="button" aria-pressed="true">Live ticker: On</button>
     </div>
   </header>
 
@@ -574,9 +621,10 @@ footer a{color:var(--ink)}
     <button role="tab" aria-selected="true" data-tab="today"><span class="n">01</span>Today</button>
     <button role="tab" aria-selected="false" data-tab="live"><span class="n">02</span>Live</button>
     <button role="tab" aria-selected="false" data-tab="rate"><span class="n">03</span>Success Rate</button>
-    <button role="tab" aria-selected="false" data-tab="history"><span class="n">04</span>History</button>
-    <button role="tab" aria-selected="false" data-tab="books"><span class="n">05</span>Odds by Book</button>
-    <button role="tab" aria-selected="false" data-tab="power"><span class="n">06</span>Power Rankings</button>
+    <button role="tab" aria-selected="false" data-tab="portfolio"><span class="n">04</span>Portfolio</button>
+    <button role="tab" aria-selected="false" data-tab="history"><span class="n">05</span>History</button>
+    <button role="tab" aria-selected="false" data-tab="books"><span class="n">06</span>Odds by Book</button>
+    <button role="tab" aria-selected="false" data-tab="power"><span class="n">07</span>Power Rankings</button>
   </nav>
 
   <section id="today">
@@ -621,8 +669,29 @@ footer a{color:var(--ink)}
       <div class="chart" id="chart"></div>
       <p class="sub">Dashed line = 52.4%, break-even against the spread at -110.</p>
     </div>
-    <div class="card"><div class="card-h"><h2>Record by pick type</h2><span class="lbl muted">02</span></div><div class="tbl" id="recordTbl"></div></div>
-    <div class="card"><div class="card-h"><h2>Edge picks by day</h2><span class="lbl muted">03</span></div><div class="tbl" id="trendTbl"></div></div>
+    <div class="card"><div class="card-h"><h2>How to read this</h2><span class="lbl muted">Units</span></div>
+      <p class="sub" style="margin:0">A <b>unit</b> is one standard bet. <b>Units</b> = profit or loss if you bet 1 unit on every pick in a group. Against the spread at the usual -110 price, a win pays <b>+0.91</b>, a loss costs <b>-1</b>, and a push is <b>0</b>. So +5.00 units means you would be up five bets' worth; with $100 bets that is +$500. Because a loss costs more than a win pays, you need to win <b>52.4%</b> just to break even. Market picks are paid at the market's own price instead of -110.</p>
+    </div>
+    <div class="card"><div class="card-h"><h2>Record by pick type</h2><button class="btn" id="recExpand" type="button">Expand all</button></div><div class="tbl" id="recordTbl"></div>
+      <p class="sub">Click a group to show its breakdown. Confidence uses the current rules for every pick, so all tiers are measured the same way.</p></div>
+    <div class="card"><div class="card-h"><h2>Model odds vs market odds</h2><span class="lbl muted">Market picks</span></div>
+      <div id="mktEval"></div>
+    </div>
+    <div class="card"><div class="card-h"><h2>Edge picks by day</h2><span class="lbl muted">Against the spread</span></div><div class="tbl" id="trendTbl"></div></div>
+  </section>
+
+  <section id="portfolio" hidden>
+    <div class="tiles" id="pfTiles"></div>
+    <div class="card">
+      <div class="card-h"><h2>Bankroll</h2><span class="lbl muted" id="pfRule"></span></div>
+      <div class="controls">
+        <div class="seg" id="pfSections" role="group" aria-label="Sections to show"></div>
+        <select id="pfRange" aria-label="Date range"><option value="all">Whole season</option><option value="30">Last 30 days</option><option value="7">Last 7 days</option></select>
+      </div>
+      <div class="chart" id="pfChart"></div>
+      <div class="legend" id="pfLegend"></div>
+    </div>
+    <div id="pfCards"></div>
   </section>
 
   <section id="history" hidden>
@@ -691,6 +760,9 @@ const sgn = v => isNum(v) ? (v > 0 ? '+' : '') + (Math.round(v*10)/10).toFixed(1
 const line = v => !isNum(v) ? '' : v === 0 ? 'PK' : (v > 0 ? '+' : '') + v;
 const chip = (text, cls) => el('span', {className: 'chip ' + (cls || ''), textContent: text});
 const pad2 = n => String(n).padStart(2, '0');
+const store = { get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch(e) { return d; } },
+                set(k, v) { try { localStorage.setItem(k, v); } catch(e) {} } };
+var pfReady = false;
 const MQ = matchMedia('(max-width: 720px)');
 const mobile = () => MQ.matches;
 const kv2 = (k, v) => el('div', null, [el('div', {className: 'k', textContent: k}), (() => { const d = el('div', {className: 'v'}); if (v instanceof Node) d.append(v); else d.textContent = v == null ? '' : v; return d; })()]);
@@ -702,7 +774,7 @@ $('theme').onclick = () => {
   const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
   root.dataset.theme = dark ? 'light' : 'dark';
   try { localStorage.setItem('theme', root.dataset.theme); } catch(e) {}
-  drawChart();
+  drawChart(); if (pfReady) drawPortfolio();
 };
 $('day').textContent = D.day;
 $('updated').textContent = 'Updated ' + D.updated;
@@ -714,6 +786,7 @@ document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
   document.querySelectorAll('nav button').forEach(x => x.setAttribute('aria-selected', x === b));
   document.querySelectorAll('section').forEach(s => s.hidden = s.id !== b.dataset.tab);
   if (b.dataset.tab === 'rate') drawChart();
+  if (b.dataset.tab === 'portfolio' && pfReady) drawPortfolio();
   try { localStorage.setItem('tab', b.dataset.tab); } catch(e) {}
 });
 try { const t = localStorage.getItem('tab'); if (t) { const b = document.querySelector('nav button[data-tab="'+t+'"]'); if (b) b.click(); } } catch(e) {}
@@ -746,7 +819,7 @@ addEventListener('keydown', ev => { if (ev.key === 'Escape') hideHint(); });
 function tile(host, i, k, v, s, cls) {
   host.append(el('div', {className: 'tile ' + (cls || '')}, [
     el('div', {className: 'top'}, [el('span', {className: 'lbl', textContent: k}), el('span', {className: 'lbl', textContent: pad2(i)})]),
-    el('div', {className: 'v', textContent: v}), el('div', {className: 's', textContent: s}),
+    el('div', {className: 'v' + (String(v).length >= 7 ? ' long' : ''), textContent: v}), el('div', {className: 's', textContent: s}),
     el('span', {className: 'arrow', textContent: '↗'})]));
 }
 
@@ -760,13 +833,15 @@ function table(host, cols, rows, fmt, tipMap) {
   cols.forEach((c, i) => {
     const th = el('th', {textContent: c, className: numCol[i] ? 'n' : ''});
     if (tipMap && tipMap[c]) th.append(infoBtn(c, tipMap[c]));
-    th.onclick = () => { dir = sortI === i ? -dir : (numCol[i] ? -1 : 1); sortI = i; body(); };
+    th.onclick = () => { dir = sortI === i ? -dir : (numCol[i] && !/^Conf/.test(c) ? -1 : 1); sortI = i; body(); };
     hr.append(th);
   });
   t.append(el('thead', null, [hr]), tb); host.append(t);
   function body() {
     const rs = rows.slice();
-    if (sortI >= 0) rs.sort((a, b) => { const x = a[sortI], y = b[sortI]; if (x == null) return 1; if (y == null) return -1; return (x > y ? 1 : x < y ? -1 : 0) * dir; });
+    const RANK = {High: 0, Medium: 1, Low: 2, Check: 3};
+    const key = v => (typeof v === 'string' && v in RANK) ? RANK[v] : v;
+    if (sortI >= 0) rs.sort((a, b) => { const x = key(a[sortI]), y = key(b[sortI]); if (x == null || x === '') return 1; if (y == null || y === '') return -1; return (x > y ? 1 : x < y ? -1 : 0) * dir; });
     tb.replaceChildren(...rs.map((r, ri) => {
       const tr = el('tr', {className: ri % 2 ? 'alt' : ''});
       r.forEach((v, i) => {
@@ -858,27 +933,68 @@ const e = recRow('Sportsbook Edge (all)') || [], m = recRow('Market Edge (all, s
 tile($('rateTiles'), 1, 'Edge record', e.length ? e[ri('W')] + '-' + e[ri('L')] + '-' + e[ri('P')] : '0-0-0', 'W-L-P against the spread', '');
 tile($('rateTiles'), 2, 'Edge success', pct(e[ri('Success Rate')]) || 'n/a', 'Break-even is 52.4%', 'blue');
 tile($('rateTiles'), 3, 'Edge units', isNum(e[ri('Units')]) ? (e[ri('Units')] > 0 ? '+' : '') + e[ri('Units')].toFixed(2) : 'n/a', '1 unit per pick at -110', '');
-tile($('rateTiles'), 4, 'Market picks', m.length ? m[ri('W')] + '-' + m[ri('L')] : '0-0', (isNum(m[ri('Success Rate')]) ? pct(m[ri('Success Rate')]) + ' ' : '') + 'straight up', 'black');
+const ME = D.marketEval || {};
+tile($('rateTiles'), 4, 'Model vs market', ME.picks ? (ME.brier_model <= ME.brier_market ? 'Model' : 'Market') : 'n/a',
+  ME.picks ? 'Closer odds on ' + ME.picks + ' disputed games' : 'Needs graded market picks', 'black');
 const units = v => isNum(v) ? (v > 0 ? '+' : '') + v.toFixed(2) : '';
+const recOpen = new Set(); let recAll = false;
+const REC_TIPS = {
+  'W': 'Wins.', 'L': 'Losses.', 'P': 'Pushes (exactly on the line), counted as no bet.',
+  'Success Rate': 'Wins / (wins + losses). Break-even against the spread at -110 is 52.4%.',
+  'Units': 'Profit or loss betting 1 unit per pick. At -110 a win is +0.91, a loss -1, a push 0. Market picks are paid at the market price.',
+  'Rate': 'Wins / (wins + losses). Break-even is 52.4%.'
+};
+function recGroups() {
+  const groups = []; let cur = null;
+  R.rows.forEach(r => { const lbl = String(r[0]); if (lbl.startsWith('  ')) { if (cur) cur.kids.push(r); } else { cur = {row: r, kids: []}; groups.push(cur); } });
+  return groups;
+}
 function drawRecord() {
-  if (mobile()) {
-    const cols = ['Pick type', 'W-L-P', 'Rate', 'Units'];
-    const rows = R.rows.map(r => [r[0], r[ri('W')] + '-' + r[ri('L')] + '-' + r[ri('P')], r[ri('Success Rate')], r[ri('Units')]]);
-    table($('recordTbl'), cols, rows, (c, v) => {
-      if (c === 'Pick type') { const s = String(v); return el('span', {className: s.startsWith('  ') ? 'indent' : '', textContent: s.trim()}); }
-      if (c === 'Rate') return pct(v);
-      if (c === 'Units') return units(v);
-      return null;
+  const host = $('recordTbl'); host.replaceChildren();
+  const mob = mobile();
+  const cols = mob ? ['Pick type', 'W-L-P', 'Rate', 'Units'] : ['', 'Pick type', 'W', 'L', 'P', 'Picks', 'Success Rate', 'Units'];
+  const vals = r => mob ? [r[ri('W')] + '-' + r[ri('L')] + '-' + r[ri('P')], pct(r[ri('Success Rate')]), units(r[ri('Units')])]
+                        : [r[ri('W')], r[ri('L')], r[ri('P')], r[ri('Picks')], pct(r[ri('Success Rate')]), units(r[ri('Units')])];
+  const t = el('table'), tb = el('tbody'), hr = el('tr');
+  cols.forEach((c, i) => { const th = el('th', {textContent: c, className: i >= (mob ? 1 : 2) ? 'n' : ''}); if (REC_TIPS[c]) th.append(infoBtn(c, REC_TIPS[c])); hr.append(th); });
+  t.append(el('thead', null, [hr]), tb); host.append(t);
+  recGroups().forEach((g, gi) => {
+    const label = String(g.row[0]).trim(), open = recAll || recOpen.has(label), has = g.kids.length > 0;
+    const tr = el('tr', {className: 'parent' + (gi % 2 ? ' alt' : '')});
+    const name = el('span', null, [document.createTextNode((mob && has ? (open ? '− ' : '+ ') : '') + label)]);
+    if (!mob) tr.append(el('td', {className: 'tog', textContent: has ? (open ? '−' : '+') : ''}));
+    tr.append(el('td', null, [el('b', null, [name])]));
+    vals(g.row).forEach(v => tr.append(el('td', {className: 'n', textContent: v})));
+    if (has) tr.onclick = () => { if (recOpen.has(label)) recOpen.delete(label); else recOpen.add(label); recAll = false; drawRecord(); };
+    tb.append(tr);
+    if (open) g.kids.forEach(k => {
+      const c = el('tr', {className: 'child'});
+      if (!mob) c.append(el('td'));
+      c.append(el('td', {className: 'bk', textContent: String(k[0]).trim()}));
+      vals(k).forEach(v => c.append(el('td', {className: 'n', textContent: v})));
+      tb.append(c);
     });
-    return;
-  }
-  table($('recordTbl'), R.cols, R.rows, (c, v) => {
-    if (c === 'Pick Type') { const s = String(v); return el('span', {className: s.startsWith('  ') ? 'indent' : '', textContent: s.trim()}); }
-    if (c === 'Success Rate') return pct(v);
-    if (c === 'Units') return units(v);
-    return null;
   });
 }
+$('recExpand').onclick = () => { recAll = !recAll; if (!recAll) recOpen.clear(); $('recExpand').textContent = recAll ? 'Collapse all' : 'Expand all'; drawRecord(); };
+function drawMarketEval() {
+  const host = $('mktEval'); host.replaceChildren();
+  if (!ME.picks) { host.append(el('p', {className: 'sub', textContent: 'Appears once some Market picks have been graded.'})); return; }
+  const better = ME.brier_model <= ME.brier_market;
+  host.append(el('p', {className: 'sub', style: 'margin-top:0', textContent:
+    'A Market pick is a game where the model gave a team at least 5 points more win chance than Kalshi, Polymarket or the books. Those are usually underdogs, so they lose most of the time even when the model is right; a 1-17 record can still be fine if the model expected about 1 win. The fair test is whose probabilities were closer to what happened. The Brier score is the average squared gap between the probability and the result (1 = win, 0 = loss): lower is better.'}));
+  const rows = [
+    ['Games compared', ME.picks, ''], ['Actual wins', ME.wins, ''],
+    ['Wins the model expected', ME.expected_model.toFixed(1), 'Sum of model win %'],
+    ['Wins the market expected', ME.expected_market.toFixed(1), 'Sum of market win %'],
+    ['Brier score, model', ME.brier_model.toFixed(4), better ? 'Lower: model was closer' : ''],
+    ['Brier score, market', ME.brier_market.toFixed(4), better ? '' : 'Lower: market was closer']];
+  table(host.appendChild(el('div', {className: 'tbl'})), ['Measure', 'Value', 'Note'], rows);
+  host.append(el('p', {className: 'sub', textContent: better
+    ? 'So far the model’s odds were closer than the market’s on these games.'
+    : 'So far the market’s odds were closer than the model’s on these games, so the model is overrating these teams. Treat Market picks with caution until this flips.'}));
+}
+drawMarketEval();
 function drawTrend() {
   const tc = D.trend.cols, t = n => tc.indexOf(n), rows = D.trend.rows.slice().reverse();
   if (mobile()) {
@@ -930,8 +1046,158 @@ function drawChart() {
   hit.addEventListener('pointermove', show); hit.addEventListener('pointerdown', show);
   hit.addEventListener('pointerleave', () => { tip.style.display = 'none'; hair.setAttribute('visibility', 'hidden'); dot.setAttribute('visibility', 'hidden'); });
 }
-addEventListener('resize', () => { if (!$('rate').hidden) drawChart(); });
+addEventListener('resize', () => { if (!$('rate').hidden) drawChart(); if (!$('portfolio').hidden && pfReady) drawPortfolio(); });
 if (!$('rate').hidden) drawChart();
+
+
+// ---------- 04 Portfolio ($ per Edge pick at -110)
+const PF = D.portfolio || {bets: [], stake: 100, win: 90.91};
+const SECTIONS = [
+  {id: 'Overall', color: '--s1', test: b => true},
+  {id: 'High', color: '--s2', test: b => b.conf === 'High'},
+  {id: 'Medium', color: '--s3', test: b => b.conf === 'Medium'},
+  {id: 'Low', color: '--s4', test: b => b.conf === 'Low'},
+  {id: 'Check', color: '--s5', test: b => b.conf === 'Check'}];
+const money = v => isNum(v) ? (v < 0 ? '-$' : '$') + Math.abs(v).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '';
+const smoney = v => isNum(v) ? (v > 0 ? '+' : '') + money(v) : '';
+let pfShow = new Set((store.get('pfShow', 'Overall,High,Medium,Check')).split(',').filter(Boolean));
+const pfOpen = new Set();
+const pfLimit = {};
+const pfRes = {};
+$('pfRule').textContent = money(PF.stake) + ' on every Edge pick at ' + (PF.price || -110) + ' (a win pays ' + money(PF.win) + ')';
+SECTIONS.forEach(sc => {
+  const b = el('button', {type: 'button', textContent: sc.id}); b.dataset.s = sc.id; b.setAttribute('aria-pressed', pfShow.has(sc.id));
+  b.onclick = () => { if (pfShow.has(sc.id)) pfShow.delete(sc.id); else pfShow.add(sc.id); b.setAttribute('aria-pressed', pfShow.has(sc.id)); store.set('pfShow', [...pfShow].join(',')); drawPortfolio(); };
+  $('pfSections').append(b);
+});
+$('pfRange').onchange = () => drawPortfolio();
+function pfBets() {
+  const r = $('pfRange').value;
+  if (r === 'all') return PF.bets;
+  const cut = new Date(Date.now() - (+r) * 864e5).toISOString().slice(0, 10);
+  return PF.bets.filter(b => b.date >= cut);
+}
+function pfStats(bets) {
+  const g = bets.filter(b => b.result), w = g.filter(b => b.result === 'W').length, l = g.filter(b => b.result === 'L').length, pu = g.filter(b => b.result === 'P').length;
+  const net = g.reduce((a, b) => a + (b.pl || 0), 0), wag = (w + l) * PF.stake;
+  return {n: g.length, pending: bets.length - g.length, w, l, p: pu, net, wag, roi: wag ? net / wag : null, rate: (w + l) ? w / (w + l) : null};
+}
+function drawPortfolio() {
+  const bets = pfBets(), cs = getComputedStyle(document.documentElement), col = n => cs.getPropertyValue(n).trim();
+  // tiles (overall)
+  const o = pfStats(bets), th = $('pfTiles'); th.replaceChildren();
+  tile(th, 1, 'Net profit', smoney(o.net) || '$0.00', o.n + ' graded bets', o.net >= 0 ? 'blue' : 'black');
+  tile(th, 2, 'Return on money bet', o.roi == null ? 'n/a' : (o.roi * 100).toFixed(1) + '%', 'Net profit / amount risked', '');
+  tile(th, 3, 'Record', o.w + '-' + o.l + '-' + o.p, o.rate == null ? 'No graded bets yet' : pct(o.rate) + ' wins (52.4% to break even)', '');
+  tile(th, 4, 'Pending', o.pending, 'Bets on games not final yet', '');
+  // chart: cumulative profit by date for each visible section
+  const host = $('pfChart'); host.replaceChildren(); $('pfLegend').replaceChildren();
+  const graded = bets.filter(b => b.result);
+  const dates = [...new Set(graded.map(b => b.date))].sort();
+  const vis = SECTIONS.filter(sc => pfShow.has(sc.id));
+  if (dates.length < 2 || !vis.length) {
+    host.append(el('div', {className: 'empty', textContent: !vis.length ? 'Pick at least one section above.' : 'The chart appears after two days of graded bets.'}));
+  } else {
+    const series = vis.map(sc => {
+      let run = 0; const byDate = {};
+      graded.filter(sc.test).forEach(b => { byDate[b.date] = (byDate[b.date] || 0) + (b.pl || 0); });
+      return {sc, vals: dates.map(d => (run += (byDate[d] || 0)))};
+    });
+    const all = series.flatMap(x => x.vals).concat([0]);
+    let lo = Math.min(...all), hi = Math.max(...all);
+    const raw = Math.max(100, (hi - lo) / 4), mag = Math.pow(10, Math.floor(Math.log10(raw)));
+    const tick = [1, 2, 2.5, 5, 10].map(m => m * mag).find(t => t >= raw);
+    lo = Math.floor(lo / tick) * tick; hi = Math.ceil(hi / tick) * tick; if (hi === lo) hi = lo + tick;
+    const W = Math.max(host.clientWidth || 640, 300), H = 260, pad = {l: 62, r: mobile() ? 14 : 70, t: 12, b: 28};
+    const x = i => pad.l + i * (W - pad.l - pad.r) / (dates.length - 1), y = v => pad.t + (hi - v) * (H - pad.t - pad.b) / (hi - lo);
+    const NS = 'http://www.w3.org/2000/svg', svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H); svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', 'Cumulative profit by day');
+    const add = (tag, at) => { const n = document.createElementNS(NS, tag); for (const k in at) n.setAttribute(k, at[k]); svg.append(n); return n; };
+    for (let v = lo; v <= hi + 1e-6; v += tick) {
+      add('line', {x1: pad.l, x2: W - pad.r, y1: y(v), y2: y(v), stroke: col('--grid'), 'stroke-width': 1});
+      add('text', {x: pad.l - 6, y: y(v) + 4, 'text-anchor': 'end', 'font-size': 11, fill: col('--muted')}).textContent = smoney(Math.round(v)).replace('.00', ''); }
+    add('line', {x1: pad.l, x2: W - pad.r, y1: y(0), y2: y(0), stroke: col('--ink-2'), 'stroke-width': 1});
+    const st = Math.ceil(dates.length / 6);
+    dates.forEach((d, i) => { if (i % st === 0 || i === dates.length - 1) add('text', {x: x(i), y: H - 8, 'text-anchor': 'middle', 'font-size': 11, fill: col('--muted')}).textContent = d.slice(5); });
+    series.forEach(sr => {
+      const c = col(sr.sc.color);
+      add('path', {d: sr.vals.map((v, i) => (i ? 'L' : 'M') + x(i) + ' ' + y(v)).join(' '), fill: 'none', stroke: c, 'stroke-width': sr.sc.id === 'Overall' ? 2.5 : 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round'});
+      const last = sr.vals.length - 1;
+      add('circle', {cx: x(last), cy: y(sr.vals[last]), r: 4, fill: c, stroke: col('--paper'), 'stroke-width': 2});
+      sr.ly = y(sr.vals[last]);
+      $('pfLegend').append(el('span', {className: 'li'}, [el('i', {style: 'background:' + c}), document.createTextNode(sr.sc.id + ' ' + smoney(sr.vals[last]))]));
+    });
+    if (!mobile()) {   // end-of-line labels, nudged apart so they never overlap
+      const labs = series.slice().sort((a, b) => a.ly - b.ly);
+      for (let k = 1; k < labs.length; k++) if (labs[k].ly - labs[k - 1].ly < 13) labs[k].ly = labs[k - 1].ly + 13;
+      labs.forEach(sr => { add('text', {x: W - pad.r + 8, y: sr.ly + 4, 'font-size': 11, 'font-weight': 700, fill: col('--ink')}).textContent = sr.sc.id; });
+    }
+    const hair = add('line', {y1: pad.t, y2: H - pad.b, stroke: col('--ink-2'), 'stroke-width': 1, visibility: 'hidden'});
+    const tip = el('div', {className: 'tip'}); host.append(svg, tip);
+    const hit = add('rect', {x: pad.l, y: 0, width: W - pad.l - pad.r, height: H, fill: 'transparent'});
+    const show = ev => {
+      const b = svg.getBoundingClientRect(), px = (ev.clientX - b.left) * W / b.width, last = dates.length - 1;
+      const i = Math.max(0, Math.min(last, Math.round((px - pad.l) / ((W - pad.l - pad.r) / last))));
+      hair.setAttribute('x1', x(i)); hair.setAttribute('x2', x(i)); hair.setAttribute('visibility', 'visible');
+      tip.replaceChildren(el('div', {textContent: dates[i]}), ...series.map(sr => el('div', {textContent: sr.sc.id + ': ' + smoney(sr.vals[i])})));
+      tip.style.display = 'block';
+      tip.style.left = Math.min(x(i) * b.width / W + 10, b.width - tip.offsetWidth - 4) + 'px'; tip.style.top = '8px';
+    };
+    hit.addEventListener('pointermove', show); hit.addEventListener('pointerdown', show);
+    hit.addEventListener('pointerleave', () => { tip.style.display = 'none'; hair.setAttribute('visibility', 'hidden'); });
+  }
+  // section cards
+  const cards = $('pfCards'); cards.replaceChildren();
+  SECTIONS.filter(sc => pfShow.has(sc.id)).forEach(sc => {
+    const sb = bets.filter(sc.test), stt = pfStats(sb), isOpen = pfOpen.has(sc.id);
+    const card = el('div', {className: 'card pfsec'});
+    const head = el('div', {className: 'card-h'}, [
+      el('h2', null, [el('span', {className: 'sw', style: 'background:' + col(sc.color)}), document.createTextNode(sc.id === 'Overall' ? 'Overall' : sc.id + ' confidence')]),
+      el('span', {className: 'lbl muted', textContent: isOpen ? 'Hide bets −' : 'Show bets +'})]);
+    head.onclick = () => { if (pfOpen.has(sc.id)) pfOpen.delete(sc.id); else pfOpen.add(sc.id); drawPortfolio(); };
+    const sum = el('div', {className: 'pfsum'}, [
+      el('span', null, ['Net', el('b', {className: stt.net > 0 ? 'pos' : stt.net < 0 ? 'neg' : '', textContent: smoney(stt.net) || '$0.00'})]),
+      el('span', null, ['Return', el('b', {textContent: stt.roi == null ? 'n/a' : (stt.roi * 100).toFixed(1) + '%'})]),
+      el('span', null, ['Record', el('b', {textContent: stt.w + '-' + stt.l + '-' + stt.p})]),
+      el('span', null, ['Win rate', el('b', {textContent: stt.rate == null ? 'n/a' : pct(stt.rate)})]),
+      el('span', null, ['Risked', el('b', {textContent: money(stt.wag)})]),
+      el('span', null, ['Pending', el('b', {textContent: stt.pending})])]);
+    card.append(head, sum);
+    if (isOpen) {
+      const ctr = el('div', {className: 'controls'});
+      const sel = el('select', {'aria-label': 'Result'}); [['', 'All results'], ['W', 'Wins'], ['L', 'Losses'], ['P', 'Pushes'], ['pending', 'Pending']].forEach(([v, t]) => sel.append(el('option', {value: v, textContent: t})));
+      sel.value = pfRes[sc.id] || ''; sel.onchange = () => { pfRes[sc.id] = sel.value; drawPortfolio(); };
+      ctr.append(sel); card.append(ctr);
+      const rf = pfRes[sc.id] || '';
+      let run = 0; const rows = [];
+      sb.forEach(b => { if (b.result) run += b.pl || 0; rows.push({b, run}); });
+      const allShown = rows.filter(x => !rf || (rf === 'pending' ? !x.b.result : x.b.result === rf)).reverse();
+      const lim = pfLimit[sc.id] || 25, shown = allShown.slice(0, lim);
+      const mob = mobile();
+      const cols = mob ? ['Date', 'Pick', 'Result', 'Profit'] : ['Date', 'Matchup', 'Pick', 'Conf.', 'Final', 'Result', 'Profit', 'Running total'];
+      const data = shown.map(({b, run}) => {
+        const pick = b.team + ' ' + line(b.line);
+        return mob ? [String(b.date).slice(5), pick, b.result || 'Pending', b.result ? b.pl : null]
+          : [b.date, b.away + ' @ ' + b.home, pick, b.conf, isNum(b.s1) && isNum(b.s2) ? Math.round(b.s1) + ' - ' + Math.round(b.s2) : '', b.result || 'Pending', b.result ? b.pl : null, b.result ? run : null];
+      });
+      const tb = el('div', {className: 'tbl'}); card.append(tb);
+      table(tb, cols, data, (c, v) => {
+        if (c === 'Result') return v === 'Pending' ? chip('Pending') : chip(v, v === 'W' ? 'W' : v === 'L' ? 'L' : '');
+        if (c === 'Profit' || c === 'Running total') return isNum(v) ? el('span', {className: v > 0 ? 'pos' : v < 0 ? 'neg' : '', textContent: smoney(v)}) : '';
+        if (c === 'Conf.') return v ? chip(v, v === 'High' ? 'hi' : v === 'Medium' ? 'md' : v === 'Check' ? 'L' : '') : '';
+        return null;
+      });
+      if (allShown.length > lim) {
+        const more = el('button', {type: 'button', className: 'btn', textContent: 'Show ' + Math.min(25, allShown.length - lim) + ' more (' + (allShown.length - lim) + ' left)', style: 'margin-top:10px'});
+        more.onclick = () => { pfLimit[sc.id] = lim + 25; drawPortfolio(); };
+        card.append(more);
+      }
+    }
+    cards.append(card);
+  });
+}
+pfReady = true;
+drawPortfolio();
 
 // ---------- 03 History (grouped by game)
 const HG = D.history || [];
@@ -1140,14 +1406,12 @@ function drawPower() {
   }, (D.tips || {}).power);
 }
 $('powerConf').onchange = drawPower; $('powerSearch').oninput = drawPower; drawPower();
-MQ.addEventListener('change', () => { drawToday(); drawRecord(); drawTrend(); drawHist(); drawBooks(); drawPower(); });
+MQ.addEventListener('change', () => { drawToday(); drawRecord(); drawTrend(); drawHist(); drawBooks(); drawPower(); drawPortfolio(); });
 
 // ---------- Live scores (ticker, Live tab, dock)
 const SCORE_URL = 'https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard';
 const PICKS = D.livePicks || {};
 let LIVE = [], liveOk = null, liveFilter = 'all';
-const store = { get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch(e) { return d; } },
-                set(k, v) { try { localStorage.setItem(k, v); } catch(e) {} } };
 function etDate() {
   const p = new Intl.DateTimeFormat('en-CA', {timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit'}).format(new Date());
   return p.replace(/-/g, '');
@@ -1188,7 +1452,7 @@ function coverChip(ci, final) {
 
 // ticker
 let tickerOn = store.get('ticker', 'on') === 'on';
-function setTickerButton() { const b = $('tickerToggle'); b.textContent = 'Ticker: ' + (tickerOn ? 'On' : 'Off'); b.setAttribute('aria-pressed', tickerOn); }
+function setTickerButton() { const b = $('tickerToggle'); b.textContent = 'Live ticker: ' + (tickerOn ? 'On' : 'Off'); b.setAttribute('aria-pressed', tickerOn); }
 $('tickerToggle').onclick = () => { tickerOn = !tickerOn; store.set('ticker', tickerOn ? 'on' : 'off'); setTickerButton(); drawTicker(); };
 setTickerButton();
 function tickerItem(g) {

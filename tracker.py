@@ -22,7 +22,7 @@ import espn
 COLUMNS = [
     "date", "start", "game_id", "pick_type", "t1", "t2", "pick_team", "pick_side", "pick_line",
     "line_source", "confidence", "enhanced_value", "edge", "cover_prob", "market_prob", "model_prob",
-    "result", "t1_score", "t2_score", "logged_at", "graded_on",
+    "result", "t1_score", "t2_score", "logged_at", "graded_on", "confidence_logged",
 ]
 NUMERIC = ("pick_line", "enhanced_value", "edge", "cover_prob", "market_prob", "model_prob", "t1_score", "t2_score")
 
@@ -230,3 +230,48 @@ def daily_trend(path: Path, pick_type: str = "Edge") -> pd.DataFrame:
     g["Cumulative W"], g["Cumulative L"] = g["W"].cumsum(), g["L"].cumsum()
     g["Cumulative Rate"] = g["Cumulative W"] / (g["Cumulative W"] + g["Cumulative L"]).where((g["Cumulative W"] + g["Cumulative L"]) > 0)
     return g
+
+
+def relabel_edge_picks(path: Path) -> int:
+    """Re-score every Edge pick's Cover % and Confidence with the current rules,
+    from the edge and line saved with the pick, so every tier on the Success
+    Rate and Portfolio tabs uses one definition. The label the pick had when it
+    was logged is kept in confidence_logged."""
+    import model
+    hist = load(path)
+    if hist.empty:
+        return 0
+    changed = 0
+    for idx in hist.index[hist["pick_type"] == "Edge"]:
+        edge, line = hist.at[idx, "edge"], hist.at[idx, "pick_line"]
+        if edge is None or pd.isna(edge):
+            continue
+        spread = abs(float(line)) if line is not None and not pd.isna(line) else None
+        p = model.cover_probability(float(edge), spread)
+        tier = model.cover_tier(p, float(edge), spread)
+        if hist.at[idx, "confidence_logged"] in (None, "") or pd.isna(hist.at[idx, "confidence_logged"]):
+            hist.at[idx, "confidence_logged"] = hist.at[idx, "confidence"] or ""
+        if hist.at[idx, "confidence"] != tier or hist.at[idx, "cover_prob"] != round(p, 4):
+            hist.at[idx, "confidence"], hist.at[idx, "cover_prob"] = tier, round(p, 4)
+            changed += 1
+    save(hist, path)
+    return changed
+
+
+def market_check(path: Path) -> dict:
+    """Were the model's win probabilities better than the market's on the
+    games where they disagreed? Uses the Brier score (average squared error
+    between probability and outcome; lower is better) and expected vs actual
+    wins, which is fairer than the raw win-loss of mostly-underdog picks."""
+    hist = load(path)
+    m = hist[(hist["pick_type"] == "Market") & hist["result"].isin(["W", "L"])].dropna(subset=["model_prob", "market_prob"])
+    if m.empty:
+        return {}
+    y = (m["result"] == "W").astype(float)
+    pm, pk = m["model_prob"].astype(float), m["market_prob"].astype(float)
+    return {
+        "picks": int(len(m)), "wins": int(y.sum()),
+        "expected_model": round(float(pm.sum()), 2), "expected_market": round(float(pk.sum()), 2),
+        "brier_model": round(float(((pm - y) ** 2).mean()), 4), "brier_market": round(float(((pk - y) ** 2).mean()), 4),
+        "avg_model": round(float(pm.mean()), 4), "avg_market": round(float(pk.mean()), 4),
+    }
