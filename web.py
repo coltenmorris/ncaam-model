@@ -336,7 +336,7 @@ def build_payload(day: date, results: pd.DataFrame, record: pd.DataFrame, trend:
         "livePicks": live_picks(results, history),
         "portfolio": portfolio(history),
         "marketEval": _market_eval(data_dir),
-        "marketEdges": int((results["Win% Edge (T1)"].abs() >= config.MARKET_EDGE_MIN).sum())
+        "marketEdges": int((pd.to_numeric(results["Win% Edge (T1)"], errors="coerce").abs() >= config.MARKET_EDGE_MIN).sum())
                        if not results.empty and "Win% Edge (T1)" in results else 0,
         "odds": _sanitize(odds_compare(games, rows)),
         "power": {"cols": list(power.columns), "rows": _records(power, [(c, c) for c in power.columns]),

@@ -106,7 +106,10 @@ def build_rows(games: list[dict], matcher) -> list[dict]:
         std_label = None
         if std:
             std_label = std["source"] if std["is_dk"] else f"{std['source']} (no DraftKings line)"
-        if config.LINE_SOURCE == "consensus" and cons_home is not None:
+        if g.get("pregame_home_line") is not None:
+            # game has started: keep the line the pick was made on
+            primary, source, tag = g["pregame_home_line"], g.get("pregame_source") or "Pregame line (logged)", "PRE"
+        elif config.LINE_SOURCE == "consensus" and cons_home is not None:
             primary, source, tag = cons_home, f"Consensus ({g.get('n_books', 0)} books)", "CONS"
         elif std:
             primary, source, tag = std["home_pt"], std_label, std["tag"]

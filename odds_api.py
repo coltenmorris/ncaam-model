@@ -78,9 +78,13 @@ def _same_team(odds_name: str, espn_team: dict) -> bool:
 
 def attach(games: list[dict], events: list[dict]) -> None:
     """Add consensus / best lines and per-book lines to each ESPN game."""
+    from espn import is_pregame
     for g in games:
         g.setdefault("books", {})
         start = g.get("start")
+        if not is_pregame(g):      # started: these would be live in-game odds
+            summarize(g)
+            continue
         for ev in events:
             h, a = ev.get("home_team", ""), ev.get("away_team", "")
             straight = _same_team(h, g["home"]) and _same_team(a, g["away"])

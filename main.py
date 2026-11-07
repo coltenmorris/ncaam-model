@@ -98,6 +98,49 @@ def start_log_file() -> Path:
     return path
 
 
+def restore_pregame_lines(games: list, day) -> int:
+    """For games that have tipped off, use the line from the logged Edge pick
+    (made before the game) instead of any live odds."""
+    hist = tracker.load(HISTORY)
+    if hist.empty:
+        return 0
+    logged = {}
+    for _, r in hist[(hist["pick_type"] == "Edge")].iterrows():
+        line = r.get("pick_line")
+        if line is None or pd.isna(line) or r.get("pick_side") not in ("T1", "T2"):
+            continue
+        home = -float(line) if r["pick_side"] == "T1" else float(line)
+        logged[str(r["game_id"])] = (home, r.get("line_source"), r)
+    n = 0
+    for g in games:
+        if not espn.is_pregame(g) and g["game_id"] in logged:
+            g["pregame_home_line"], src, g["logged_pick"] = logged[g["game_id"]]
+            g["pregame_source"] = f"Pregame: {src}" if isinstance(src, str) and src else "Pregame line (logged)"
+            n += 1
+    return n
+
+
+def keep_logged_picks(results, games):
+    """Started games show exactly the Edge pick that was logged before tip-off
+    (same pick, line, edge and confidence as the Live and History tabs)."""
+    picks = {g["game_id"]: g["logged_pick"] for g in games if g.get("logged_pick") is not None}
+    if results.empty or not picks:
+        return results
+    for i, gid in results["game_id"].items():
+        r = picks.get(str(gid))
+        if r is None:
+            continue
+        line = float(r["pick_line"])
+        results.at[i, "Edge Pick"] = f"{r['pick_team']} {'PK' if line == 0 else format(line, '+g')}"
+        for col, key in (("Edge Size", "edge"), ("Cover %", "cover_prob"), ("Confidence", "confidence")):
+            v = r.get(key)
+            if v is not None and not (isinstance(v, float) and pd.isna(v)):
+                results.at[i, col] = v
+        results.at[i, "_edge_side"] = r["pick_side"]
+        results.at[i, "_t1_line"] = line if r["pick_side"] == "T1" else -line
+    return results
+
+
 def save_workbook(fn, path: Path, notes: list[str]) -> Path | None:
     try:
         return fn(path)
@@ -168,6 +211,10 @@ def run(args) -> int:
             print(f"  {msg}")
             notes.append(msg)
 
+            restored = restore_pregame_lines(games, day)
+            if restored:
+                notes.append(f"Started games: {restored} kept their pregame line (live odds ignored)")
+
             matcher = TeamMatcher(ratings["team"].tolist(), ALIASES)
             pre = {r["game_id"]: r for r in build_rows(games, matcher)}
             print("Downloading prediction markets...")
@@ -179,6 +226,7 @@ def run(args) -> int:
 
             rows = build_rows(games, matcher)
             results = run_model(rows, ratings)
+            results = keep_logged_picks(results, games)
 
             if matcher.unmatched:
                 print("\nTeams not in Barttorvik (usually non-D1 opponents; those games are skipped).")

@@ -102,6 +102,19 @@ def _moneylines(odds: dict, out: dict) -> None:
     out["provider"] = ((odds.get("provider") or {}).get("name")) or "DraftKings"
 
 
+def is_pregame(g: dict) -> bool:
+    """True until tip-off (ESPN state 'pre' and start time still in the future)."""
+    if g.get("state") and g["state"] != "pre":
+        return False
+    start = g.get("start")
+    if start is not None:
+        try:
+            return start > datetime.now(start.tzinfo)
+        except Exception:
+            pass
+    return True
+
+
 def home_line(g: dict):
     """Spread from the home team's view (negative = home favored)."""
     if g.get("spread") is None:
@@ -163,10 +176,18 @@ def parse_games(payload: dict) -> list[dict]:
             "neutral": bool(comp.get("neutralSite")),
             "completed": bool(status.get("completed")),
             "status": status.get("shortDetail") or status.get("description") or "",
+            "state": status.get("state") or ("post" if status.get("completed") else "pre"),
             "away": away,
             "home": home,
         }
         g.update(_parse_odds(comp, away, home))
+        if not is_pregame(g):
+            # Once a game tips off, the feed's odds are live in-game odds, not the
+            # pregame line the pick was made on. Drop them; main.py restores the
+            # pregame line from the pick log.
+            for k in ("spread", "fav_abbr", "ml_home", "ml_away", "spread_price_home", "spread_price_away"):
+                g[k] = None
+            g["line_text"] = ""
         games.append(g)
     return games
 
