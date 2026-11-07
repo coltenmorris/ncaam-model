@@ -179,6 +179,25 @@ def power_table(ratings: pd.DataFrame, data_dir: Path | None) -> pd.DataFrame:
     return out
 
 
+def live_picks(results: pd.DataFrame) -> dict:
+    """Today's Edge pick per ESPN game id, so the page can show live cover status."""
+    out = {}
+    if results is None or results.empty or "_edge_side" not in results:
+        return out
+    for _, r in results.iterrows():
+        side, t1_line = r.get("_edge_side"), r.get("_t1_line")
+        if not isinstance(side, str) or t1_line is None or pd.isna(t1_line):
+            continue
+        line = float(t1_line) if side == "T1" else -float(t1_line)
+        out[str(r["game_id"])] = _sanitize({
+            "side": "away" if side == "T1" else "home",
+            "team": r["T1 Team"] if side == "T1" else r["T2 Team"],
+            "line": line, "edge": r.get("Edge Size"), "cover": r.get("Cover %"),
+            "conf": r.get("Confidence"), "model": str(r.get("Model Pick") or "").replace(" covers", ""),
+        })
+    return out
+
+
 def conf_key() -> list[dict]:
     hi = getattr(config, "COVER_HIGH", 0.56)
     md = getattr(config, "COVER_MEDIUM", 0.54)
@@ -288,6 +307,7 @@ def build_payload(day: date, results: pd.DataFrame, record: pd.DataFrame, trend:
         "record": {"cols": list(record.columns), "rows": _records(record, [(c, c) for c in record.columns])},
         "trend": {"cols": list(trend.columns), "rows": _records(trend, [(c, c) for c in trend.columns])},
         "history": history_groups(history),
+        "livePicks": live_picks(results),
         "marketEdges": int((results["Win% Edge (T1)"].abs() >= config.MARKET_EDGE_MIN).sum())
                        if not results.empty and "Win% Edge (T1)" in results else 0,
         "odds": _sanitize(odds_compare(games, rows)),
@@ -441,6 +461,59 @@ tr.child td.bk{padding-left:30px;color:var(--ink-2)}
 .key p{margin:0;font-size:12.5px;color:var(--ink-2)}
 @media (max-width:900px){.key{grid-template-columns:1fr 1fr}.key>div:nth-child(3){padding-left:0;border-left:0}}
 @media (max-width:520px){.key{grid-template-columns:1fr}.key>div{padding-left:0!important;border-left:0!important;border-bottom:1px solid var(--line);padding-bottom:10px}}
+/* live: ticker ribbon */
+.ticker{position:sticky;top:0;z-index:40;background:var(--block);color:var(--on-block);height:34px;overflow:hidden;display:flex;align-items:center;border-bottom:3px solid var(--blue)}
+.ticker[hidden]{display:none}
+.ticker .tlabel{flex:0 0 auto;height:100%;display:flex;align-items:center;gap:6px;padding:0 12px;background:var(--blue);color:var(--on-blue);font:700 11px/1 inherit;letter-spacing:.1em;text-transform:uppercase;z-index:1}
+.ticker .viewport{flex:1;overflow:hidden;height:100%;position:relative}
+.ticker .track{display:inline-flex;white-space:nowrap;height:100%;align-items:center;will-change:transform;animation:tick var(--dur,60s) linear infinite}
+.ticker:hover .track{animation-play-state:paused}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.ticker .it{display:inline-flex;align-items:center;gap:7px;padding:0 18px;font-size:12.5px;font-weight:600;border-right:1px solid rgba(127,127,127,.35);height:100%}
+.ticker .it .sc{font-weight:800;font-variant-numeric:tabular-nums}
+.ticker .it .st{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;opacity:.7}
+.ticker .it .rk{font-size:10px;opacity:.6}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--muted)}
+.dot.live{background:#ff3b30;animation:pulse 1.4s ease-in-out infinite}
+.dot.cov{background:#2ecc71}.dot.not{background:#ff5a4f}
+@keyframes pulse{50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.ticker .track{animation:none}.ticker .viewport{overflow-x:auto}}
+/* live: tab list */
+.lrow{display:grid;grid-template-columns:92px minmax(0,1.6fr) minmax(0,1fr) 120px;gap:12px;align-items:center;padding:11px 12px;border-bottom:1px solid var(--line)}
+.lrow:nth-child(even){background:var(--stripe)}
+.lrow .when{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.lrow .teams{display:grid;gap:3px}
+.lrow .tm{display:flex;justify-content:space-between;gap:10px;font-size:13.5px}
+.lrow .tm b{font-variant-numeric:tabular-nums}
+.lrow .tm.win{font-weight:700}
+.lrow .pick{font-size:12.5px;color:var(--ink-2)}
+.lrow .stat{text-align:right}
+.lhead{display:grid;grid-template-columns:92px minmax(0,1.6fr) minmax(0,1fr) 120px;gap:12px;padding:9px 12px;border-bottom:1px solid var(--rule);font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.lhead div:last-child{text-align:right}
+.seg{display:inline-flex;border:1px solid var(--rule)}
+.seg button{background:none;border:0;border-right:1px solid var(--rule);padding:7px 12px;font:600 11px inherit;letter-spacing:.06em;text-transform:uppercase;color:var(--ink);cursor:pointer}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.livemeta{font-size:12px;color:var(--ink-2);display:flex;align-items:center;gap:6px}
+@media (max-width:620px){.lrow,.lhead{grid-template-columns:70px minmax(0,1fr) 92px}.lrow .pick,.lhead .ph{grid-column:2/4;grid-row:2}.lhead .ph{display:none}.lrow .stat{grid-column:3;grid-row:1}}
+/* live: dock (minimizes to the bottom like a chat window) */
+.dock{position:fixed;right:20px;bottom:0;width:340px;z-index:45;background:var(--paper);border:1px solid var(--rule);border-bottom:0;box-shadow:0 -6px 24px rgba(0,0,0,.14);display:flex;flex-direction:column;max-height:min(70vh,560px)}
+.dock .dh{display:flex;align-items:center;gap:8px;padding:12px 14px;cursor:pointer;user-select:none;border-bottom:1px solid var(--rule)}
+.dock.min .dh{border-bottom:0}
+.dock .dh h3{margin:0;font-size:15px;font-weight:700;letter-spacing:-.01em;flex:1}
+.dock .badge{background:#ff3b30;color:#fff;font-size:10.5px;font-weight:700;padding:1px 6px;border-radius:9px}
+.dock .ib{background:none;border:0;color:var(--ink);font-size:16px;line-height:1;cursor:pointer;padding:2px 4px}
+.dock .db{overflow-y:auto}
+.dock.min .db,.dock.min .df{display:none}
+.dock .dg{padding:10px 14px;border-bottom:1px solid var(--line)}
+.dock .dg:nth-child(even){background:var(--stripe)}
+.dock .dg .r{display:flex;justify-content:space-between;gap:8px;font-size:13px}
+.dock .dg .r b{font-variant-numeric:tabular-nums}
+.dock .dg .m{display:flex;justify-content:space-between;gap:8px;margin-top:4px;font-size:11.5px;color:var(--ink-2)}
+.dock .df{padding:8px 14px;border-top:1px solid var(--line);font-size:11px;color:var(--muted);display:flex;justify-content:space-between}
+.dock .sec{padding:7px 14px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line);background:var(--paper)}
+@media (max-width:620px){.dock{right:0;left:0;width:auto}}
+body.has-dock .wrap{padding-bottom:90px}
 /* chart */
 .chart{position:relative}
 .chart svg{display:block;width:100%;height:auto}
@@ -467,7 +540,11 @@ footer a{color:var(--ink)}
 }
 </style>
 </head>
-<body>
+<body class="has-dock">
+<div class="ticker" id="ticker" hidden aria-label="Live scores">
+  <div class="tlabel"><span class="dot live"></span>Live</div>
+  <div class="viewport"><div class="track" id="tickerTrack"></div></div>
+</div>
 <div class="wrap">
   <header class="mast">
     <h1>ncaam<br>model</h1>
@@ -475,15 +552,17 @@ footer a{color:var(--ink)}
       <div class="stack">Designed by<br>Colten Morris<br><a class="credit" href="https://www.linkedin.com/in/colten-morris/" target="_blank" rel="noopener">LinkedIn &#8599;</a></div>
       <div class="meta"><div id="day"></div><div id="updated"></div></div>
       <button class="theme" id="theme" type="button">Theme</button>
+      <button class="theme" id="tickerToggle" type="button" aria-pressed="true">Ticker: On</button>
     </div>
   </header>
 
   <nav role="tablist">
     <button role="tab" aria-selected="true" data-tab="today"><span class="n">01</span>Today</button>
-    <button role="tab" aria-selected="false" data-tab="rate"><span class="n">02</span>Success Rate</button>
-    <button role="tab" aria-selected="false" data-tab="history"><span class="n">03</span>History</button>
-    <button role="tab" aria-selected="false" data-tab="books"><span class="n">04</span>Odds by Book</button>
-    <button role="tab" aria-selected="false" data-tab="power"><span class="n">05</span>Power Rankings</button>
+    <button role="tab" aria-selected="false" data-tab="live"><span class="n">02</span>Live</button>
+    <button role="tab" aria-selected="false" data-tab="rate"><span class="n">03</span>Success Rate</button>
+    <button role="tab" aria-selected="false" data-tab="history"><span class="n">04</span>History</button>
+    <button role="tab" aria-selected="false" data-tab="books"><span class="n">05</span>Odds by Book</button>
+    <button role="tab" aria-selected="false" data-tab="power"><span class="n">06</span>Power Rankings</button>
   </nav>
 
   <section id="today">
@@ -500,6 +579,25 @@ footer a{color:var(--ink)}
       <div class="cards" id="todayCards"></div>
       <p class="sub">Away = T1, Home = T2. Hover or tap &#9432; for what each column means. <span id="ratingsSrc"></span></p>
       <div class="key" id="confKey" aria-label="Confidence key"></div>
+    </div>
+  </section>
+
+  <section id="live" hidden>
+    <div class="tiles" id="liveTiles"></div>
+    <div class="card">
+      <div class="card-h"><h2>Today's games</h2><span class="livemeta"><span class="dot" id="liveDot"></span><span id="liveStamp">Loading live scores</span></span></div>
+      <div class="controls">
+        <div class="seg" id="liveFilter" role="group" aria-label="Filter games">
+          <button type="button" data-f="all" aria-pressed="true">All</button>
+          <button type="button" data-f="in" aria-pressed="false">Live</button>
+          <button type="button" data-f="pre" aria-pressed="false">Upcoming</button>
+          <button type="button" data-f="post" aria-pressed="false">Final</button>
+        </div>
+        <label class="chk"><input type="checkbox" id="livePicksOnly"> Only games with a pick</label>
+        <input type="search" id="liveSearch" placeholder="Search team">
+      </div>
+      <div class="tbl" id="liveList"></div>
+      <p class="sub">Sorted by start time. Scores refresh every 30 seconds while this page is open. Covering status uses the line the Edge pick was logged at.</p>
     </div>
   </section>
 
@@ -558,6 +656,14 @@ footer a{color:var(--ink)}
   </footer>
   <div id="hint" role="tooltip"></div>
 </div>
+<aside class="dock min" id="dock" aria-label="Live game tracker">
+  <div class="dh" id="dockHead" role="button" tabindex="0" aria-expanded="false">
+    <span class="dot" id="dockDot"></span><h3>Live games</h3><span class="badge" id="dockBadge" hidden>0</span>
+    <button class="ib" id="dockToggle" type="button" aria-label="Expand live tracker">&#9650;</button>
+  </div>
+  <div class="db" id="dockBody"></div>
+  <div class="df"><span id="dockStamp"></span><a href="#" id="dockAll">All games &#8599;</a></div>
+</aside>
 
 <script id="payload" type="application/json">__DATA__</script>
 <script>
@@ -898,6 +1004,165 @@ function drawPower() {
   }, (D.tips || {}).power);
 }
 $('powerConf').onchange = drawPower; $('powerSearch').oninput = drawPower; drawPower();
+
+// ---------- Live scores (ticker, Live tab, dock)
+const SCORE_URL = 'https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard';
+const PICKS = D.livePicks || {};
+let LIVE = [], liveOk = null, liveFilter = 'all';
+const store = { get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch(e) { return d; } },
+                set(k, v) { try { localStorage.setItem(k, v); } catch(e) {} } };
+function etDate() {
+  const p = new Intl.DateTimeFormat('en-CA', {timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit'}).format(new Date());
+  return p.replace(/-/g, '');
+}
+function parseScoreboard(js) {
+  return (js.events || []).map(ev => {
+    const c = (ev.competitions || [])[0] || {};
+    const t = {}; (c.competitors || []).forEach(x => { t[x.homeAway] = x; });
+    if (!t.home || !t.away) return null;
+    const st = ((c.status || ev.status || {}).type) || {};
+    const side = x => ({ name: (x.team || {}).shortDisplayName || (x.team || {}).location || '', abbr: (x.team || {}).abbreviation || '',
+      score: x.score != null && x.score !== '' ? +x.score : null, rank: ((x.curatedRank || {}).current || 99) <= 25 ? x.curatedRank.current : null });
+    return { id: String(ev.id), start: ev.date, state: st.state || 'pre', detail: st.shortDetail || st.detail || '',
+             away: side(t.away), home: side(t.home), neutral: !!c.neutralSite };
+  }).filter(Boolean).sort((a, b) => (a.start || '').localeCompare(b.start || ''));
+}
+function coverInfo(g) {
+  const p = PICKS[g.id];
+  if (!p) return null;
+  if (g.state === 'pre' || g.away.score == null || g.home.score == null) return { p, status: 'pre', margin: null };
+  const mine = p.side === 'away' ? g.away.score : g.home.score, theirs = p.side === 'away' ? g.home.score : g.away.score;
+  const m = mine - theirs + p.line;
+  return { p, margin: m, status: m > 0 ? 'cov' : m < 0 ? 'not' : 'push' };
+}
+const startTime = g => { try { return new Date(g.start).toLocaleTimeString([], {hour: 'numeric', minute: '2-digit'}); } catch(e) { return ''; } };
+function coverText(ci, final) {
+  if (!ci) return '';
+  if (ci.status === 'pre') return '';
+  const n = Math.abs(ci.margin);
+  if (ci.status === 'push') return final ? 'Push' : 'Even with the line';
+  return final ? (ci.status === 'cov' ? 'Covered by ' : 'Missed by ') + n.toFixed(1) : (ci.status === 'cov' ? 'Covering by ' : 'Not covering by ') + n.toFixed(1);
+}
+function coverChip(ci, final) {
+  if (!ci || ci.status === 'pre') return el('span', {className: 'muted', textContent: ci ? 'Not started' : ''});
+  const cls = ci.status === 'cov' ? 'W' : ci.status === 'not' ? 'L' : '';
+  return chip(coverText(ci, final), cls);
+}
+
+// ticker
+let tickerOn = store.get('ticker', 'on') === 'on';
+function setTickerButton() { const b = $('tickerToggle'); b.textContent = 'Ticker: ' + (tickerOn ? 'On' : 'Off'); b.setAttribute('aria-pressed', tickerOn); }
+$('tickerToggle').onclick = () => { tickerOn = !tickerOn; store.set('ticker', tickerOn ? 'on' : 'off'); setTickerButton(); drawTicker(); };
+setTickerButton();
+function tickerItem(g) {
+  const ci = coverInfo(g), it = el('span', {className: 'it'});
+  const team = s => { const f = el('span'); if (s.rank) f.append(el('span', {className: 'rk', textContent: s.rank + ' '})); f.append(document.createTextNode(s.abbr || s.name)); return f; };
+  if (ci && ci.status !== 'pre') it.append(el('span', {className: 'dot ' + (ci.status === 'cov' ? 'cov' : ci.status === 'not' ? 'not' : '')}));
+  else if (g.state === 'in') it.append(el('span', {className: 'dot live'}));
+  it.append(team(g.away));
+  if (g.state !== 'pre') it.append(el('span', {className: 'sc', textContent: g.away.score}));
+  it.append(team(g.home));
+  if (g.state !== 'pre') it.append(el('span', {className: 'sc', textContent: g.home.score}));
+  it.append(el('span', {className: 'st', textContent: g.state === 'pre' ? startTime(g) : g.detail}));
+  return it;
+}
+function drawTicker() {
+  const bar = $('ticker'), track = $('tickerTrack');
+  if (!tickerOn || !LIVE.length) { bar.hidden = true; return; }
+  const order = {in: 0, post: 1, pre: 2};
+  const games = LIVE.slice().sort((a, b) => (order[a.state] - order[b.state]) || (a.start || '').localeCompare(b.start || ''));
+  track.replaceChildren();
+  for (let k = 0; k < 2; k++) games.forEach(g => track.append(tickerItem(g)));   // two copies for a seamless loop
+  bar.hidden = false;
+  requestAnimationFrame(() => { const w = track.scrollWidth / 2; track.style.setProperty('--dur', Math.max(20, w / 60) + 's'); });
+}
+
+// Live tab
+function liveTiles() {
+  const host = $('liveTiles'); host.replaceChildren();
+  const n = st => LIVE.filter(g => g.state === st).length;
+  const picks = LIVE.map(g => ({g, ci: coverInfo(g)})).filter(x => x.ci && x.ci.status !== 'pre');
+  const cov = picks.filter(x => x.ci.status === 'cov').length, notc = picks.filter(x => x.ci.status === 'not').length;
+  tile(host, 1, 'Live now', n('in'), 'Games in progress', 'blue');
+  tile(host, 2, 'Upcoming', n('pre'), 'Still to tip off', '');
+  tile(host, 3, 'Final', n('post'), 'Completed today', '');
+  tile(host, 4, 'Edge picks', cov + '-' + notc, 'Covering vs not (live + final)', 'black');
+}
+function drawLive() {
+  const host = $('liveList'); host.replaceChildren();
+  if (liveOk === false && !LIVE.length) { host.append(el('div', {className: 'empty', textContent: 'Live scores could not be loaded in this browser. They will show once ESPN responds; final results are still graded on each scheduled run.'})); return; }
+  if (!LIVE.length) { host.append(el('div', {className: 'empty', textContent: liveOk === null ? 'Loading live scores...' : 'No Division I games on today’s schedule.'})); return; }
+  const q = $('liveSearch').value.trim().toLowerCase(), only = $('livePicksOnly').checked;
+  const games = LIVE.filter(g => (liveFilter === 'all' || g.state === liveFilter) && (!only || PICKS[g.id]) &&
+    (!q || (g.away.name + ' ' + g.home.name).toLowerCase().includes(q)));
+  host.append(el('div', {className: 'lhead'}, [el('div', {textContent: 'Start'}), el('div', {textContent: 'Score'}), el('div', {className: 'ph', textContent: 'Edge pick'}), el('div', {textContent: 'Status'})]));
+  if (!games.length) { host.append(el('div', {className: 'empty', textContent: 'No games match.'})); return; }
+  games.forEach(g => {
+    const ci = coverInfo(g), fin = g.state === 'post';
+    const tm = (s, other) => el('div', {className: 'tm' + (fin && s.score > other.score ? ' win' : '')}, [
+      el('span', {textContent: (s.rank ? s.rank + ' ' : '') + s.name}), el('b', {textContent: g.state === 'pre' ? '' : s.score})]);
+    const pick = el('div', {className: 'pick'});
+    if (ci) { pick.append(el('div', {textContent: ci.p.team + ' ' + (ci.p.line > 0 ? '+' : '') + (ci.p.line === 0 ? 'PK' : ci.p.line) + (ci.p.conf ? '  ·  ' + ci.p.conf : '')})); pick.append(coverChip(ci, fin)); }
+    else pick.append(el('span', {className: 'muted', textContent: 'No pick'}));
+    const stat = el('div', {className: 'stat'});
+    if (g.state === 'in') stat.append(el('span', {className: 'dot live'}), document.createTextNode(' ' + g.detail));
+    else stat.append(document.createTextNode(fin ? 'Final' + (/OT/.test(g.detail) ? ' (' + g.detail.replace(/^Final\/?/, '') + ')' : '') : g.detail || startTime(g)));
+    host.append(el('div', {className: 'lrow'}, [el('div', {className: 'when', textContent: startTime(g)}),
+      el('div', {className: 'teams'}, [tm(g.away, g.home), tm(g.home, g.away)]), pick, stat]));
+  });
+}
+document.querySelectorAll('#liveFilter button').forEach(b => b.onclick = () => {
+  liveFilter = b.dataset.f; document.querySelectorAll('#liveFilter button').forEach(x => x.setAttribute('aria-pressed', x === b)); drawLive();
+});
+$('livePicksOnly').onchange = drawLive; $('liveSearch').oninput = drawLive;
+
+// dock
+const dock = $('dock');
+function setDock(open) {
+  dock.classList.toggle('min', !open); $('dockHead').setAttribute('aria-expanded', open);
+  $('dockToggle').innerHTML = open ? '&#9660;' : '&#9650;'; $('dockToggle').setAttribute('aria-label', open ? 'Minimize live tracker' : 'Expand live tracker');
+  store.set('dock', open ? 'open' : 'min');
+}
+setDock(store.get('dock', innerWidth > 720 ? 'open' : 'min') === 'open');
+$('dockHead').onclick = () => setDock(dock.classList.contains('min'));
+$('dockHead').onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setDock(dock.classList.contains('min')); } };
+$('dockAll').onclick = e => { e.preventDefault(); document.querySelector('nav button[data-tab="live"]').click(); scrollTo({top: 0, behavior: 'smooth'}); };
+function drawDock() {
+  const body = $('dockBody'); body.replaceChildren();
+  const live = LIVE.filter(g => g.state === 'in'), next = LIVE.filter(g => g.state === 'pre').slice(0, 6);
+  const recent = LIVE.filter(g => g.state === 'post' && PICKS[g.id]).slice(-4).reverse();
+  $('dockBadge').hidden = !live.length; $('dockBadge').textContent = live.length;
+  $('dockDot').className = 'dot' + (live.length ? ' live' : '');
+  if (liveOk === false && !LIVE.length) { body.append(el('div', {className: 'empty', textContent: 'Live scores unavailable right now.'})); return; }
+  const card = g => {
+    const ci = coverInfo(g), fin = g.state === 'post';
+    const r = (s) => el('div', {className: 'r'}, [el('span', {textContent: (s.rank ? s.rank + ' ' : '') + s.name}), el('b', {textContent: g.state === 'pre' ? '' : s.score})]);
+    const meta = el('div', {className: 'm'}, [el('span', {textContent: g.state === 'pre' ? startTime(g) : g.detail}),
+      ci ? coverChip(ci, fin) : el('span', {className: 'muted', textContent: ''})]);
+    return el('div', {className: 'dg'}, [r(g.away), r(g.home), meta]);
+  };
+  const sec = (label, list) => { if (!list.length) return; body.append(el('div', {className: 'sec', textContent: label})); list.forEach(g => body.append(card(g))); };
+  sec('Live now', live); sec('Up next', next); sec('Recent finals with picks', recent);
+  if (!body.children.length) body.append(el('div', {className: 'empty', textContent: 'No games right now.'}));
+}
+
+// refresh loop
+async function refreshLive() {
+  try {
+    const r = await fetch(SCORE_URL + '?dates=' + etDate() + '&groups=50&limit=500', {cache: 'no-store'});
+    if (!r.ok) throw new Error(r.status);
+    LIVE = parseScoreboard(await r.json()); liveOk = true;
+    const t = new Date().toLocaleTimeString([], {hour: 'numeric', minute: '2-digit', second: '2-digit'});
+    $('liveStamp').textContent = 'Updated ' + t; $('dockStamp').textContent = 'Updated ' + t;
+    $('liveDot').className = 'dot' + (LIVE.some(g => g.state === 'in') ? ' live' : '');
+  } catch (e) {
+    liveOk = false; $('liveStamp').textContent = 'Live scores unavailable'; $('dockStamp').textContent = 'Live scores unavailable';
+  }
+  liveTiles(); drawLive(); drawDock(); drawTicker();
+}
+refreshLive();
+setInterval(() => { if (!document.hidden) refreshLive(); }, 30000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshLive(); });
 })();
 </script>
 </body>
