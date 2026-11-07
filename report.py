@@ -1,5 +1,8 @@
 """Console summary and the Excel dashboard."""
+
 from __future__ import annotations
+
+VERSION = "2026-11-07"
 
 from datetime import date, datetime
 from pathlib import Path

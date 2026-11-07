@@ -39,6 +39,25 @@ import espn, markets, odds_api, report, torvik, tracker, web  # noqa: E402
 from model import build_rows, run_model  # noqa: E402
 from names import TeamMatcher  # noqa: E402
 
+VERSION = "2026-11-07"
+CODE_FILES = ("config", "espn", "markets", "model", "names", "odds_api", "report", "torvik", "tracker", "web")
+
+
+def code_check() -> tuple[str, list[str]]:
+    """Every .py file carries a VERSION. List any that are older than main.py
+    (a file that didn't get replaced during an upload)."""
+    import importlib
+    stale = []
+    for name in CODE_FILES:
+        try:
+            v = getattr(importlib.import_module(name), "VERSION", "old")
+        except Exception:
+            v = "missing"
+        if v != VERSION:
+            stale.append(f"{name}.py ({v})")
+    return VERSION, stale
+
+
 DATA = ROOT / "data"
 OUTPUT = ROOT / "output"
 LOGS = OUTPUT / "logs"
@@ -96,6 +115,12 @@ def run(args) -> int:
         d.mkdir(parents=True, exist_ok=True)
     day = parse_day(args.date)
     notes = [f"Run started {datetime.now():%Y-%m-%d %H:%M}"]
+    ver, stale = code_check()
+    if stale:
+        msg = f"OUT OF DATE FILES (re-upload these): {', '.join(stale)}"
+        print(f"\nWARNING: {msg}\n")
+        notes.append(msg)
+    notes.append(f"Code version {ver}" + ("" if stale else " (all files current)"))
 
     print("Grading earlier picks...")
     n = tracker.grade(HISTORY)

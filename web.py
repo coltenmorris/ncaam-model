@@ -3,7 +3,10 @@
 The page is one self-contained HTML file: data is embedded as JSON and drawn
 with a little plain JavaScript, so it works on GitHub Pages and on a phone.
 """
+
 from __future__ import annotations
+
+VERSION = "2026-11-07"
 
 import json
 import math
@@ -195,8 +198,8 @@ def tips() -> dict:
             "Edge": "How many points the model disagrees with the line. |Proj away margin + away line|. Example: model Arizona by 34.3, line Arizona -31, edge 3.3 on Arizona. Yellow = 2+, green = 4+.",
             "Model away win": f"Model's chance the away team wins outright (spread ignored). Normal distribution of the projected margin with a standard deviation of {config.MARGIN_STDEV:g} points.",
             "Market away win": "The market's chance the away team wins outright: average of Kalshi and Polymarket prices, or the sportsbooks' moneylines with the bookmaker's cut removed if neither lists the game.",
-            "Cover %": "Estimated chance the Edge pick covers the spread. The model's projected margin is blended with the betting line (lines are usually close to right), keeping " + f"{getattr(config, 'COVER_MODEL_WEIGHT', 0.35):.0%}" + " of the model's disagreement, then turned into a probability using the typical " + f"{getattr(config, 'COVER_STDEV', 11.0):g}" + "-point spread of game results around projections. 52.4% is break-even at -110.",
-            "Conf.": "Confidence tier for the Edge pick, from Cover %: High " + f"{getattr(config, 'COVER_HIGH', 0.57):.0%}" + "+, Medium " + f"{getattr(config, 'COVER_MEDIUM', 0.54):.0%}" + " to " + f"{getattr(config, 'COVER_HIGH', 0.57):.0%}" + ", Low below that. The Success Rate tab tracks how each tier actually performs.",
+            "Cover %": "Estimated chance the Edge pick covers. Very large edges are flattened (they are usually a model miss, not value), only " + f"{getattr(config, 'COVER_MODEL_WEIGHT', 0.35):.0%}" + " of the model's disagreement with the line is trusted, and lopsided games get a wider range of outcomes. A 3 point edge is about 53.5%, 7 points about 56%. Realistic values stay between 50% and 58%. Break-even at -110 is 52.4%.",
+            "Conf.": "From Cover %: High " + f"{getattr(config, 'COVER_HIGH', 0.56):.0%}" + "+, Medium " + f"{getattr(config, 'COVER_MEDIUM', 0.54):.0%}" + "+, Low below that. CHECK = edge of " + f"{getattr(config, 'CHECK_EDGE', 12.0):g}" + "+ points or a spread of " + f"{getattr(config, 'CHECK_SPREAD', 30.0):g}" + "+: the model and the books disagree too much to trust; look for injuries or roster news first.",
             "Model pick": "The team with the better weighted efficiency (Wtd Eff). It always backs the stronger team and does not check whether it is stronger by more than the line. Use Edge for that.",
         },
         "power": {
@@ -552,7 +555,7 @@ $('theme').onclick = () => {
 $('day').textContent = D.day;
 $('updated').textContent = 'Updated ' + D.updated;
 $('mode').textContent = 'Mode: ' + D.mode;
-D.notes.forEach(n => $('notes').append(el('li', {textContent: n})));
+D.notes.forEach(n => $('notes').append(el('li', {textContent: n, className: n.startsWith('OUT OF DATE') ? 'down' : ''})));
 
 // tabs
 document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
@@ -641,7 +644,7 @@ tile($('todayTiles'), 4, 'Market edges', D.marketEdges || 0, 'Model vs predictio
 function fmtToday(c, v) {
   if (v == null) return '';
   if (c === 'Edge') return chip(v.toFixed(1), v >= b2 ? 'hi' : v >= b1 ? 'md' : '');
-  if (c === 'Conf.') return v ? chip(v, v === 'High' ? 'hi' : v === 'Medium' ? 'md' : '') : '';
+  if (c === 'Conf.') return v ? chip(v === 'Check' ? 'Check' : v, v === 'High' ? 'hi' : v === 'Medium' ? 'md' : v === 'Check' ? 'L' : '') : '';
   if (c.indexOf('win') >= 0 || c === 'Cover %') return pct(v);
   if (c.indexOf('margin') >= 0 || c.indexOf('Best') === 0) return sgn(v);
   return null;
@@ -672,7 +675,7 @@ function drawToday() {
         kv('Edge pick', r[ti('Edge pick')]),
         kv('Edge', isNum(edge) ? chip(edge.toFixed(1), edge >= b2 ? 'hi' : edge >= b1 ? 'md' : '') : ''),
         kv('Cover %', pct(r[ti('Cover %')])),
-        kv('Confidence', conf ? chip(conf, conf === 'High' ? 'hi' : conf === 'Medium' ? 'md' : '') : ''),
+        kv('Confidence', conf ? chip(conf, conf === 'High' ? 'hi' : conf === 'Medium' ? 'md' : conf === 'Check' ? 'L' : '') : ''),
         kv('Model pick', short(r[ti('Model pick')])),
         kv('Proj away margin', sgn(r[ti('Proj away margin')])),
         kv('Away win: model / market', pct(r[ti('Model away win')]) + (isNum(r[ti('Market away win')]) ? ' / ' + pct(r[ti('Market away win')]) : ''))

@@ -3,7 +3,10 @@
 Free key: 500 requests/month. One call returns every NCAAB game at every US
 book, so this program uses about 2 requests per run (spreads + moneylines).
 """
+
 from __future__ import annotations
+
+VERSION = "2026-11-07"
 
 import os
 import statistics

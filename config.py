@@ -5,6 +5,8 @@ Every number that drives the model lives here (this replaces the old
 "Assumptions" sheet). Change a value, save, and run main.py again.
 """
 
+VERSION = "2026-11-07"
+
 # ---------------------------------------------------------------------------
 # Model mode
 # ---------------------------------------------------------------------------
@@ -110,6 +112,18 @@ POLYMARKET_SERIES_ID = ""
 # Std. deviation of college game margins vs projection, used to turn the
 # projected margin into a win probability.
 MARGIN_STDEV = 11.0
+# Cover % (chance the Edge pick covers). Share of the model's disagreement with
+# the line that is trusted, the spread of results around a projection, and the
+# Confidence tier cutoffs.
+COVER_MODEL_WEIGHT = 0.35
+COVER_STDEV = 11.0
+COVER_SATURATION = 6.0     # edges flatten out around this many points
+COVER_HIGH = 0.56
+COVER_MEDIUM = 0.54
+# Picks with an edge this large, or a spread this big, are labeled "Check"
+# instead of High/Medium/Low: usually the model is missing something.
+CHECK_EDGE = 12.0
+CHECK_SPREAD = 30.0
 # Log a sportsbook Edge pick when |projected margin + line| is at least this.
 EDGE_LOG_MIN = 0.0
 # Success-rate buckets for Edge picks (points of edge)

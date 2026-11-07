@@ -6,7 +6,10 @@ Every pick is saved to data/pick_history.csv:
   Market  side where model win % beats the market's implied win %, straight up
 Grading pulls final scores from ESPN and marks W, L, P (push) or NR (no result).
 """
+
 from __future__ import annotations
+
+VERSION = "2026-11-07"
 
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
@@ -199,7 +202,7 @@ def record_summary(path: Path) -> pd.DataFrame:
     for lo, hi in zip(b[:-1], b[1:]):
         sub = edges[(edges["edge"] >= lo) & (edges["edge"] < hi)]
         rows.append(_line(f"  Edge {lo:g}+ pts" if hi == float("inf") else f"  Edge {lo:g} to {hi:g} pts", sub))
-    for tier in ("High", "Medium", "Low"):
+    for tier in ("High", "Medium", "Low", "Check"):
         rows.append(_line(f"  Confidence {tier}",
                           edges[(edges["confidence"] == tier)]))
     rows.append(_line("Market Edge (all, straight up)", hist[hist["pick_type"] == "Market"], ats=False))

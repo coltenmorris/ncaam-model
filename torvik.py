@@ -2,7 +2,10 @@
 
 Replaces pasting data into the old "KenPom" sheet.
 """
+
 from __future__ import annotations
+
+VERSION = "2026-11-07"
 
 import io
 from datetime import date

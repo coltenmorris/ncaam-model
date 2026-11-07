@@ -7,6 +7,8 @@ from __future__ import annotations
 
 import math
 
+VERSION = "2026-11-07"
+
 import pandas as pd
 
 import config
@@ -40,23 +42,41 @@ def _confidence(ev):
 # Cover probability settings (can be overridden in config.py)
 COVER_MODEL_WEIGHT = getattr(config, "COVER_MODEL_WEIGHT", 0.35)
 COVER_STDEV = getattr(config, "COVER_STDEV", 11.0)
-COVER_HIGH = getattr(config, "COVER_HIGH", 0.57)
+COVER_SATURATION = getattr(config, "COVER_SATURATION", 6.0)
+COVER_HIGH = getattr(config, "COVER_HIGH", 0.56)
 COVER_MEDIUM = getattr(config, "COVER_MEDIUM", 0.54)
+CHECK_EDGE = getattr(config, "CHECK_EDGE", 12.0)
+CHECK_SPREAD = getattr(config, "CHECK_SPREAD", 30.0)
 
 
-def cover_probability(edge_pts):
-    """Chance the Edge pick covers. The model's projection is blended with the
-    betting line (lines are usually close to right), so only part of the
-    disagreement counts: P = Normal CDF(weight x edge / stdev)."""
+def _effective_edge(edge_pts: float) -> float:
+    """Diminishing returns: a very large disagreement with the market is far
+    more often a model miss (injury, roster change, stale rating) than real
+    value, so edges flatten out around COVER_SATURATION points."""
+    k = COVER_SATURATION
+    return k * math.tanh(abs(edge_pts) / k)
+
+
+def cover_probability(edge_pts, spread=None):
+    """Chance the Edge pick covers.
+    1. Flatten very large edges (see _effective_edge).
+    2. Keep only COVER_MODEL_WEIGHT of the remaining disagreement (lines are
+       usually close to right).
+    3. Results swing more in lopsided games, so the spread of outcomes grows
+       with the size of the line.
+    P = Normal CDF(weight x effective edge / stdev)."""
     if edge_pts is None:
         return None
-    z = COVER_MODEL_WEIGHT * abs(edge_pts) / COVER_STDEV
+    sd = COVER_STDEV + 0.1 * max(0.0, abs(spread or 0) - 10)
+    z = COVER_MODEL_WEIGHT * _effective_edge(edge_pts) / sd
     return 0.5 * (1 + math.erf(z / math.sqrt(2)))
 
 
-def cover_tier(p):
+def cover_tier(p, edge_pts=None, spread=None):
     if p is None:
         return ""
+    if (edge_pts is not None and abs(edge_pts) >= CHECK_EDGE) or (spread is not None and abs(spread) >= CHECK_SPREAD):
+        return "Check"
     return "High" if p >= COVER_HIGH else "Medium" if p >= COVER_MEDIUM else "Low"
 
 
@@ -237,7 +257,7 @@ def run_model(rows: list[dict], ratings: pd.DataFrame) -> pd.DataFrame:
             "Edge Pick": (f"{edge_team} {'PK' if t1_line == 0 else format(t1_line if edge_side == 'T1' else -t1_line, '+g')}"
                           if edge_side else ""),
             "Edge Size": abs(edge) if edge is not None else None,
-            "Cover %": cover_probability(edge),
+            "Cover %": cover_probability(edge, L),
             "Model T1 Win%": model_p,
             "Book T1 Win%": row.get("book_t1_prob"),
             "Kalshi T1 Win%": row.get("kalshi_t1_prob"),
@@ -247,12 +267,12 @@ def run_model(rows: list[dict], ratings: pd.DataFrame) -> pd.DataFrame:
         })
         if not legacy:
             # Confidence = chance the Edge pick covers (replaces the old Enhanced Value tiers)
-            rec["Confidence"] = cover_tier(rec["Cover %"])
+            rec["Confidence"] = cover_tier(rec["Cover %"], edge, L)
 
         rec.update({
             "game_id": row["game_id"], "_start": row.get("start"),
             "_watch_side": pick_side, "_model_side": BE_side, "_t1_line": t1_line,
-            "_cover": cover_probability(edge),
+            "_cover": cover_probability(edge, L),
             "_edge_side": edge_side, "_edge": abs(edge) if edge is not None else None,
             "_mkt_side": mkt_side, "_p_edge": abs(p_edge) if p_edge is not None else None,
             "_mkt_prob": (mkt_p if mkt_side == "T1" else 1 - mkt_p) if mkt_side else None,

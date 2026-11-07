@@ -7,7 +7,10 @@ Replaces the DeleteAt / StateToSt / DeleteUni macros. Matching runs in order:
 Anything still unmatched (usually non-Division I opponents) is skipped and
 listed in the console, so you can add a line to data/team_aliases.csv.
 """
+
 from __future__ import annotations
+
+VERSION = "2026-11-07"
 
 import csv
 import re
