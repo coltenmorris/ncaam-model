@@ -147,6 +147,8 @@ def power_table(ratings: pd.DataFrame, data_dir: Path | None) -> pd.DataFrame:
         week_ago = (pd.Timestamp(today) - pd.Timedelta(days=7)).strftime("%Y-%m-%d")
         pick = [f for f in past if f.stem.split("_")[-1] <= week_ago]
         ref = pick[-1] if pick else (past[0] if past else None)
+        df.attrs["ref"] = ref.stem.split("_")[-1] if ref is not None else ""
+        df.attrs["files"] = len(files)
         if ref is not None:
             try:
                 old = pd.read_csv(ref).sort_values("net_rtg", ascending=False).reset_index(drop=True)
@@ -160,8 +162,36 @@ def power_table(ratings: pd.DataFrame, data_dir: Path | None) -> pd.DataFrame:
         "Net": df["net_rtg"], "Adj O": df["adj_o"], "O Rk": df["adj_o_rank"],
         "Adj D": df["adj_d"], "D Rk": df["adj_d_rank"], "Tempo": df["adj_t"], "Tempo Rk": df["adj_t_rank"],
         "Change": df["Change"],
+        "ESPN Rk": pd.to_numeric(df.get("espn_bpi_rank_now"), errors="coerce") if "espn_bpi_rank_now" in df else None,
     })
+    if out["ESPN Rk"].notna().any():
+        out["vs ESPN"] = out["ESPN Rk"] - out["Rk"]
+    else:
+        out = out.drop(columns=["ESPN Rk"])
+    out.attrs.update(df.attrs)
     return out
+
+
+def espn_compare(power: pd.DataFrame, data_dir) -> dict:
+    """How closely the learned ratings agree with ESPN's current BPI today,
+    plus how accurately each has projected finished games."""
+    out = {}
+    if power is not None and "ESPN Rk" in power:
+        m = power.dropna(subset=["ESPN Rk"])
+        if len(m) > 10:
+            out["n"] = int(len(m))
+            out["corr"] = round(float(m[["Rk", "ESPN Rk"]].corr(method="spearman").iloc[0, 1]), 3)
+            out["mad"] = round(float((m["ESPN Rk"] - m["Rk"]).abs().mean()), 1)
+            d = m.assign(diff=m["ESPN Rk"] - m["Rk"])
+            pick = lambda x: [{"team": r["Team"], "rk": int(r["Rk"]), "espn": int(r["ESPN Rk"])} for _, r in x.iterrows()]
+            out["higher"] = pick(d.sort_values("diff", ascending=False).head(5))
+            out["lower"] = pick(d.sort_values("diff").head(5))
+    try:
+        import gamelog
+        out["acc"] = gamelog.accuracy_summary(Path(data_dir) / "model_dataset.csv") if data_dir else {}
+    except Exception:
+        out["acc"] = {}
+    return _sanitize(out)
 
 
 def _market_eval(data_dir):
@@ -287,7 +317,9 @@ def tips() -> dict:
             "D Rk": "National rank in adjusted defense (1 = best).",
             "Tempo": "Possessions per 40 minutes. Higher = faster pace.",
             "Tempo Rk": "Rank in tempo (1 = fastest).",
-            "Change": "Places moved in the rankings over about the last 7 days. Green up, red down.",
+            "ESPN Rk": "Where ESPN's own current BPI ranks this team today (fetched fresh each run), for comparison.",
+            "vs ESPN": "ESPN's rank minus this model's rank. Positive (green) = this model rates the team higher than ESPN does; negative = lower.",
+            "Change": "Places moved in the rankings since the comparison date shown above the table (about 7 days ago once enough history is saved). Green up, red down.",
         },
     }
 
@@ -350,8 +382,9 @@ def build_payload(day: date, results: pd.DataFrame, record: pd.DataFrame, trend:
         "marketEdges": int((pd.to_numeric(results["Win% Edge (T1)"], errors="coerce").abs() >= config.MARKET_EDGE_MIN).sum())
                        if not results.empty and "Win% Edge (T1)" in results else 0,
         "odds": _sanitize(odds_compare(games, rows)),
+        "espnCompare": espn_compare(power, data_dir),
         "power": {"cols": list(power.columns), "rows": _records(power, [(c, c) for c in power.columns]),
-                  "source": ratings_source},
+                  "source": ratings_source, "ref": power.attrs.get("ref", ""), "files": power.attrs.get("files", 0)},
         "notes": list(notes),
         "games": int(len(results)) if not results.empty else 0,
     }
@@ -552,6 +585,7 @@ button.src{background:none;font-family:inherit;cursor:help}
 .dock .ib{background:none;border:0;color:var(--ink);font-size:16px;line-height:1;cursor:pointer;padding:2px 4px}
 .dock .db{overflow-y:auto}
 .dock.min .db,.dock.min .df,.dock.min .dset{display:none}
+#espnDiff{display:grid;gap:8px;margin-top:4px}
 .dock .dset{display:flex;flex-wrap:wrap;gap:4px 14px;padding:8px 14px;border-bottom:1px solid var(--line);font-size:11.5px;color:var(--ink-2)}
 .dock .dset label{display:flex;align-items:center;gap:5px;cursor:pointer}
 .dock .dg .pk{margin-top:5px;font-size:11.5px;color:var(--ink);display:flex;justify-content:space-between;gap:8px;align-items:center}
@@ -745,6 +779,12 @@ footer a{color:var(--ink)}
   </section>
 
   <section id="power" hidden>
+    <div class="card" id="espnCard">
+      <div class="card-h"><h2>Check against ESPN BPI</h2><span class="lbl muted">Updated every run</span></div>
+      <div class="tiles" id="espnTiles" style="margin-bottom:8px"></div>
+      <div id="espnDiff"></div>
+      <p class="sub" style="margin:6px 0 0">This model starts from ESPN's preseason BPI and learns from every finished game. ESPN's current BPI is fetched separately each run so you can see whether the two agree. <b>Average miss</b> = how far each one's projected margin was from the actual final margin on finished games (lower is better); the closing line is shown as the benchmark the betting market sets.</p>
+    </div>
     <div class="card">
       <div class="card-h"><h2>Power rankings</h2><span class="lbl muted" id="powerSrc"></span></div>
       <div class="controls">
@@ -1443,6 +1483,12 @@ drawBooks();
 // ---------- 05 Power rankings
 const P = D.power || {cols: [], rows: []}, pi = n => P.cols.indexOf(n);
 $('powerSrc').textContent = P.source ? 'Source: ' + P.source : '';
+(function () {
+  const note = el('p', {className: 'sub', style: 'margin:0 0 10px'});
+  note.textContent = P.ref ? 'Change = places moved since the ratings saved on ' + P.ref + '. Ratings update every run as games finish.'
+    : 'Change fills in once ratings from an earlier day have been saved (' + (P.files || 0) + ' daily ratings file(s) saved so far).';
+  $('powerTbl').before(note);
+})();
 [...new Set(P.rows.map(r => r[pi('Conf')]).filter(Boolean))].sort().forEach(c => $('powerConf').append(el('option', {value: c, textContent: c})));
 function drawPower() {
   const cf = $('powerConf').value, q = $('powerSearch').value.trim().toLowerCase();
@@ -1455,7 +1501,7 @@ function drawPower() {
     table($('powerTbl'), ['Rk', 'Team', 'Net', 'Change'], data, (c, v) => {
       if (c === 'Team') {
         const r = info[v] || [];
-        const sub = [r[pi('Conf')], r[pi('Record')], 'O ' + f1(r[pi('Adj O')]) + ' (' + r[pi('O Rk')] + ')', 'D ' + f1(r[pi('Adj D')]) + ' (' + r[pi('D Rk')] + ')', 'Tempo ' + f1(r[pi('Tempo')])].filter(Boolean).join(' · ');
+        const sub = [r[pi('Conf')], r[pi('Record')], 'O ' + f1(r[pi('Adj O')]) + ' (' + r[pi('O Rk')] + ')', 'D ' + f1(r[pi('Adj D')]) + ' (' + r[pi('D Rk')] + ')', 'Tempo ' + f1(r[pi('Tempo')]), pi('ESPN Rk') >= 0 && isNum(r[pi('ESPN Rk')]) ? 'ESPN #' + Math.round(r[pi('ESPN Rk')]) : ''].filter(Boolean).join(' · ');
         return el('span', null, [el('b', {textContent: v}), el('span', {className: 'psub', textContent: sub})]);
       }
       if (c === 'Net') return isNum(v) ? (v > 0 ? '+' : '') + v.toFixed(1) : '';
@@ -1467,11 +1513,27 @@ function drawPower() {
   table($('powerTbl'), P.cols, rows, (c, v) => {
     if (c === 'Net') return isNum(v) ? (v > 0 ? '+' : '') + v.toFixed(1) : '';
     if (c === 'Adj O' || c === 'Adj D' || c === 'Tempo') return isNum(v) ? v.toFixed(1) : '';
+    if (c === 'ESPN Rk') return isNum(v) ? String(Math.round(v)) : '';
+    if (c === 'vs ESPN') { if (!isNum(v)) return ''; if (v === 0) return '0'; return el('span', {className: v > 0 ? 'up' : 'down', textContent: (v > 0 ? '+' : '') + Math.round(v)}); }
     if (c === 'Change') { if (!isNum(v)) return ''; if (v === 0) return '0'; return el('span', {className: v > 0 ? 'up' : 'down', textContent: (v > 0 ? '▲ ' : '▼ ') + Math.abs(v)}); }
     return null;
   }, (D.tips || {}).power);
 }
 $('powerConf').onchange = drawPower; $('powerSearch').oninput = drawPower; drawPower();
+(function () {
+  const E = D.espnCompare || {}, A = E.acc || {}, host = $('espnTiles');
+  tile(host, 1, 'Rank agreement', isNum(E.corr) ? E.corr.toFixed(2) : 'n/a', isNum(E.corr) ? '1.00 = identical order (' + E.n + ' teams)' : 'ESPN current BPI not available', 'blue');
+  tile(host, 2, 'Average rank gap', isNum(E.mad) ? E.mad.toFixed(1) : 'n/a', 'Places apart, on average', '');
+  tile(host, 3, 'Average miss: model', isNum(A.model_mae) ? A.model_mae.toFixed(1) + ' pts' : 'n/a', A.games ? A.games + ' finished games' : 'Needs finished games', '');
+  tile(host, 4, 'Average miss: ESPN', isNum(A.espn_mae) ? A.espn_mae.toFixed(1) + ' pts' : 'n/a', isNum(A.line_mae) ? 'Closing line: ' + A.line_mae.toFixed(1) + ' pts' : 'Same games', 'black');
+  const dh = $('espnDiff');
+  if (E.higher && E.higher.length) {
+    const list = (title, arr) => el('div', null, [el('div', {className: 'lbl muted', textContent: title}),
+      el('div', {className: 'sub', textContent: arr.map(x => x.team + ' (' + x.rk + ' here, ' + x.espn + ' ESPN)').join(' · ')})]);
+    dh.append(list('This model is higher on', E.higher), list('This model is lower on', E.lower));
+  }
+})();
+
 MQ.addEventListener('change', () => { drawToday(); drawRecord(); drawTrend(); drawHist(); drawBooks(); drawPower(); drawPortfolio(); });
 
 

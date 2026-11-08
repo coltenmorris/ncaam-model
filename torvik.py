@@ -68,7 +68,8 @@ def _parse(text: str) -> pd.DataFrame:
 
 
 RATING_COLS = ["rank", "team", "conf", "record", "adj_o", "adj_o_rank", "adj_d", "adj_d_rank",
-               "adj_t", "adj_t_rank", "net_rtg", "barthag", "bpi", "bpi_off", "bpi_def"]
+               "adj_t", "adj_t_rank", "net_rtg", "barthag", "bpi", "bpi_off", "bpi_def",
+               "espn_bpi_now", "espn_bpi_off_now", "espn_bpi_def_now", "espn_bpi_rank_now"]
 BROWSER_HEADERS = {
     "Accept": "text/csv,text/plain,text/html;q=0.9,*/*;q=0.8",
     "Accept-Language": "en-US,en;q=0.9",
@@ -132,6 +133,9 @@ def _cbbd_frame(rows: list, pace: dict) -> pd.DataFrame:
         df[col] = pd.to_numeric(df[col], errors="coerce")
         df[col] = df[col].fillna(df[src].rank(ascending=asc, method="min")).astype(int)
     df["adj_t_rank"] = df["adj_t"].rank(ascending=False, method="min").astype(int)
+    for c in RATING_COLS:
+        if c not in df:
+            df[c] = None
     return df.sort_values("rank").reset_index(drop=True)[RATING_COLS]
 
 
@@ -168,6 +172,7 @@ def _from_cbbd(season: int) -> pd.DataFrame:
                        f"no ratings returned for {season} or {season - 1}")
 
 
+BPI_INFO: dict = {}
 ESPN_BPI_URL = ("https://site.web.api.espn.com/apis/fitt/v3/sports/basketball/"
                 "mens-college-basketball/powerindex")
 LEAGUE_AVG_EFF = 105.0   # D1 average points per 100 possessions, used to express BPI on that scale
@@ -183,7 +188,7 @@ def _team_name(t: dict) -> str:
     return t.get("shortDisplayName") or t.get("nickname") or disp
 
 
-def _from_espn_bpi(season: int) -> pd.DataFrame:
+def _from_espn_bpi(season: int, variants=None, need_cbbd_tempo: bool = True) -> pd.DataFrame:
     """ESPN Basketball Power Index. It starts each season from a preseason
     projection and updates with results, so it is usable from opening night.
     BPI offense/defense are points above an average team per 70 possessions;
@@ -205,8 +210,11 @@ def _from_espn_bpi(season: int) -> pd.DataFrame:
 
     # ESPN has used different parameter names; use whichever returns this season.
     base, js, seen = None, None, []
-    for extra in ({"season": season}, {"year": season}, {"season": season, "seasontype": 1},
-                  {"season": season, "seasontype": 2}, {}):
+    # Preseason BPI is the fixed starting point; results.py then learns from
+    # every finished game. (Regular-season BPI already includes results, so it
+    # is only a fallback.)
+    for extra in (variants or ({"season": season, "seasontype": 1}, {"season": season}, {"year": season},
+                               {"season": season, "seasontype": 2}, {})):
         try:
             js = get({**extra, "limit": 50, "page": 1})
         except Exception as e:
@@ -216,6 +224,9 @@ def _from_espn_bpi(season: int) -> pd.DataFrame:
         seen.append(f"{extra or 'default'} -> {got}")
         if got == season and js.get("teams"):
             base = extra
+            stype = ((js.get("requestedSeason") or {}).get("type") or {}).get("name") or \
+                    ((js.get("currentSeason") or {}).get("type") or {}).get("name") or ""
+            BPI_INFO["variant"] = stype or ("regular season" if extra.get("seasontype") == 2 else "default")
             break
     if base is None:
         raise RuntimeError(f"no {season} BPI posted yet ({'; '.join(seen)})")
@@ -265,7 +276,7 @@ def _from_espn_bpi(season: int) -> pd.DataFrame:
     if not rows:
         raise RuntimeError("no teams returned")
     df = pd.DataFrame(rows)
-    pace = _cbbd_tempo(season)
+    pace = _cbbd_tempo(season) if need_cbbd_tempo else {}
     df["adj_t"] = df["team"].map(lambda n: _lookup(pace, n, "pace"))
     df["record"] = df["team"].map(lambda n: _lookup(pace, n, "record") or "")
     return _finish(df)
@@ -322,6 +333,44 @@ def _regress(df: pd.DataFrame, amount: float) -> pd.DataFrame:
     return _finish(df)
 
 
+def _blend_current(df: pd.DataFrame, season: int) -> tuple[pd.DataFrame, str]:
+    """Move each team's BPI-based offense/defense toward its actual adjusted
+    offense/defense this season (CollegeBasketballData.com) as it plays games:
+    weight = games / (games + PRIOR_GAMES). With 0 games the rating is pure BPI;
+    after 8 games it is half and half; late in the season it is mostly results."""
+    from names import key
+    prior = float(getattr(config, "PRIOR_GAMES", 8))
+    try:
+        cur = _from_cbbd(season)                      # current season only (raises otherwise)
+    except Exception as e:
+        return df, f"current-season results not available yet ({str(e)[:80]})"
+    # put both on the same scale before blending
+    for c in ("adj_o", "adj_d"):
+        cur[c] = cur[c] - cur[c].mean() + df[c].mean()
+    by_key = {key(t): r for t, r in zip(cur["team"], cur.to_dict("records"))}
+    n = 0
+    for i, t in df["team"].items():
+        r = by_key.get(key(t))
+        if not r:
+            continue
+        try:
+            w_, l_ = (int(x) for x in str(r.get("record") or "0-0").split("-")[:2])
+        except ValueError:
+            w_, l_ = 0, 0
+        g = w_ + l_
+        if g <= 0:
+            continue
+        w = g / (g + prior)
+        df.at[i, "adj_o"] = (1 - w) * df.at[i, "adj_o"] + w * r["adj_o"]
+        df.at[i, "adj_d"] = (1 - w) * df.at[i, "adj_d"] + w * r["adj_d"]
+        if r.get("adj_t"):
+            df.at[i, "adj_t"] = r["adj_t"]
+        if r.get("record"):
+            df.at[i, "record"] = r["record"]
+        n += 1
+    return _finish(df), f"blended with this season's game results for {n} teams"
+
+
 def load_ratings(day: date, data_dir: Path, ratings_file: str | None = None) -> pd.DataFrame:
     """Ratings in this order: Barttorvik, ESPN BPI, CollegeBasketballData.com,
     last saved copy, then last season's final ratings pulled toward average."""
@@ -340,6 +389,8 @@ def load_ratings(day: date, data_dir: Path, ratings_file: str | None = None) -> 
             df = fn(season)
             if len(df) < 200:
                 raise RuntimeError(f"only {len(df)} teams returned")
+            if name == "ESPN BPI":
+                name = f"ESPN BPI ({BPI_INFO.get('variant', 'default')})"
             df.attrs["source"] = name
             df.attrs["skipped"] = list(errors)
             for c in RATING_COLS:
@@ -376,4 +427,35 @@ def _read_saved(path: Path) -> pd.DataFrame:
         if c not in df:
             df[c] = None
     df.attrs["source"] = "saved copy"
+    return df
+
+
+def espn_bpi_now(season: int, base: pd.DataFrame | None = None) -> tuple[pd.DataFrame | None, str]:
+    """ESPN's own current (regular-season) BPI, fetched fresh each run so the
+    learned ratings can be checked against it. Returns (frame or None, status)."""
+    try:
+        df = _from_espn_bpi(season, variants=({"season": season, "seasontype": 2},), need_cbbd_tempo=False)
+    except Exception as e:
+        return None, f"ESPN current BPI unavailable ({str(e)[:100]})"
+    out = df[["team", "bpi", "bpi_off", "bpi_def"]].rename(columns={
+        "bpi": "espn_bpi_now", "bpi_off": "espn_bpi_off_now", "bpi_def": "espn_bpi_def_now"})
+    out["espn_bpi_now"] = pd.to_numeric(out["espn_bpi_now"], errors="coerce")
+    out["espn_bpi_rank_now"] = out["espn_bpi_now"].rank(ascending=False, method="min")
+    note = "ESPN current BPI fetched"
+    if base is not None and "bpi" in base:
+        m = base[["team", "bpi"]].merge(out[["team", "espn_bpi_now"]], on="team")
+        if len(m) and (pd.to_numeric(m["bpi"], errors="coerce") - m["espn_bpi_now"]).abs().max() < 1e-6:
+            note = "ESPN current BPI matches preseason (ESPN has not updated it yet)"
+    return out, note
+
+
+def attach_espn_now(ratings: pd.DataFrame, now: pd.DataFrame | None) -> pd.DataFrame:
+    df = ratings.drop(columns=[c for c in ("espn_bpi_now", "espn_bpi_off_now", "espn_bpi_def_now",
+                                           "espn_bpi_rank_now") if c in ratings], errors="ignore")
+    if now is not None and not now.empty:
+        df = df.merge(now, on="team", how="left")
+    for c in RATING_COLS:
+        if c not in df:
+            df[c] = None
+    df.attrs.update(ratings.attrs)
     return df

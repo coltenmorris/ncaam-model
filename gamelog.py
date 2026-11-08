@@ -30,7 +30,9 @@ COLUMNS = [
     "proj_t1_margin", "model_t1_win", "market_t1_win",
     "open_t1_line", "open_source", "open_at", "close_t1_line", "close_source", "close_books", "close_at",
     "edge_side", "edge_pick", "edge_pts", "cover_prob", "confidence",
-    "t1_score", "t2_score", "t1_margin", "pick_result_close", "pick_result_open", "clv_pts", "graded_at",
+    "espn_t1_bpi_now", "espn_t2_bpi_now", "espn_proj_t1_margin",
+    "t1_score", "t2_score", "t1_margin", "pick_result_close", "pick_result_open", "clv_pts",
+    "model_abs_err", "espn_abs_err", "line_abs_err", "graded_at",
 ]
 
 _SNAPSHOT = {  # dataset column -> results column (refreshed on every pregame run)
@@ -44,6 +46,8 @@ _SNAPSHOT = {  # dataset column -> results column (refreshed on every pregame ru
     "close_t1_line": "_t1_line", "close_source": "Line Source", "close_books": "Books",
     "edge_side": "_edge_side", "edge_pick": "Edge Pick", "edge_pts": "Edge Size",
     "cover_prob": "Cover %", "confidence": "Confidence",
+    "espn_t1_bpi_now": "T1 ESPN BPI Now", "espn_t2_bpi_now": "T2 ESPN BPI Now",
+    "espn_proj_t1_margin": "ESPN BPI Proj T1 Margin",
 }
 
 
@@ -126,6 +130,13 @@ def grade(path: Path, today: date | None = None) -> int:
                 continue
             s1, s2 = float(g["away"]["score"]), float(g["home"]["score"])
             df.at[i, "t1_score"], df.at[i, "t2_score"], df.at[i, "t1_margin"] = s1, s2, s1 - s2
+            for col, src in (("model_abs_err", "proj_t1_margin"), ("espn_abs_err", "espn_proj_t1_margin")):
+                v = _v(df.at[i, src])
+                if v is not None:
+                    df.at[i, col] = round(abs((s1 - s2) - float(v)), 2)
+            cl = _v(df.at[i, "close_t1_line"])
+            if cl is not None:   # the market's projection is minus the line
+                df.at[i, "line_abs_err"] = round(abs((s1 - s2) + float(cl)), 2)
             side = df.at[i, "edge_side"]
             close, opn = _v(df.at[i, "close_t1_line"]), _v(df.at[i, "open_t1_line"])
             if side in ("T1", "T2") and close is not None:
@@ -160,3 +171,25 @@ def clv_summary(path: Path) -> dict:
         "beat_rate": round(float((moved > 0).mean()), 4) if len(moved) else None,
         "avg_clv": round(float(clv.mean()), 3),
     }
+
+
+def accuracy_summary(path: Path) -> dict:
+    """Average miss (points) of each projection on finished games where all
+    three exist: this model, ESPN's current BPI, and the closing line."""
+    df = load(path)
+    if df.empty:
+        return {}
+    g = df.dropna(subset=["model_abs_err", "espn_abs_err"])
+    if g.empty:
+        return {"games": 0}
+    out = {"games": int(len(g)), "model_mae": round(float(g["model_abs_err"].astype(float).mean()), 2),
+           "espn_mae": round(float(g["espn_abs_err"].astype(float).mean()), 2)}
+    gl = g.dropna(subset=["line_abs_err"])
+    if len(gl):
+        out["line_mae"] = round(float(gl["line_abs_err"].astype(float).mean()), 2)
+    recent = g[g["date"].astype(str) >= (date.today() - timedelta(days=7)).isoformat()]
+    if len(recent):
+        out["recent_games"] = int(len(recent))
+        out["recent_model_mae"] = round(float(recent["model_abs_err"].astype(float).mean()), 2)
+        out["recent_espn_mae"] = round(float(recent["espn_abs_err"].astype(float).mean()), 2)
+    return out

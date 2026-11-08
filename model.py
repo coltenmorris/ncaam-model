@@ -243,6 +243,7 @@ def run_model(rows: list[dict], ratings: pd.DataFrame) -> pd.DataFrame:
             "T1 BPI": a.get("bpi"), "T1 BPI Off": a.get("bpi_off"), "T1 BPI Def": a.get("bpi_def"),
             "T2 BPI": b.get("bpi"), "T2 BPI Off": b.get("bpi_off"), "T2 BPI Def": b.get("bpi_def"),
             "T1 Net": a.get("net_rtg"), "T2 Net": b.get("net_rtg"),
+            "T1 ESPN BPI Now": a.get("espn_bpi_now"), "T2 ESPN BPI Now": b.get("espn_bpi_now"),
             "T1 AdjT": AV, "T2 AdjT": AW, "Avg Tempo": AX, "Tempo Mod": AY,
             "OR Diff (HCA)": AZ, "DR Diff": BA, "Wtd Eff": BB,
             "Enhanced Value": BC, "Confidence": BD, "Model Pick": BE,
@@ -262,7 +263,14 @@ def run_model(rows: list[dict], ratings: pd.DataFrame) -> pd.DataFrame:
         if p_edge is not None and abs(p_edge) >= config.MARKET_EDGE_MIN:
             mkt_side = "T1" if p_edge > 0 else "T2"
         edge_team = (t1 if edge_side == "T1" else t2) if edge_side else ""
+        e1, e2 = a.get("espn_bpi_now"), b.get("espn_bpi_now")
+        try:
+            espn_proj = float(e1) - float(e2) - (0 if row["neutral"] else hca_pts)
+            espn_proj = None if espn_proj != espn_proj else espn_proj
+        except (TypeError, ValueError):
+            espn_proj = None
         rec.update({
+            "ESPN BPI Proj T1 Margin": espn_proj,
             "Line Source": row.get("line_source", ""),
             "Line Tag": row.get("line_tag", ""),
             "T1 Line": t1_line,

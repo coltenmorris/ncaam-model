@@ -35,12 +35,12 @@ sys.path.insert(0, str(ROOT))
 import pandas as pd  # noqa: E402
 
 import config  # noqa: E402
-import espn, gamelog, markets, odds_api, report, torvik, tracker, web  # noqa: E402
+import espn, gamelog, markets, odds_api, report, results as season_results, torvik, tracker, web  # noqa: E402
 from model import build_rows, run_model  # noqa: E402
 from names import TeamMatcher  # noqa: E402
 
 VERSION = "2026-11-07.2"
-CODE_FILES = ("config", "espn", "gamelog", "markets", "model", "names", "odds_api", "report", "torvik", "tracker", "web")
+CODE_FILES = ("config", "espn", "gamelog", "results", "markets", "model", "names", "odds_api", "report", "torvik", "tracker", "web")
 
 
 def code_check() -> tuple[str, list[str]]:
@@ -232,6 +232,21 @@ def run(args) -> int:
         print(f"\nERROR loading ratings: {e}")
         return 1
     src = ratings.attrs.get("source", "Barttorvik")
+    skipped = ratings.attrs.get("skipped", [])
+    if src.startswith("ESPN BPI") and not args.ratings_file:
+        print("Applying this season's game results...")
+        try:
+            ratings, how = season_results.update(ratings, DATA, torvik.season_for(day))
+            src = f"{src} + this season's results ({how})"
+            now, bpi_note = torvik.espn_bpi_now(torvik.season_for(day), ratings)
+            ratings = torvik.attach_espn_now(ratings, now)
+            notes.append(bpi_note)
+            ratings[[c for c in torvik.RATING_COLS if c in ratings]].to_csv(
+                DATA / f"ratings_{torvik.season_for(day)}_{date.today():%Y-%m-%d}.csv", index=False)
+            print(f"  {how}")
+        except Exception as e:
+            src = f"{src} (results adjustment skipped: {e.__class__.__name__}: {e})"
+        ratings.attrs["source"], ratings.attrs["skipped"] = src, skipped
     print(f"  {len(ratings)} teams from {src}.")
     notes.append(f"Ratings: {len(ratings)} teams from {src}")
     for err in ratings.attrs.get("skipped", []):
