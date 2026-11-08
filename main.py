@@ -35,7 +35,22 @@ sys.path.insert(0, str(ROOT))
 import pandas as pd  # noqa: E402
 
 import config  # noqa: E402
-import espn, gamelog, markets, odds_api, report, results as season_results, torvik, tracker, web  # noqa: E402
+import espn, markets, odds_api, report, torvik, tracker, web  # noqa: E402
+
+# Optional add-on modules: if one is missing from the repo (e.g. an upload that
+# didn't include it), the run continues without that feature and the page says
+# which file to upload, instead of the whole run failing.
+MISSING_MODULES = []
+try:
+    import gamelog  # noqa: E402
+except ImportError:
+    gamelog = None
+    MISSING_MODULES.append("gamelog.py")
+try:
+    import results as season_results  # noqa: E402
+except ImportError:
+    season_results = None
+    MISSING_MODULES.append("results.py")
 from model import build_rows, run_model  # noqa: E402
 from names import TeamMatcher  # noqa: E402
 
@@ -196,6 +211,10 @@ def run(args) -> int:
     day = parse_day(args.date)
     notes = [f"Run started {datetime.now():%Y-%m-%d %H:%M}"]
     ver, stale = code_check()
+    if MISSING_MODULES:
+        msg = f"MISSING FILES (upload these to the repo): {', '.join(MISSING_MODULES)}"
+        print(f"\nWARNING: {msg}\n")
+        notes.append(msg)
     if stale:
         msg = f"OUT OF DATE FILES (re-upload these): {', '.join(stale)}"
         print(f"\nWARNING: {msg}\n")
@@ -213,7 +232,7 @@ def run(args) -> int:
     print(f"  {n} pick(s) graded.")
     notes.append(f"Graded {n} pick(s)")
     try:
-        gd = gamelog.grade(DATASET)
+        gd = gamelog.grade(DATASET) if gamelog else 0
         if gd:
             notes.append(f"Research dataset: {gd} game(s) finalized")
     except Exception as e:
@@ -233,7 +252,7 @@ def run(args) -> int:
         return 1
     src = ratings.attrs.get("source", "Barttorvik")
     skipped = ratings.attrs.get("skipped", [])
-    if src.startswith("ESPN BPI") and not args.ratings_file:
+    if src.startswith("ESPN BPI") and not args.ratings_file and season_results is not None:
         print("Applying this season's game results...")
         try:
             ratings, how = season_results.update(ratings, DATA, torvik.season_for(day))
@@ -296,6 +315,8 @@ def run(args) -> int:
             results = run_model(rows, ratings)
             results = keep_logged_picks(results, games)
             try:
+                if gamelog is None:
+                    raise RuntimeError("gamelog.py missing")
                 gu = gamelog.update(DATASET, results, games, day, src)
                 notes.append(f"Research dataset: {gu} pregame game(s) recorded")
             except Exception as e:
