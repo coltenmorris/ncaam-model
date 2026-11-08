@@ -94,14 +94,14 @@ date,start,game_id,pick_type,t1,t2,pick_team,pick_side,pick_line,line_source,con
 2026-11-07,2026-11-07T19:30:00-05:00,401926227,Market,Denver,UC Riverside,UC Riverside,T2,,Consensus (8 books),,,0.065,,0.555,0.62,W,60.0,64.0,2026-11-07 19:01,2026-11-07 22:04,
 2026-11-07,2026-11-07T19:30:00-05:00,401909513,Model,Maryland,Georgetown,Maryland,T1,-3.5,Consensus (8 books),,0.218,,,,0.5943,L,74.0,86.0,2026-11-07 19:01,2026-11-07 22:04,
 2026-11-07,2026-11-07T19:30:00-05:00,401909513,Edge,Maryland,Georgetown,Georgetown,T2,3.5,Consensus (8 books),Low,,0.87,0.511,,0.4057,W,74.0,86.0,2026-11-07 19:01,2026-11-07 22:04,Low
-2026-11-07,2026-11-07T20:00:00-05:00,401925077,Model,Northwestern State,Murray State,Murray State,T2,-23.5,Consensus (7 books),,0.545,,,,0.9355,,,,2026-11-07 19:01,,
-2026-11-07,2026-11-07T20:00:00-05:00,401925077,Edge,Northwestern State,Murray State,Northwestern State,T1,23.5,Consensus (7 books),Medium,,6.8,0.5549,,0.0645,,,,2026-11-07 19:01,,Medium
+2026-11-07,2026-11-07T20:00:00-05:00,401925077,Model,Northwestern State,Murray State,Murray State,T2,-23.5,Consensus (7 books),,0.545,,,,0.9355,L,71.0,93.0,2026-11-07 19:01,2026-11-07 22:19,
+2026-11-07,2026-11-07T20:00:00-05:00,401925077,Edge,Northwestern State,Murray State,Northwestern State,T1,23.5,Consensus (7 books),Medium,,6.8,0.5549,,0.0645,W,71.0,93.0,2026-11-07 19:01,2026-11-07 22:19,Medium
 2026-11-07,2026-11-07T20:00:00-05:00,401923392,Model,Southern Indiana,Evansville,Evansville,T2,-7.5,Consensus (8 books),,0.103,,,,0.5243,,,,2026-11-07 19:01,,
 2026-11-07,2026-11-07T20:00:00-05:00,401923392,Edge,Southern Indiana,Evansville,Southern Indiana,T1,7.5,Consensus (8 books),High,,6.83,0.5617,,0.4757,,,,2026-11-07 19:01,,High
 2026-11-07,2026-11-07T20:00:00-05:00,401923392,Market,Southern Indiana,Evansville,Southern Indiana,T1,,Consensus (8 books),,,0.2207,,0.255,0.4757,,,,2026-11-07 19:01,,
-2026-11-07,2026-11-07T20:00:00-05:00,401920816,Model,SE Louisiana,Little Rock,Little Rock,T2,-10.5,Draft Kings (no DraftKings line),,0.544,,,,0.7406,,,,2026-11-07 19:01,,
-2026-11-07,2026-11-07T20:00:00-05:00,401920816,Edge,SE Louisiana,Little Rock,SE Louisiana,T1,10.5,Draft Kings (no DraftKings line),Low,,3.4,0.5388,,0.2594,,,,2026-11-07 19:01,,Low
-2026-11-07,2026-11-07T20:00:00-05:00,401920816,Market,SE Louisiana,Little Rock,SE Louisiana,T1,,Draft Kings (no DraftKings line),,,0.0552,,0.2042,0.2594,,,,2026-11-07 19:01,,
+2026-11-07,2026-11-07T20:00:00-05:00,401920816,Model,SE Louisiana,Little Rock,Little Rock,T2,-10.5,Draft Kings (no DraftKings line),,0.544,,,,0.7406,L,83.0,79.0,2026-11-07 19:01,2026-11-07 22:19,
+2026-11-07,2026-11-07T20:00:00-05:00,401920816,Edge,SE Louisiana,Little Rock,SE Louisiana,T1,10.5,Draft Kings (no DraftKings line),Low,,3.4,0.5388,,0.2594,W,83.0,79.0,2026-11-07 19:01,2026-11-07 22:19,Low
+2026-11-07,2026-11-07T20:00:00-05:00,401920816,Market,SE Louisiana,Little Rock,SE Louisiana,T1,,Draft Kings (no DraftKings line),,,0.0552,,0.2042,0.2594,W,83.0,79.0,2026-11-07 19:01,2026-11-07 22:19,
 2026-11-07,2026-11-07T20:00:00-05:00,401917518,Model,Pacific,Bradley,Bradley,T2,-1.0,Consensus (8 books),,4.314,,,,0.6664,L,63.0,52.0,2026-11-07 19:01,2026-11-07 22:04,
 2026-11-07,2026-11-07T20:00:00-05:00,401917518,Edge,Pacific,Bradley,Bradley,T2,-1.0,Consensus (8 books),Medium,,3.73,0.542,,0.6664,L,63.0,52.0,2026-11-07 19:01,2026-11-07 22:04,Medium
 2026-11-07,2026-11-07T20:00:00-05:00,401917518,Market,Pacific,Bradley,Bradley,T2,,Consensus (8 books),,,0.1514,,0.515,0.6664,L,63.0,52.0,2026-11-07 19:01,2026-11-07 22:04,
