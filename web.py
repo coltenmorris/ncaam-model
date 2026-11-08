@@ -585,7 +585,14 @@ button.src{background:none;font-family:inherit;cursor:help}
 .dock .ib{background:none;border:0;color:var(--ink);font-size:16px;line-height:1;cursor:pointer;padding:2px 4px}
 .dock .db{overflow-y:auto}
 .dock.min .db,.dock.min .df,.dock.min .dset{display:none}
-#espnDiff{display:grid;gap:8px;margin-top:4px}
+#espnDiff{display:grid;gap:8px;margin:4px 0 8px}
+@media (max-width:1200px){#powerTbl th,#powerTbl td{padding:9px 8px}}
+details.about{border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:0 0 12px}
+details.about summary{cursor:pointer;padding:10px 0;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;list-style:none;display:flex;justify-content:space-between}
+details.about summary::-webkit-details-marker{display:none}
+details.about summary::after{content:"+";font-size:14px}
+details.about[open] summary::after{content:"\2212"}
+details.about .about-body{padding:0 0 10px}
 .dock .dset{display:flex;flex-wrap:wrap;gap:4px 14px;padding:8px 14px;border-bottom:1px solid var(--line);font-size:11.5px;color:var(--ink-2)}
 .dock .dset label{display:flex;align-items:center;gap:5px;cursor:pointer}
 .dock .dg .pk{margin-top:5px;font-size:11.5px;color:var(--ink);display:flex;justify-content:space-between;gap:8px;align-items:center}
@@ -779,18 +786,21 @@ footer a{color:var(--ink)}
   </section>
 
   <section id="power" hidden>
-    <div class="card" id="espnCard">
-      <div class="card-h"><h2>Check against ESPN BPI</h2><span class="lbl muted">Updated every run</span></div>
-      <div class="tiles" id="espnTiles" style="margin-bottom:8px"></div>
-      <div id="espnDiff"></div>
-      <p class="sub" style="margin:6px 0 0">This model starts from ESPN's preseason BPI and learns from every finished game. ESPN's current BPI is fetched separately each run so you can see whether the two agree. <b>Average miss</b> = how far each one's projected margin was from the actual final margin on finished games (lower is better); the closing line is shown as the benchmark the betting market sets.</p>
-    </div>
     <div class="card">
       <div class="card-h"><h2>Power rankings</h2><span class="lbl muted" id="powerSrc"></span></div>
       <div class="controls">
         <select id="powerConf"><option value="">All conferences</option></select>
         <input type="search" id="powerSearch" placeholder="Search team">
+        <label class="chk"><input type="checkbox" id="powerEspn"> Show ESPN comparison columns</label>
       </div>
+      <details class="about" id="powerAbout">
+        <summary>About these rankings</summary>
+        <div class="about-body">
+          <p class="sub" id="espnAgree"></p>
+          <div id="espnDiff"></div>
+          <p class="sub">This model starts from ESPN's preseason BPI and learns from every finished game: each result moves a team's offense, defense and tempo toward what actually happened, a little less with every game played. ESPN's current BPI is fetched separately each run so you can see whether the two agree. Large gaps on a team usually mean a few unusual results, or something ESPN accounts for that results alone don't show (injuries, roster changes).</p>
+        </div>
+      </details>
       <div class="tbl" id="powerTbl"></div>
     </div>
   </section>
@@ -1490,10 +1500,12 @@ $('powerSrc').textContent = P.source ? 'Source: ' + P.source : '';
   $('powerTbl').before(note);
 })();
 [...new Set(P.rows.map(r => r[pi('Conf')]).filter(Boolean))].sort().forEach(c => $('powerConf').append(el('option', {value: c, textContent: c})));
+const MQP = matchMedia('(max-width: 960px)');
+MQP.addEventListener('change', () => drawPower());
 function drawPower() {
   const cf = $('powerConf').value, q = $('powerSearch').value.trim().toLowerCase();
   const rows = P.rows.filter(r => (!cf || r[pi('Conf')] === cf) && (!q || String(r[pi('Team')]).toLowerCase().includes(q)));
-  if (mobile()) {
+  if (mobile() || MQP.matches) {
     const info = {};
     rows.forEach(r => { info[r[pi('Team')]] = r; });
     const data = rows.map(r => [r[pi('Rk')], r[pi('Team')], r[pi('Net')], r[pi('Change')]]);
@@ -1501,7 +1513,7 @@ function drawPower() {
     table($('powerTbl'), ['Rk', 'Team', 'Net', 'Change'], data, (c, v) => {
       if (c === 'Team') {
         const r = info[v] || [];
-        const sub = [r[pi('Conf')], r[pi('Record')], 'O ' + f1(r[pi('Adj O')]) + ' (' + r[pi('O Rk')] + ')', 'D ' + f1(r[pi('Adj D')]) + ' (' + r[pi('D Rk')] + ')', 'Tempo ' + f1(r[pi('Tempo')]), pi('ESPN Rk') >= 0 && isNum(r[pi('ESPN Rk')]) ? 'ESPN #' + Math.round(r[pi('ESPN Rk')]) : ''].filter(Boolean).join(' · ');
+        const sub = [r[pi('Conf')], r[pi('Record')], 'O ' + f1(r[pi('Adj O')]) + ' (' + r[pi('O Rk')] + ')', 'D ' + f1(r[pi('Adj D')]) + ' (' + r[pi('D Rk')] + ')', 'Tempo ' + f1(r[pi('Tempo')]), $('powerEspn').checked && pi('ESPN Rk') >= 0 && isNum(r[pi('ESPN Rk')]) ? 'ESPN #' + Math.round(r[pi('ESPN Rk')]) : ''].filter(Boolean).join(' · ');
         return el('span', null, [el('b', {textContent: v}), el('span', {className: 'psub', textContent: sub})]);
       }
       if (c === 'Net') return isNum(v) ? (v > 0 ? '+' : '') + v.toFixed(1) : '';
@@ -1510,22 +1522,34 @@ function drawPower() {
     }, (D.tips || {}).power);
     return;
   }
-  table($('powerTbl'), P.cols, rows, (c, v) => {
+  const showEspn = $('powerEspn').checked && pi('ESPN Rk') >= 0;
+  const cols = ['Rk', 'Team', 'Conf', 'Record', 'Net', 'Adj O', 'Adj D', 'Tempo', 'Change'].concat(showEspn ? ['ESPN Rk', 'vs ESPN'] : []);
+  const rk = {'Adj O': 'O Rk', 'Adj D': 'D Rk', 'Tempo': 'Tempo Rk'};
+  const data = rows.map(r => { const d = cols.map(c => r[pi(c)]); d._r = r; return d; });
+  table($('powerTbl'), cols, data, (c, v, d) => {
     if (c === 'Net') return isNum(v) ? (v > 0 ? '+' : '') + v.toFixed(1) : '';
-    if (c === 'Adj O' || c === 'Adj D' || c === 'Tempo') return isNum(v) ? v.toFixed(1) : '';
+    if (rk[c]) {   // value with its national rank in small type
+      if (!isNum(v)) return '';
+      const rank = d && d._r ? d._r[pi(rk[c])] : null;
+      return el('span', null, [document.createTextNode(v.toFixed(1)), ...(isNum(rank) ? [el('span', {className: 'px', textContent: '(' + rank + ')'})] : [])]);
+    }
     if (c === 'ESPN Rk') return isNum(v) ? String(Math.round(v)) : '';
     if (c === 'vs ESPN') { if (!isNum(v)) return ''; if (v === 0) return '0'; return el('span', {className: v > 0 ? 'up' : 'down', textContent: (v > 0 ? '+' : '') + Math.round(v)}); }
     if (c === 'Change') { if (!isNum(v)) return ''; if (v === 0) return '0'; return el('span', {className: v > 0 ? 'up' : 'down', textContent: (v > 0 ? '▲ ' : '▼ ') + Math.abs(v)}); }
     return null;
-  }, (D.tips || {}).power);
+  }, Object.assign({}, (D.tips || {}).power, {
+    'Adj O': 'Points scored per 100 possessions, adjusted for opponent and venue. National rank in parentheses.',
+    'Adj D': 'Points allowed per 100 possessions, adjusted for opponent and venue (lower is better). National rank in parentheses.',
+    'Tempo': 'Possessions per 40 minutes. Rank (1 = fastest) in parentheses.'}));
 }
+$('powerEspn').checked = store.get('powerEspn', 'off') === 'on';
+$('powerEspn').onchange = e => { store.set('powerEspn', e.target.checked ? 'on' : 'off'); drawPower(); };
 $('powerConf').onchange = drawPower; $('powerSearch').oninput = drawPower; drawPower();
 (function () {
-  const E = D.espnCompare || {}, A = E.acc || {}, host = $('espnTiles');
-  tile(host, 1, 'Rank agreement', isNum(E.corr) ? E.corr.toFixed(2) : 'n/a', isNum(E.corr) ? '1.00 = identical order (' + E.n + ' teams)' : 'ESPN current BPI not available', 'blue');
-  tile(host, 2, 'Average rank gap', isNum(E.mad) ? E.mad.toFixed(1) : 'n/a', 'Places apart, on average', '');
-  tile(host, 3, 'Average miss: model', isNum(A.model_mae) ? A.model_mae.toFixed(1) + ' pts' : 'n/a', A.games ? A.games + ' finished games' : 'Needs finished games', '');
-  tile(host, 4, 'Average miss: ESPN', isNum(A.espn_mae) ? A.espn_mae.toFixed(1) + ' pts' : 'n/a', isNum(A.line_mae) ? 'Closing line: ' + A.line_mae.toFixed(1) + ' pts' : 'Same games', 'black');
+  const E = D.espnCompare || {};
+  $('espnAgree').textContent = isNum(E.corr)
+    ? 'Agreement with ESPN’s current BPI today: ' + E.corr.toFixed(2) + ' (1.00 = the same order for all ' + E.n + ' teams). On average the two rankings are ' + (isNum(E.mad) ? E.mad.toFixed(1) : '?') + ' places apart.'
+    : 'ESPN’s current BPI was not available on the last run, so there is nothing to compare yet.';
   const dh = $('espnDiff');
   if (E.higher && E.higher.length) {
     const list = (title, arr) => el('div', null, [el('div', {className: 'lbl muted', textContent: title}),
