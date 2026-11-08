@@ -165,6 +165,12 @@ def run(args) -> int:
         notes.append(msg)
     notes.append(f"Code version {ver}" + ("" if stale else " (all files current)"))
 
+    track_from = getattr(config, "TRACK_FROM", "2026-11-07")
+    voided = tracker.void_before(HISTORY, track_from)
+    if voided:
+        notes.append(f"Voided {voided} pick(s) dated before {track_from} (kept in data/pick_history_voided.csv)")
+    notes.append(f"Tracking picks from {track_from}")
+
     print("Grading earlier picks...")
     n = tracker.grade(HISTORY)
     print(f"  {n} pick(s) graded.")

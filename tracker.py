@@ -277,3 +277,23 @@ def market_check(path: Path) -> dict:
         "brier_model": round(float(((pm - y) ** 2).mean()), 4), "brier_market": round(float(((pk - y) ** 2).mean()), 4),
         "avg_model": round(float(pm.mean()), 4), "avg_market": round(float(pk.mean()), 4),
     }
+
+
+def void_before(path: Path, start: str) -> int:
+    """Move picks dated before `start` (YYYY-MM-DD) out of the active history
+    into data/pick_history_voided.csv. They no longer count anywhere (History,
+    Success Rate, Portfolio), but nothing is deleted."""
+    if not start:
+        return 0
+    hist = load(path)
+    if hist.empty:
+        return 0
+    old = hist[hist["date"].astype(str) < start]
+    if old.empty:
+        return 0
+    archive = path.with_name("pick_history_voided.csv")
+    prev = load(archive) if archive.exists() else pd.DataFrame(columns=COLUMNS)
+    frames = [f for f in (prev, old) if not f.empty]
+    pd.concat(frames, ignore_index=True).drop_duplicates(["date", "game_id", "pick_type"]).to_csv(archive, index=False)
+    save(hist[hist["date"].astype(str) >= start], path)
+    return len(old)
