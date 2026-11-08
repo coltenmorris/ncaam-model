@@ -35,12 +35,12 @@ sys.path.insert(0, str(ROOT))
 import pandas as pd  # noqa: E402
 
 import config  # noqa: E402
-import espn, markets, odds_api, report, torvik, tracker, web  # noqa: E402
+import espn, gamelog, markets, odds_api, report, torvik, tracker, web  # noqa: E402
 from model import build_rows, run_model  # noqa: E402
 from names import TeamMatcher  # noqa: E402
 
 VERSION = "2026-11-07.2"
-CODE_FILES = ("config", "espn", "markets", "model", "names", "odds_api", "report", "torvik", "tracker", "web")
+CODE_FILES = ("config", "espn", "gamelog", "markets", "model", "names", "odds_api", "report", "torvik", "tracker", "web")
 
 
 def code_check() -> tuple[str, list[str]]:
@@ -62,6 +62,7 @@ DATA = ROOT / "data"
 OUTPUT = ROOT / "output"
 LOGS = OUTPUT / "logs"
 HISTORY = DATA / "pick_history.csv"
+DATASET = DATA / "model_dataset.csv"
 ALIASES = ROOT / "team_aliases.csv" if (ROOT / "team_aliases.csv").exists() else DATA / "team_aliases.csv"
 DASHBOARD = OUTPUT / "NCAAM_Dashboard.xlsx"
 DOCS = ROOT / "docs"  # GitHub Pages site
@@ -176,6 +177,12 @@ def run(args) -> int:
     print(f"  {n} pick(s) graded.")
     notes.append(f"Graded {n} pick(s)")
     try:
+        gd = gamelog.grade(DATASET)
+        if gd:
+            notes.append(f"Research dataset: {gd} game(s) finalized")
+    except Exception as e:
+        notes.append(f"Research dataset grading skipped ({e.__class__.__name__})")
+    try:
         rl = tracker.relabel_edge_picks(HISTORY)
         if rl:
             notes.append(f"Re-scored {rl} Edge pick(s) with the current confidence rules")
@@ -233,6 +240,11 @@ def run(args) -> int:
             rows = build_rows(games, matcher)
             results = run_model(rows, ratings)
             results = keep_logged_picks(results, games)
+            try:
+                gu = gamelog.update(DATASET, results, games, day, src)
+                notes.append(f"Research dataset: {gu} pregame game(s) recorded")
+            except Exception as e:
+                notes.append(f"Research dataset update skipped ({e.__class__.__name__}: {e})")
 
             if matcher.unmatched:
                 print("\nTeams not in Barttorvik (usually non-D1 opponents; those games are skipped).")

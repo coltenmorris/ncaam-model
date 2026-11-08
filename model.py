@@ -240,6 +240,9 @@ def run_model(rows: list[dict], ratings: pd.DataFrame) -> pd.DataFrame:
         BE = f"{t1 if BE_side == 'T1' else t2} covers"
 
         rec.update({
+            "T1 BPI": a.get("bpi"), "T1 BPI Off": a.get("bpi_off"), "T1 BPI Def": a.get("bpi_def"),
+            "T2 BPI": b.get("bpi"), "T2 BPI Off": b.get("bpi_off"), "T2 BPI Def": b.get("bpi_def"),
+            "T1 Net": a.get("net_rtg"), "T2 Net": b.get("net_rtg"),
             "T1 AdjT": AV, "T2 AdjT": AW, "Avg Tempo": AX, "Tempo Mod": AY,
             "OR Diff (HCA)": AZ, "DR Diff": BA, "Wtd Eff": BB,
             "Enhanced Value": BC, "Confidence": BD, "Model Pick": BE,

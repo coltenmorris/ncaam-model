@@ -170,6 +170,14 @@ def _market_eval(data_dir):
         return {}
 
 
+def _clv(data_dir):
+    try:
+        import gamelog
+        return gamelog.clv_summary(Path(data_dir) / "model_dataset.csv") if data_dir else {}
+    except Exception:
+        return {}
+
+
 def portfolio(history: pd.DataFrame) -> dict:
     """Every Edge pick as a flat bet at -110 (default $100 per pick)."""
     stake = float(getattr(config, "PORTFOLIO_STAKE", 100))
@@ -336,6 +344,7 @@ def build_payload(day: date, results: pd.DataFrame, record: pd.DataFrame, trend:
         "livePicks": live_picks(results, history),
         "portfolio": portfolio(history),
         "marketEval": _market_eval(data_dir),
+        "clv": _clv(data_dir),
         "marketEdges": int((pd.to_numeric(results["Win% Edge (T1)"], errors="coerce").abs() >= config.MARKET_EDGE_MIN).sum())
                        if not results.empty and "Win% Edge (T1)" in results else 0,
         "odds": _sanitize(odds_compare(games, rows)),
@@ -540,7 +549,11 @@ button.src{background:none;font-family:inherit;cursor:help}
 .dock .badge{background:#ff3b30;color:#fff;font-size:10.5px;font-weight:700;padding:1px 6px;border-radius:9px}
 .dock .ib{background:none;border:0;color:var(--ink);font-size:16px;line-height:1;cursor:pointer;padding:2px 4px}
 .dock .db{overflow-y:auto}
-.dock.min .db,.dock.min .df{display:none}
+.dock.min .db,.dock.min .df,.dock.min .dset{display:none}
+.dock .dset{display:flex;flex-wrap:wrap;gap:4px 14px;padding:8px 14px;border-bottom:1px solid var(--line);font-size:11.5px;color:var(--ink-2)}
+.dock .dset label{display:flex;align-items:center;gap:5px;cursor:pointer}
+.dock .dg .pk{margin-top:5px;font-size:11.5px;color:var(--ink);display:flex;justify-content:space-between;gap:8px;align-items:center}
+.dock .dg .pk .pt{font-weight:600}
 .dock .dg{padding:10px 14px;border-bottom:1px solid var(--line)}
 .dock .dg:nth-child(even){background:var(--stripe)}
 .dock .dg .r{display:flex;justify-content:space-between;gap:8px;font-size:13px}
@@ -691,6 +704,10 @@ footer a{color:var(--ink)}
     <div class="card"><div class="card-h"><h2>How to read this</h2><span class="lbl muted">Units</span></div>
       <p class="sub" style="margin:0">A <b>unit</b> is one standard bet. <b>Units</b> = profit or loss if you bet 1 unit on every pick in a group. Against the spread at the usual -110 price, a win pays <b>+0.91</b>, a loss costs <b>-1</b>, and a push is <b>0</b>. So +5.00 units means you would be up five bets' worth; with $100 bets that is +$500. Because a loss costs more than a win pays, you need to win <b>52.4%</b> just to break even. Market picks are paid at the market's own price instead of -110.</p>
     </div>
+    <div class="card"><div class="card-h"><h2>Closing line value</h2><span class="lbl muted">Edge picks</span></div>
+      <div class="tiles" id="clvTiles" style="margin-bottom:8px"></div>
+      <p class="sub" style="margin:0">The line usually moves toward the right number before tip-off, as sharp money comes in. If the line you could have bet when the pick first appeared is <b>better than the closing line</b> (the last line before tip-off), the pick beat the close. Beating the close more than half the time is one of the strongest signs a model finds real value, and it shows up after far fewer games than win-loss does. Opening = first run that saw the game; closing = last run before tip-off.</p>
+    </div>
     <div class="card"><div class="card-h"><h2>Record by pick type</h2><button class="btn" id="recExpand" type="button">Expand all</button></div><div class="tbl" id="recordTbl"></div>
       <p class="sub">Click a group to show its breakdown. Success is judged on the Sportsbook Edge picks; Model and Market picks are tracked as supplemental information only. Confidence uses the current rules for every pick.</p></div>
     <div class="card"><div class="card-h"><h2>Model odds vs market odds</h2><span class="lbl muted">Supplemental</span></div>
@@ -762,6 +779,10 @@ footer a{color:var(--ink)}
   <div class="dh" id="dockHead" role="button" tabindex="0" aria-expanded="false">
     <span class="dot" id="dockDot"></span><h3>Live games</h3><span class="badge" id="dockBadge" hidden>0</span>
     <button class="ib" id="dockToggle" type="button" aria-label="Expand live tracker">&#9650;</button>
+  </div>
+  <div class="dset" id="dockSet">
+    <label><input type="checkbox" id="dockPicks"> Show Edge picks</label>
+    <label><input type="checkbox" id="dockLined"> Hide games with no line</label>
   </div>
   <div class="db" id="dockBody"></div>
   <div class="df"><span id="dockStamp"></span><a href="#" id="dockAll">All games &#8599;</a></div>
@@ -1024,6 +1045,12 @@ function drawMarketEval() {
     : 'So far the market’s odds were closer than the model’s on these games, so the model is overrating these teams. Treat Market picks with caution until this flips.'}));
 }
 drawMarketEval();
+(function () {
+  const C = D.clv || {}, host = $('clvTiles');
+  tile(host, 1, 'Beat the close', isNum(C.beat_rate) ? pct(C.beat_rate) : 'n/a', C.moved ? C.beat + ' of ' + C.moved + ' picks where the line moved' : 'Needs finished games', 'blue');
+  tile(host, 2, 'Average CLV', isNum(C.avg_clv) ? (C.avg_clv > 0 ? '+' : '') + C.avg_clv.toFixed(2) + ' pts' : 'n/a', 'Opening minus closing number, pick side', '');
+  tile(host, 3, 'Games tracked', C.games || 0, 'Finished games in the research dataset', '');
+})();
 function drawTrend() {
   const tc = D.trend.cols, t = n => tc.indexOf(n), rows = D.trend.rows.slice().reverse();
   if (mobile()) {
@@ -1601,23 +1628,36 @@ setDock(store.get('dock', innerWidth > 720 ? 'open' : 'min') === 'open');
 $('dockHead').onclick = () => setDock(dock.classList.contains('min'));
 $('dockHead').onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setDock(dock.classList.contains('min')); } };
 $('dockAll').onclick = e => { e.preventDefault(); document.querySelector('nav button[data-tab="live"]').click(); scrollTo({top: 0, behavior: 'smooth'}); };
+let dockPicks = store.get('dockPicks', 'on') === 'on', dockLined = store.get('dockLined', 'off') === 'on';
+$('dockPicks').checked = dockPicks; $('dockLined').checked = dockLined;
+$('dockPicks').onchange = e => { dockPicks = e.target.checked; store.set('dockPicks', dockPicks ? 'on' : 'off'); drawDock(); };
+$('dockLined').onchange = e => { dockLined = e.target.checked; store.set('dockLined', dockLined ? 'on' : 'off'); drawDock(); };
 function drawDock() {
   const body = $('dockBody'); body.replaceChildren();
-  const live = LIVE.filter(g => g.state === 'in'), next = LIVE.filter(g => g.state === 'pre').slice(0, 6);
-  const recent = LIVE.filter(g => g.state === 'post' && PICKS[g.id]).slice(-4).reverse();
-  $('dockBadge').hidden = !live.length; $('dockBadge').textContent = live.length;
-  $('dockDot').className = 'dot' + (live.length ? ' live' : '');
+  const pool = dockLined ? LIVE.filter(g => PICKS[g.id]) : LIVE;   // "no line" = no Edge pick/line logged for the game
+  const live = pool.filter(g => g.state === 'in'), next = pool.filter(g => g.state === 'pre').slice(0, 6);
+  const recent = pool.filter(g => g.state === 'post' && PICKS[g.id]).slice(-4).reverse();
+  const allLive = LIVE.filter(g => g.state === 'in').length;
+  $('dockBadge').hidden = !allLive; $('dockBadge').textContent = allLive;
+  $('dockDot').className = 'dot' + (allLive ? ' live' : '');
   if (liveOk === false && !LIVE.length) { body.append(el('div', {className: 'empty', textContent: 'Live scores unavailable right now.'})); return; }
   const card = g => {
     const ci = coverInfo(g), fin = g.state === 'post';
     const r = (s) => el('div', {className: 'r'}, [el('span', {textContent: (s.rank ? s.rank + ' ' : '') + s.name}), el('b', {textContent: g.state === 'pre' ? '' : s.score})]);
     const meta = el('div', {className: 'm'}, [el('span', {textContent: g.state === 'pre' ? startTime(g) : g.detail}),
-      ci ? coverChip(ci, fin) : el('span', {className: 'muted', textContent: ''})]);
-    return el('div', {className: 'dg'}, [r(g.away), r(g.home), meta]);
+      !dockPicks && ci ? coverChip(ci, fin) : el('span', {className: 'muted', textContent: !PICKS[g.id] ? 'No line' : ''})]);
+    const kids = [r(g.away), r(g.home), meta];
+    if (dockPicks && ci) {
+      const p = ci.p;
+      kids.push(el('div', {className: 'pk'}, [
+        el('span', {className: 'pt', textContent: 'Edge: ' + p.team + ' ' + (p.line === 0 ? 'PK' : (p.line > 0 ? '+' : '') + p.line) + (p.conf ? ' · ' + p.conf : '')}),
+        coverChip(ci, fin)]));
+    }
+    return el('div', {className: 'dg'}, kids);
   };
   const sec = (label, list) => { if (!list.length) return; body.append(el('div', {className: 'sec', textContent: label})); list.forEach(g => body.append(card(g))); };
   sec('Live now', live); sec('Up next', next); sec('Recent finals with picks', recent);
-  if (!body.children.length) body.append(el('div', {className: 'empty', textContent: 'No games right now.'}));
+  if (!body.children.length) body.append(el('div', {className: 'empty', textContent: dockLined ? 'No games with a line right now.' : 'No games right now.'}));
 }
 
 // refresh loop

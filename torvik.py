@@ -68,7 +68,7 @@ def _parse(text: str) -> pd.DataFrame:
 
 
 RATING_COLS = ["rank", "team", "conf", "record", "adj_o", "adj_o_rank", "adj_d", "adj_d_rank",
-               "adj_t", "adj_t_rank", "net_rtg", "barthag"]
+               "adj_t", "adj_t_rank", "net_rtg", "barthag", "bpi", "bpi_off", "bpi_def"]
 BROWSER_HEADERS = {
     "Accept": "text/csv,text/plain,text/html;q=0.9,*/*;q=0.8",
     "Accept-Language": "en-US,en;q=0.9",
@@ -260,6 +260,7 @@ def _from_espn_bpi(season: int) -> pd.DataFrame:
             "adj_d": LEAGUE_AVG_EFF - dfn * scale,
             "barthag": None,
             "bpi": float(v[i_bpi]) if len(v) > i_bpi and v[i_bpi] is not None else off + dfn,
+            "bpi_off": off, "bpi_def": dfn,
         })
     if not rows:
         raise RuntimeError("no teams returned")
@@ -306,6 +307,9 @@ def _finish(df: pd.DataFrame) -> pd.DataFrame:
     df["adj_o_rank"] = df["adj_o"].rank(ascending=False, method="min").astype(int)
     df["adj_d_rank"] = df["adj_d"].rank(ascending=True, method="min").astype(int)
     df["adj_t_rank"] = df["adj_t"].rank(ascending=False, method="min").astype(int)
+    for c in RATING_COLS:
+        if c not in df:
+            df[c] = None
     return df.sort_values("rank").reset_index(drop=True)[RATING_COLS]
 
 
@@ -342,8 +346,6 @@ def load_ratings(day: date, data_dir: Path, ratings_file: str | None = None) -> 
                 if c not in df:
                     df[c] = None
             df[RATING_COLS].to_csv(cache, index=False)
-            for old in sorted(data_dir.glob(f"ratings_{season}_*.csv"))[:-14]:
-                old.unlink(missing_ok=True)
             return df
         except Exception as e:
             errors.append(f"{name}: {str(e)[:160]}")
@@ -370,5 +372,8 @@ def load_ratings(day: date, data_dir: Path, ratings_file: str | None = None) -> 
 
 def _read_saved(path: Path) -> pd.DataFrame:
     df = pd.read_csv(path)
+    for c in RATING_COLS:
+        if c not in df:
+            df[c] = None
     df.attrs["source"] = "saved copy"
     return df
