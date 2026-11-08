@@ -128,6 +128,8 @@ def odds_compare(games: list[dict], rows: list[dict]) -> list[dict]:
             others.append(row)
         t1, t2 = names.get(g["game_id"], (g["away"]["location"], g["home"]["location"]))
         out.append({"time": g.get("time", ""), "away": t1, "home": t2,
+                    "closed": bool(g.get("closing_snapshot")) or not g.get("_pregame", True),
+                    "closedAt": g.get("closing_snapshot") if isinstance(g.get("closing_snapshot"), str) else "",
                     "awayAbbr": g["away"]["abbr"], "homeAbbr": g["home"]["abbr"],
                     "dk": dk, "books": others, "better": n_better})
     return out
@@ -868,6 +870,11 @@ function tagText(tag, src) {
   if (tag === 'PRE') return 'PRE = pregame line. This game has already tipped off, so the board shows the line, pick and confidence saved before the game. Live in-game odds are ignored.' + (src ? ' Source: ' + String(src).replace(/^Pregame: /, '') + '.' : '');
   return tag + ' = ' + (src || 'another sportsbook') + '. DraftKings had no line for this game, so the next biggest sportsbook was used.';
 }
+function tagBtnText(tag, label, text) {
+  const b = infoBtn(label, text);
+  b.className = 'src'; b.textContent = tag; b.style.cursor = 'help';
+  return b;
+}
 function tagBtn(tag, src) {
   const b = infoBtn(tag === 'PRE' ? 'Pregame line' : 'Line source', tagText(tag, src));
   b.className = 'src'; b.textContent = tag; b.style.cursor = 'help';
@@ -1371,7 +1378,7 @@ function booksMobile(host, games) {
     const id = g.away + '|' + g.home + '|' + g.time, isOpen = allOpen || open.has(id), dk = g.dk || {};
     const card = el('div', {className: 'mi' + (g.books.length ? ' tap' : '') + (gi % 2 ? ' alt' : '')});
     card.append(
-      el('div', {className: 'mt'}, [el('b', {textContent: g.away + ' @ ' + g.home}), el('span', {className: 'ms', textContent: g.time})]),
+      el('div', {className: 'mt'}, [el('b', {textContent: g.away + ' @ ' + g.home}), el('span', {className: 'ms'}, [document.createTextNode(g.time), ...(g.closed ? [tagBtnText('CLOSED', 'Closing line', 'This game has started. These are the last pregame odds the model saw. Live in-game odds are not shown.')] : [])])]),
       ...(g.dk && !dk.is_dk ? [el('span', {className: 'srcnote', textContent: 'Line from ' + dk.source + ' (no DraftKings line)'})] : []),
       el('div', {className: 'mg'}, [
         kv2((dk.tag || 'DK') + ' ' + (g.awayAbbr || 'away'), g.dk ? sp(dk.away_pt, dk.away_px) : 'n/a'), kv2((dk.tag || 'DK') + ' ' + (g.homeAbbr || 'home'), g.dk ? sp(dk.home_pt, dk.home_px) : 'n/a'),
@@ -1401,7 +1408,7 @@ function drawBooks() {
   const host = $('bookTbl'); host.replaceChildren();
   const q = $('bookSearch').value.trim().toLowerCase(), only = $('betterOnly').checked;
   const games = O.filter(g => (!q || (g.away + ' ' + g.home).toLowerCase().includes(q)) && (!only || g.better > 0));
-  if (!games.length) { host.append(el('div', {className: 'empty', textContent: O.length ? 'No games match.' : 'No lines posted yet for this slate.'})); return; }
+  if (!games.length) { host.append(el('div', {className: 'empty', textContent: O.length ? 'No games match.' : 'No lines yet for this slate. Lines appear once sportsbooks post them; for games that have already started, the last pregame odds are shown once a run has saved them.'})); return; }
   if (mobile()) { booksMobile(host, games); return; }
   const t = el('table'), hr = el('tr'), tb = el('tbody');
   BH.forEach(h => { const th = el('th', {textContent: h, className: /spread|ML|Books|Better/.test(h) ? 'n' : ''}); if (BT[h]) th.append(infoBtn(h, BT[h])); hr.append(th); });
@@ -1410,7 +1417,8 @@ function drawBooks() {
     const id = g.away + '|' + g.home + '|' + g.time, isOpen = allOpen || open.has(id), dk = g.dk || {};
     const tr = el('tr', {className: 'parent' + (gi % 2 ? ' alt' : '')});
     const cell = (c, cls) => { const td = el('td', {className: cls || ''}); if (c instanceof Node) td.append(c); else td.textContent = c == null ? '' : c; return td; };
-    tr.append(cell(g.books.length ? (isOpen ? '−' : '+') : '', 'tog'), cell(g.time), cell(g.away), cell(g.home),
+    const timeCell = g.closed ? el('span', null, [document.createTextNode(g.time), tagBtnText('CLOSED', 'Closing line', 'This game has started. These are the last pregame odds the model saw' + (g.closedAt ? ' (saved ' + g.closedAt + ')' : '') + '. Live in-game odds are not shown.')]) : g.time;
+    tr.append(cell(g.books.length ? (isOpen ? '−' : '+') : '', 'tog'), cell(timeCell), cell(g.away), cell(g.home),
       cell(g.dk ? srcTag(sp(dk.away_pt, dk.away_px), dk) : 'n/a', 'n dk'), cell(g.dk ? srcTag(sp(dk.home_pt, dk.home_px), dk) : 'n/a', 'n dk'),
       cell(ml(dk.away_ml), 'n dk'), cell(ml(dk.home_ml), 'n dk'), cell(g.books.length, 'n'),
       cell(g.better ? chip(g.better + (g.better === 1 ? ' book' : ' books'), 'hi') : '', 'n'));

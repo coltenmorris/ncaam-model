@@ -99,6 +99,42 @@ def start_log_file() -> Path:
     return path
 
 
+ODDS_KEYS = ("books", "spread", "fav_abbr", "line_text", "provider", "ml_home", "ml_away",
+             "spread_price_home", "spread_price_away", "over_under", "cons_home_line",
+             "best_home_line", "best_away_line", "n_books", "book_home_prob")
+
+
+def closing_odds_snapshot(games: list, day) -> int:
+    """Save every pregame game's odds (all books) to data/odds/odds_DATE.json on
+    each run. Once a game tips off, its live odds are ignored, so the last saved
+    pregame odds (the closing line) are put back for the Odds by Book tab and
+    the board. Returns how many started games were restored."""
+    import json
+    folder = DATA / "odds"
+    folder.mkdir(exist_ok=True)
+    path = folder / f"odds_{day:%Y-%m-%d}.json"
+    try:
+        snap = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    except Exception:
+        snap = {}
+    restored = 0
+    for g in games:
+        gid = g["game_id"]
+        if espn.is_pregame(g):
+            if g.get("books") or g.get("spread") is not None:
+                snap[gid] = {k: g.get(k) for k in ODDS_KEYS}
+                snap[gid]["saved_at"] = datetime.now().strftime("%Y-%m-%d %H:%M")
+        elif gid in snap:
+            saved = snap[gid]
+            for k in ODDS_KEYS:
+                if saved.get(k) is not None:
+                    g[k] = saved[k]
+            g["closing_snapshot"] = saved.get("saved_at") or True
+            restored += 1
+    path.write_text(json.dumps(snap, default=str), encoding="utf-8")
+    return restored
+
+
 def restore_pregame_lines(games: list, day) -> int:
     """For games that have tipped off, use the line from the logged Edge pick
     (made before the game) instead of any live odds."""
@@ -223,6 +259,10 @@ def run(args) -> int:
                     odds_api.summarize(g)
             print(f"  {msg}")
             notes.append(msg)
+
+            kept = closing_odds_snapshot(games, day)
+            if kept:
+                notes.append(f"Started games: {kept} shown with their closing (last pregame) odds")
 
             restored = restore_pregame_lines(games, day)
             if restored:
