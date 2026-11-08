@@ -23,7 +23,7 @@ TODAY_COLS = [
     ("Proj T1 Margin", "Proj away margin"), ("Edge Pick", "Edge pick"), ("Edge Size", "Edge"), ("Cover %", "Cover %"),
     ("Model T1 Win%", "Model away win"), ("Market T1 Win%", "Market away win"),
     ("Confidence", "Conf."), ("Model Pick", "Model pick"),
-    ("Line Source", "Line source"), ("Line Tag", "Line tag"),
+    ("Line Source", "Line source"), ("Line Tag", "Line tag"), ("_start", "Start"),
 ]
 HIST_COLS = [
     ("date", "Date"), ("pick_type", "Type"), ("t1", "Away"), ("t2", "Home"), ("pick_team", "Pick"),
@@ -252,7 +252,7 @@ def tips() -> dict:
             "Matchup": "Away team @ home team. Away is T1 in the original spreadsheet; the win % and margin columns are from the away team's side.",
             "Away": "Away team (T1 in the original spreadsheet). Win % and margin columns are from this team's side.",
             "Home": "Home team (T2). On a neutral court no home-court points are applied.",
-            "Line": f"The spread the model compares against: {line_src}. If DraftKings has no line for a game, the next biggest book is used and a small tag shows which (FD = FanDuel, MGM = BetMGM, CZR = Caesars).",
+            "Line": f"The spread the model compares against: {line_src}. If DraftKings has no line for a game, the next biggest book is used and a small tag shows which (FD = FanDuel, MGM = BetMGM, CZR = Caesars). PRE = pregame line: the game has started, so the line saved before tip-off is shown instead of live odds.",
             "Books": "How many sportsbooks posted a spread for this game (The Odds API).",
             "Best away": "The most points available on the away team at any single book. Higher is better for an away bet.",
             "Best home": "The most points available on the home team at any single book. Higher is better for a home bet.",
@@ -472,6 +472,7 @@ tr.child td.bk{padding-left:30px;color:var(--ink-2)}
 .better{background:var(--good-bg)!important;color:var(--good);font-weight:700}
 .better:before{content:"\25B2 ";font-size:9px}
 .dk{font-weight:700}
+button.src{background:none;font-family:inherit;cursor:help}
 .src{display:inline-block;font-size:9px;font-weight:700;letter-spacing:.06em;color:var(--muted);border:1px solid var(--line);padding:0 3px;margin-left:5px;vertical-align:2px;line-height:1.4}
 .srcnote{display:block;font-size:10.5px;color:var(--muted);margin-top:2px;font-weight:400}
 .legend{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;font-size:12.5px;color:var(--ink-2);margin:0 0 12px}
@@ -842,7 +843,16 @@ function tile(host, i, k, v, s, cls) {
 }
 
 // sortable table
-function table(host, cols, rows, fmt, tipMap) {
+function tagText(tag, src) {
+  if (tag === 'PRE') return 'PRE = pregame line. This game has already tipped off, so the board shows the line, pick and confidence saved before the game. Live in-game odds are ignored.' + (src ? ' Source: ' + String(src).replace(/^Pregame: /, '') + '.' : '');
+  return tag + ' = ' + (src || 'another sportsbook') + '. DraftKings had no line for this game, so the next biggest sportsbook was used.';
+}
+function tagBtn(tag, src) {
+  const b = infoBtn(tag === 'PRE' ? 'Pregame line' : 'Line source', tagText(tag, src));
+  b.className = 'src'; b.textContent = tag; b.style.cursor = 'help';
+  return b;
+}
+function table(host, cols, rows, fmt, tipMap, sortBy) {
   host.replaceChildren();
   if (!rows.length) { host.append(el('div', {className: 'empty', textContent: 'Nothing to show yet.'})); return; }
   let sortI = -1, dir = 1;
@@ -859,7 +869,8 @@ function table(host, cols, rows, fmt, tipMap) {
     const rs = rows.slice();
     const RANK = {High: 0, Medium: 1, Low: 2, Check: 3};
     const key = v => (typeof v === 'string' && v in RANK) ? RANK[v] : v;
-    if (sortI >= 0) rs.sort((a, b) => { const x = key(a[sortI]), y = key(b[sortI]); if (x == null || x === '') return 1; if (y == null || y === '') return -1; return (x > y ? 1 : x < y ? -1 : 0) * dir; });
+    const kv = r => { const k = sortBy ? sortBy(cols[sortI], r) : undefined; return k !== undefined ? k : key(r[sortI]); };
+    if (sortI >= 0) rs.sort((a, b) => { const x = kv(a), y = kv(b); if (x == null || x === '') return 1; if (y == null || y === '') return -1; return (x > y ? 1 : x < y ? -1 : 0) * dir; });
     tb.replaceChildren(...rs.map((r, ri) => {
       const tr = el('tr', {className: ri % 2 ? 'alt' : ''});
       r.forEach((v, i) => {
@@ -892,7 +903,7 @@ function fmtToday(c, v, r) {
   if (v == null) return '';
   if (c === 'Line' && r) {
     const [tag, src] = lineTags[r[1]] || [];
-    if (subTag(tag)) return el('span', null, [document.createTextNode(v), el('span', {className: 'src', textContent: tag, title: 'From ' + src})]);
+    if (subTag(tag)) return el('span', null, [document.createTextNode(v), tagBtn(tag, src)]);
   }
   if (c === 'Edge') return chip(v.toFixed(1), v >= b2 ? 'hi' : v >= b1 ? 'md' : '');
   if (c === 'Conf.') return v ? chip(v === 'Check' ? 'Check' : v, v === 'High' ? 'hi' : v === 'Medium' ? 'md' : v === 'Check' ? 'L' : '') : '';
@@ -900,7 +911,7 @@ function fmtToday(c, v, r) {
   if (c.indexOf('margin') >= 0 || c.indexOf('Best') === 0) return sgn(v);
   return null;
 }
-const MAIN = ['Time', 'Matchup', 'Line', 'Edge pick', 'Edge', 'Cover %', 'Conf.', 'Model pick'];
+const MAIN = ['Time', 'Matchup', 'Line', 'Edge pick', 'Edge', 'Cover %', 'Conf.'];
 const MORE = ['Proj away margin', 'Model away win', 'Market away win', 'Books', 'Best away', 'Best home'];
 const short = v => v == null ? '' : String(v).replace(/ covers$/, '');
 function todayRows() {
@@ -911,10 +922,10 @@ function todayRows() {
 function drawToday() {
   const rows = todayRows(), more = $('todayMore').checked;
   const cols = MAIN.concat(more ? MORE : []);
-  const data = rows.map(r => cols.map(c => c === 'Matchup' ? r[ti('Away')] + ' @ ' + r[ti('Home')]
-    : c === 'Model pick' ? short(r[ti(c)]) : r[ti(c)]));
+  const data = rows.map(r => { const d = cols.map(c => c === 'Matchup' ? r[ti('Away')] + ' @ ' + r[ti('Home')]
+    : c === 'Model pick' ? short(r[ti(c)]) : r[ti(c)]); d._start = r[ti('Start')] || ''; return d; });
   lineTags = {}; rows.forEach(r => { lineTags[r[ti('Away')] + ' @ ' + r[ti('Home')]] = [r[ti('Line tag')], r[ti('Line source')]]; });
-  table($('todayTbl'), cols, data, fmtToday, (D.tips || {}).today);
+  table($('todayTbl'), cols, data, fmtToday, (D.tips || {}).today, (c, r) => c === 'Time' ? r._start : undefined);
   // phone: one card per game
   const host = $('todayCards'); host.replaceChildren();
   if (!rows.length) { host.append(el('div', {className: 'empty', textContent: 'Nothing to show yet.'})); return; }
@@ -922,13 +933,12 @@ function drawToday() {
     const kv = (k, v) => el('div', null, [el('div', {className: 'k', textContent: k}), (() => { const d = el('div', {className: 'v'}); if (v instanceof Node) d.append(v); else d.textContent = v == null ? '' : v; return d; })()]);
     const edge = r[ti('Edge')], conf = r[ti('Conf.')];
     host.append(el('div', {className: 'gcard'}, [
-      el('div', {className: 'row1'}, [el('div', {className: 'teams', textContent: r[ti('Away')] + ' @ ' + r[ti('Home')]}), el('div', {className: 'meta'}, [document.createTextNode((r[ti('Time')] || '') + '  ' + (r[ti('Line')] || '')), ...(subTag(r[ti('Line tag')]) ? [el('span', {className: 'src', textContent: r[ti('Line tag')], title: 'From ' + r[ti('Line source')]})] : [])])]),
+      el('div', {className: 'row1'}, [el('div', {className: 'teams', textContent: r[ti('Away')] + ' @ ' + r[ti('Home')]}), el('div', {className: 'meta'}, [document.createTextNode((r[ti('Time')] || '') + '  ' + (r[ti('Line')] || '')), ...(subTag(r[ti('Line tag')]) ? [tagBtn(r[ti('Line tag')], r[ti('Line source')])] : [])])]),
       el('div', {className: 'grid'}, [
         kv('Edge pick', r[ti('Edge pick')]),
         kv('Edge', isNum(edge) ? chip(edge.toFixed(1), edge >= b2 ? 'hi' : edge >= b1 ? 'md' : '') : ''),
         kv('Cover %', pct(r[ti('Cover %')])),
         kv('Confidence', conf ? chip(conf, conf === 'High' ? 'hi' : conf === 'Medium' ? 'md' : conf === 'Check' ? 'L' : '') : ''),
-        kv('Model pick', short(r[ti('Model pick')])),
         kv('Proj away margin', sgn(r[ti('Proj away margin')])),
         kv('Away win: model / market', pct(r[ti('Model away win')]) + (isNum(r[ti('Market away win')]) ? ' / ' + pct(r[ti('Market away win')]) : ''))
       ])]));
@@ -1325,7 +1335,7 @@ const BT = {
 };
 function srcTag(node, dk) {
   if (!dk || dk.is_dk) return node;
-  const w = el('span', null, [node, el('span', {className: 'src', textContent: dk.tag, title: 'From ' + dk.source + ' (no DraftKings line)'})]);
+  const w = el('span', null, [node, tagBtn(dk.tag, dk.source)]);
   return w;
 }
 function booksMobile(host, games) {
