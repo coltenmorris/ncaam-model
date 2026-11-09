@@ -6293,6 +6293,9 @@
 "poss": 73.025,
 "err_home": -9.6,
 "err_away": -9.0
+},
+"401925630": {
+"skip": "not two D1 teams"
 }
 },
 "dates_done": [
