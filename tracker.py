@@ -9,7 +9,7 @@ Grading pulls final scores from ESPN and marks W, L, P (push) or NR (no result).
 
 from __future__ import annotations
 
-VERSION = "2026-11-07.2"
+VERSION = "2026-11-25.1"
 
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
@@ -250,7 +250,8 @@ def relabel_edge_picks(path: Path) -> int:
             continue
         spread = abs(float(line)) if line is not None and not pd.isna(line) else None
         p = model.cover_probability(float(edge), spread)
-        tier = model.cover_tier(p, float(edge), spread)
+        pl = float(line) if line is not None and not pd.isna(line) else None
+        tier = model.cover_tier(p, float(edge), spread, pl)
         if hist.at[idx, "confidence_logged"] in (None, "") or pd.isna(hist.at[idx, "confidence_logged"]):
             hist.at[idx, "confidence_logged"] = hist.at[idx, "confidence"] or ""
         if hist.at[idx, "confidence"] != tier or hist.at[idx, "cover_prob"] != round(p, 4):

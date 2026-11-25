@@ -3,7 +3,7 @@ NCAAM Model: run this file (PyCharm: right-click > Run 'main').
 
 Each run:
   1. grades earlier picks with ESPN final scores,
-  2. downloads fresh Barttorvik ratings, the ESPN schedule, sportsbook lines
+  2. downloads ESPN BPI ratings (or uses the saved copy), the ESPN schedule, sportsbook lines
      (ESPN/DraftKings + The Odds API) and prediction-market prices
      (Kalshi, Polymarket),
   3. runs the model, logs the picks, and updates output/NCAAM_Dashboard.xlsx
@@ -54,8 +54,8 @@ except ImportError:
 from model import build_rows, run_model  # noqa: E402
 from names import TeamMatcher  # noqa: E402
 
-VERSION = "2026-11-07.2"
-CODE_FILES = ("config", "espn", "gamelog", "results", "markets", "model", "names", "odds_api", "report", "torvik", "tracker", "web")
+VERSION = "2026-11-25.1"
+CODE_FILES = ("backtest", "config", "espn", "gamelog", "results", "markets", "model", "names", "odds_api", "report", "torvik", "tracker", "web")
 
 
 def code_check() -> tuple[str, list[str]]:
@@ -250,22 +250,26 @@ def run(args) -> int:
     except Exception as e:
         print(f"\nERROR loading ratings: {e}")
         return 1
-    src = ratings.attrs.get("source", "Barttorvik")
+    src = ratings.attrs.get("source", "ESPN BPI")
     skipped = ratings.attrs.get("skipped", [])
     if src.startswith("ESPN BPI") and not args.ratings_file and season_results is not None:
         print("Applying this season's game results...")
         try:
             ratings, how = season_results.update(ratings, DATA, torvik.season_for(day))
             src = f"{src} + this season's results ({how})"
-            now, bpi_note = torvik.espn_bpi_now(torvik.season_for(day), ratings)
-            ratings = torvik.attach_espn_now(ratings, now)
-            notes.append(bpi_note)
-            ratings[[c for c in torvik.RATING_COLS if c in ratings]].to_csv(
-                DATA / f"ratings_{torvik.season_for(day)}_{date.today():%Y-%m-%d}.csv", index=False)
             print(f"  {how}")
         except Exception as e:
             src = f"{src} (results adjustment skipped: {e.__class__.__name__}: {e})"
-        ratings.attrs["source"], ratings.attrs["skipped"] = src, skipped
+    if not args.ratings_file:
+        # ESPN's current BPI drives the projected margin; fetched fresh every run.
+        now, bpi_note = torvik.espn_bpi_now(torvik.season_for(day), ratings)
+        if now is not None:
+            ratings = torvik.attach_espn_now(ratings, now)
+        notes.append(bpi_note)
+        if src.startswith("ESPN BPI"):
+            ratings[[c for c in torvik.RATING_COLS if c in ratings]].to_csv(
+                DATA / f"ratings_{torvik.season_for(day)}_{date.today():%Y-%m-%d}.csv", index=False)
+    ratings.attrs["source"], ratings.attrs["skipped"] = src, skipped
     print(f"  {len(ratings)} teams from {src}.")
     notes.append(f"Ratings: {len(ratings)} teams from {src}")
     for err in ratings.attrs.get("skipped", []):
@@ -323,7 +327,7 @@ def run(args) -> int:
                 notes.append(f"Research dataset update skipped ({e.__class__.__name__}: {e})")
 
             if matcher.unmatched:
-                print("\nTeams not in Barttorvik (usually non-D1 opponents; those games are skipped).")
+                print("\nTeams not in the ESPN ratings (usually non-D1 opponents; those games are skipped).")
                 print("If one IS a D1 team, add it to data/team_aliases.csv:")
                 for name in sorted(matcher.unmatched):
                     print(f"   - {name}")
@@ -334,6 +338,16 @@ def run(args) -> int:
                 notes.append(f"Logged {added} pick(s)")
 
             report._public(results).to_csv(DATA / "slates" / f"slate_{day:%Y-%m-%d}.csv", index=False)
+
+    bt = None
+    try:
+        import backtest
+        bt = backtest.run(DATASET)
+        hi = bt["tiers"].get("High", {})
+        notes.append(f"Backtest ({bt['games']} graded games): High {hi.get('w', 0)}-{hi.get('l', 0)}"
+                     f" ({(hi.get('rate') or 0):.1%}), target {bt['target']:.0%}: {'PASS' if bt['passed'] else 'BELOW TARGET'}")
+    except Exception as e:
+        notes.append(f"Backtest skipped ({e.__class__.__name__}: {e})")
 
     record = tracker.record_summary(HISTORY)
     trend = tracker.daily_trend(HISTORY, "Edge")
@@ -352,7 +366,7 @@ def run(args) -> int:
     if config.WEB_DASHBOARD:
         import shutil
         payload = web.build_payload(day, results, record, trend, history, games, rows, ratings,
-                                    src, DATA, notes)
+                                    src, DATA, notes, backtest=bt)
         page = web.write_site(DOCS, payload)
         if saved:
             shutil.copyfile(saved, DOCS / "NCAAM_Dashboard.xlsx")

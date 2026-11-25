@@ -5,7 +5,7 @@ Replaces pasting data into the old "KenPom" sheet.
 
 from __future__ import annotations
 
-VERSION = "2026-11-07.2"
+VERSION = "2026-11-25.1"
 
 import io
 from datetime import date
@@ -372,8 +372,8 @@ def _blend_current(df: pd.DataFrame, season: int) -> tuple[pd.DataFrame, str]:
 
 
 def load_ratings(day: date, data_dir: Path, ratings_file: str | None = None) -> pd.DataFrame:
-    """Ratings in this order: Barttorvik, ESPN BPI, CollegeBasketballData.com,
-    last saved copy, then last season's final ratings pulled toward average."""
+    """ESPN BPI only, or the last copy saved locally in data/ when ESPN is
+    unreachable. (Barttorvik and CollegeBasketballData.com are not used.)"""
     if ratings_file:
         return _parse(Path(ratings_file).read_text(encoding="utf-8-sig"))
 
@@ -383,24 +383,20 @@ def load_ratings(day: date, data_dir: Path, ratings_file: str | None = None) -> 
         return _read_saved(cache)
 
     errors = []
-    for name, fn in (("Barttorvik", _from_barttorvik), ("ESPN BPI", _from_espn_bpi),
-                     ("CollegeBasketballData.com", _from_cbbd)):
-        try:
-            df = fn(season)
-            if len(df) < 200:
-                raise RuntimeError(f"only {len(df)} teams returned")
-            if name == "ESPN BPI":
-                name = f"ESPN BPI ({BPI_INFO.get('variant', 'default')})"
-            df.attrs["source"] = name
-            df.attrs["skipped"] = list(errors)
-            for c in RATING_COLS:
-                if c not in df:
-                    df[c] = None
-            df[RATING_COLS].to_csv(cache, index=False)
-            return df
-        except Exception as e:
-            errors.append(f"{name}: {str(e)[:160]}")
-            print(f"  {name} unavailable ({e})")
+    try:
+        df = _from_espn_bpi(season, need_cbbd_tempo=False)
+        if len(df) < 200:
+            raise RuntimeError(f"only {len(df)} teams returned")
+        df.attrs["source"] = f"ESPN BPI ({BPI_INFO.get('variant', 'default')})"
+        df.attrs["skipped"] = []
+        for c in RATING_COLS:
+            if c not in df:
+                df[c] = None
+        df[RATING_COLS].to_csv(cache, index=False)
+        return df
+    except Exception as e:
+        errors.append(f"ESPN BPI: {str(e)[:160]}")
+        print(f"  ESPN BPI unavailable ({e})")
 
     older = sorted(data_dir.glob(f"ratings_{season}_*.csv"))
     if older:
@@ -409,16 +405,7 @@ def load_ratings(day: date, data_dir: Path, ratings_file: str | None = None) -> 
         df.attrs["source"] = f"saved copy {older[-1].stem.split('_')[-1]}"
         df.attrs["skipped"] = list(errors)
         return df
-    if season in _CBBD_STALE:
-        rows, label = _CBBD_STALE[season]
-        amt = getattr(config, "LAST_SEASON_REGRESSION", 0.35)
-        df = _regress(_cbbd_frame(rows, _cbbd_pace(label)), amt)
-        df.attrs["source"] = (f"CollegeBasketballData.com LAST SEASON final ratings, pulled {amt:.0%} "
-                              "toward average (this season's not posted yet; switches automatically)")
-        print("  Using last season's final ratings until this season's are posted.")
-        df.attrs["skipped"] = list(errors)
-        return df
-    raise RuntimeError("no ratings source worked. " + " | ".join(errors))
+    raise RuntimeError("no ratings available (ESPN BPI failed and no saved copy). " + " | ".join(errors))
 
 
 def _read_saved(path: Path) -> pd.DataFrame:
