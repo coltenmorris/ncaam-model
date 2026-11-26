@@ -14,7 +14,7 @@ settings) against real results.
 """
 from __future__ import annotations
 
-VERSION = "2026-11-07.2"
+VERSION = "2026-11-25.1"
 
 from datetime import date, datetime, timedelta
 from pathlib import Path
@@ -34,6 +34,11 @@ COLUMNS = [
     "t1_score", "t2_score", "t1_margin", "pick_result_close", "pick_result_open", "clv_pts",
     "model_abs_err", "espn_abs_err", "line_abs_err", "graded_at",
 ]
+try:   # availability, injury and box-score columns filled by players.py
+    from players import DATASET_COLUMNS as _PLAYER_COLUMNS
+    COLUMNS += [c for c in _PLAYER_COLUMNS if c not in COLUMNS]
+except ImportError:
+    pass
 
 _SNAPSHOT = {  # dataset column -> results column (refreshed on every pregame run)
     "away": "T1 Team", "home": "T2 Team", "venue": "Venue",

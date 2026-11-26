@@ -147,3 +147,26 @@ one shows 0 all season, find the series on their site and set `KALSHI_SERIES` or
 - tracker.py: pick log, grading and success rates
 - report.py: console output and dashboard
 - data/pick_history.csv: the full pick history (back this file up)
+
+## Backtest and confidence tiers (2026-11-25)
+- Ratings come only from ESPN BPI (or the copy saved in `data/ratings_*.csv` when
+  ESPN is down). Barttorvik is no longer used.
+- Projected margin = ESPN current BPI (away - home) - home court.
+- Edge pick tiers: **High** = underdog, edge 2-6 pts, spread 3+. **Medium** = other
+  underdogs. **Low** = the pick is the favorite. **Check** = edge 6+ pts.
+- `python backtest.py` re-scores every game in `data/model_dataset.csv` with the
+  current rules and prints PASS when High picks win 52%+. Each daily run does the
+  same, and the Portfolio tab (High confidence by default) is built from it.
+
+## Player availability, box scores and injuries (players.py)
+Each run saves every finished game's ESPN box score to `data/player_log.json`
+(backfilling the season a few hundred games per run) and adds these columns to
+`data/model_dataset.csv`, for both teams, using only games before that date:
+- `regulars_out`, `min_out`, `out_players`: regulars (20+ mpg) who sat out the
+  team's last game and the minutes per game they take with them
+- `games`, `record`, `rest_days`, `last5_margin`
+- `injuries`, `inj_out`: ESPN's injury list for upcoming games, when posted
+- final box score: `fgm fga tpm tpa ftm fta oreb reb ast tov poss`
+
+`python backtest.py` splits High picks by availability once the data is in.
+These columns don't change the picks yet.

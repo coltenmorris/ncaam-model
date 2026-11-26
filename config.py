@@ -5,7 +5,7 @@ Every number that drives the model lives here (this replaces the old
 "Assumptions" sheet). Change a value, save, and run main.py again.
 """
 
-VERSION = "2026-11-07.2"
+VERSION = "2026-11-25.1"
 
 # ---------------------------------------------------------------------------
 # Model mode
@@ -62,7 +62,10 @@ WATCH_LOW_RATIO = 1
 # None = work it out from the date being run.
 SEASON = None
 
-TORVIK_URL = "https://barttorvik.com/{season}_team_results.csv"
+# Ratings come only from ESPN BPI (fetched each run), or the copy saved
+# locally in data/ratings_*.csv when ESPN is unreachable. Barttorvik and
+# CollegeBasketballData.com are not used.
+TORVIK_URL = "https://barttorvik.com/{season}_team_results.csv"   # not used
 ESPN_SCOREBOARD_URL = (
     "https://site.api.espn.com/apis/site/v2/sports/basketball/"
     "mens-college-basketball/scoreboard"
@@ -124,8 +127,28 @@ COVER_MEDIUM = 0.54
 # least CHECK_EDGE points, or CHECK_SPREAD_SHARE of the spread if that is
 # bigger (e.g. 12 points on a 40 point line): the model is probably missing
 # something.
-CHECK_EDGE = 10.0
-CHECK_SPREAD_SHARE = 0.30
+CHECK_EDGE = 6.0
+CHECK_SPREAD_SHARE = 0.0
+# ---------------------------------------------------------------------------
+# Projection and confidence (chosen with backtest.py; re-run it after changes)
+# ---------------------------------------------------------------------------
+# The projected margin is ESPN's current BPI difference minus home court.
+# If ESPN's current BPI is missing for a team, the locally stored ratings
+# (ESPN preseason BPI + this season's results) are used instead.
+# Tiers for Edge picks:
+#   Check  = edge of CHECK_EDGE+ points (the model is probably missing news)
+#   Low    = the pick is the favorite (favorite picks lost badly in testing)
+#   High   = the pick is the underdog, edge HIGH_EDGE_MIN+ points and the
+#            spread at least HIGH_SPREAD_MIN points
+#   Medium = every other underdog pick
+HIGH_EDGE_MIN = 2.0
+HIGH_SPREAD_MIN = 3.0
+# players.py: a "regular" averages this many minutes in the games he plays.
+REGULAR_MINUTES = 20.0
+# ESPN box scores fetched per run while backfilling the season (about 0.3 s each).
+PLAYER_BOX_SCORES_PER_RUN = 400
+# backtest.py reports PASS when High picks win at least this often.
+BACKTEST_TARGET = 0.52
 # Log a sportsbook Edge pick when |projected margin + line| is at least this.
 EDGE_LOG_MIN = 0.0
 # Success-rate buckets for Edge picks (points of edge)

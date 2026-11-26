@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-VERSION = "2026-11-07.2"
+VERSION = "2026-11-25.1"
 
 from datetime import date, datetime
 from pathlib import Path
@@ -166,7 +166,7 @@ def assumptions_table() -> pd.DataFrame:
         ("Tempo Baseline", config.TEMPO_BASELINE, "Tempo Mod = Avg AdjT / baseline"),
         ("High / Medium confidence", f">= {config.HIGH_THRESHOLD} / >= {config.MEDIUM_THRESHOLD}", "Enhanced Value"),
         ("Watch screen", f"rank sum < {config.RANK_SUM_LIMIT}; ratio >= {config.WATCH_HIGH_RATIO} or < {config.WATCH_LOW_RATIO}", "Original columns O:Q"),
-        ("Proj T1 Margin", "(T1 NetRtg - T2 NetRtg) x Avg Tempo / 100 - HCA", "NetRtg = AdjO - AdjD"),
+        ("Proj T1 Margin", "ESPN current BPI (T1 - T2) - HCA", "Falls back to local ratings: (T1 NetRtg - T2 NetRtg) x Avg Tempo / 100 - HCA"),
         ("Edge vs Line (T1)", "Proj T1 Margin + T1 Line", "Positive = T1 side, negative = T2 side"),
         ("Model Win%", f"Normal CDF of Proj Margin / {config.MARGIN_STDEV}", "config.MARGIN_STDEV"),
         ("Market Win%", "Avg of Kalshi and Polymarket (else no-vig book moneyline)", ""),

@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import math
 
-VERSION = "2026-11-07.2"
+VERSION = "2026-11-25.1"
 
 import pandas as pd
 
@@ -78,12 +78,36 @@ def cover_probability(edge_pts, spread=None):
     return 0.5 * (1 + math.erf(z / math.sqrt(2)))
 
 
-def cover_tier(p, edge_pts=None, spread=None):
-    if p is None:
+HIGH_EDGE_MIN = getattr(config, "HIGH_EDGE_MIN", 2.0)
+HIGH_SPREAD_MIN = getattr(config, "HIGH_SPREAD_MIN", 3.0)
+
+
+def cover_tier(p, edge_pts=None, spread=None, pick_line=None):
+    """Confidence for an Edge pick (rules chosen with backtest.py):
+    Check = edge too big to trust, Low = the pick is the favorite (or a pick'em),
+    High = underdog with an edge of HIGH_EDGE_MIN+ on a spread of HIGH_SPREAD_MIN+,
+    Medium = any other underdog."""
+    if p is None and edge_pts is None:
         return ""
     if edge_pts is not None and abs(edge_pts) >= check_threshold(spread):
         return "Check"
-    return "High" if p >= COVER_HIGH else "Medium" if p >= COVER_MEDIUM else "Low"
+    if pick_line is None or pick_line != pick_line or pick_line <= 0:
+        return "Low"
+    if edge_pts is not None and abs(edge_pts) >= HIGH_EDGE_MIN and abs(spread or 0) >= HIGH_SPREAD_MIN:
+        return "High"
+    return "Medium"
+
+
+def projection(espn_t1, espn_t2, local_proj, neutral):
+    """Projected T1 margin: ESPN's current BPI difference minus home court,
+    or the locally stored ratings' projection when ESPN's is missing."""
+    try:
+        v = float(espn_t1) - float(espn_t2) - (0 if neutral else config.HOME_COURT_POINTS)
+        if v == v:
+            return v, "ESPN BPI"
+    except (TypeError, ValueError):
+        pass
+    return local_proj, "Local ratings"
 
 
 def _t1(home_val):
@@ -253,7 +277,10 @@ def run_model(rows: list[dict], ratings: pd.DataFrame) -> pd.DataFrame:
         t1_line = None
         if L is not None:
             t1_line = 0.0 if L == 0 else (-L if row["fav"] == "T1" else L if row["fav"] == "T2" else None)
-        proj = (a["net_rtg"] - b["net_rtg"]) * AX / 100 - (0 if row["neutral"] else hca_pts)
+        local_proj = (a["net_rtg"] - b["net_rtg"]) * AX / 100 - (0 if row["neutral"] else hca_pts)
+        e1, e2 = a.get("espn_bpi_now"), b.get("espn_bpi_now")
+        proj, proj_src = projection(e1, e2, local_proj, row["neutral"])
+        espn_proj = proj if proj_src == "ESPN BPI" else None
         edge = (proj + t1_line) if t1_line is not None else None
         edge_side = None if edge is None or edge == 0 else ("T1" if edge > 0 else "T2")
         model_p = 0.5 * (1 + math.erf(proj / (config.MARGIN_STDEV * math.sqrt(2))))
@@ -263,12 +290,6 @@ def run_model(rows: list[dict], ratings: pd.DataFrame) -> pd.DataFrame:
         if p_edge is not None and abs(p_edge) >= config.MARKET_EDGE_MIN:
             mkt_side = "T1" if p_edge > 0 else "T2"
         edge_team = (t1 if edge_side == "T1" else t2) if edge_side else ""
-        e1, e2 = a.get("espn_bpi_now"), b.get("espn_bpi_now")
-        try:
-            espn_proj = float(e1) - float(e2) - (0 if row["neutral"] else hca_pts)
-            espn_proj = None if espn_proj != espn_proj else espn_proj
-        except (TypeError, ValueError):
-            espn_proj = None
         rec.update({
             "ESPN BPI Proj T1 Margin": espn_proj,
             "Line Source": row.get("line_source", ""),
@@ -280,6 +301,8 @@ def run_model(rows: list[dict], ratings: pd.DataFrame) -> pd.DataFrame:
             "Best T2": row.get("best_t2"),
             "Books": row.get("n_books"),
             "Proj T1 Margin": proj,
+            "Proj Source": proj_src,
+            "Local Proj T1 Margin": local_proj,
             "Edge vs Line (T1)": edge,
             "Edge Pick": (f"{edge_team} {'PK' if t1_line == 0 else format(t1_line if edge_side == 'T1' else -t1_line, '+g')}"
                           if edge_side else ""),
@@ -294,7 +317,8 @@ def run_model(rows: list[dict], ratings: pd.DataFrame) -> pd.DataFrame:
         })
         if not legacy:
             # Confidence = chance the Edge pick covers (replaces the old Enhanced Value tiers)
-            rec["Confidence"] = cover_tier(rec["Cover %"], edge, L)
+            pick_line = None if not edge_side else (t1_line if edge_side == "T1" else -t1_line)
+            rec["Confidence"] = cover_tier(rec["Cover %"], edge, L, pick_line)
 
         rec.update({
             "game_id": row["game_id"], "_start": row.get("start"),

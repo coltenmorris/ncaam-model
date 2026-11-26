@@ -6,7 +6,7 @@ with a little plain JavaScript, so it works on GitHub Pages and on a phone.
 
 from __future__ import annotations
 
-VERSION = "2026-11-07.2"
+VERSION = "2026-11-25.1"
 
 import json
 import math
@@ -210,26 +210,44 @@ def _clv(data_dir):
         return {}
 
 
-def portfolio(history: pd.DataFrame) -> dict:
-    """Every Edge pick as a flat bet at -110 (default $100 per pick)."""
+def portfolio(history: pd.DataFrame, backtest: dict | None = None) -> dict:
+    """Flat bets at -110 (default $100 per pick). Built from the backtest:
+    every game in the research dataset, re-scored with the current rules, so
+    the High / Medium / Low tiers always match today's definitions. Falls back
+    to the logged Edge picks if the backtest isn't available."""
     stake = float(getattr(config, "PORTFOLIO_STAKE", 100))
     price = float(getattr(config, "PORTFOLIO_PRICE", -110))
     win = stake * (100 / -price if price < 0 else price / 100)
-    bets = []
-    if history is not None and not history.empty:
+
+    def pl(res):
+        return None if res is None else (win if res == "W" else -stake if res == "L" else 0.0)
+
+    bets, source = [], "logged"
+    if backtest and backtest.get("bets"):
+        source = "backtest"
+        for b in backtest["bets"]:
+            bets.append(_sanitize({
+                "date": b["date"], "away": b["away"], "home": b["home"], "team": b["team"],
+                "line": b["line"], "edge": b["edge"], "cover": b["cover"], "conf": b["conf"],
+                "result": b["result"], "pl": pl(b["result"]), "s1": b["s1"], "s2": b["s2"],
+            }))
+    elif history is not None and not history.empty:
         h = history[(history["pick_type"] == "Edge") & (history["result"] != "NR")].copy()
         h = h.sort_values(["date", "start"], na_position="last")
         for _, r in h.iterrows():
             res = r.get("result")
             res = res if res in ("W", "L", "P") else None
-            pl = None if res is None else (win if res == "W" else -stake if res == "L" else 0.0)
             bets.append(_sanitize({
                 "date": r["date"], "away": r["t1"], "home": r["t2"], "team": r["pick_team"],
                 "line": r.get("pick_line"), "edge": r.get("edge"), "cover": r.get("cover_prob"),
-                "conf": r.get("confidence") or "Low", "result": res, "pl": pl,
+                "conf": r.get("confidence") or "Low", "result": res, "pl": pl(res),
                 "s1": r.get("t1_score"), "s2": r.get("t2_score"),
             }))
-    return {"stake": stake, "price": price, "win": round(win, 2), "bets": bets}
+    out = {"stake": stake, "price": price, "win": round(win, 2), "bets": bets, "source": source}
+    if backtest:
+        out["target"] = backtest.get("target")
+        out["rulesSetOn"] = backtest.get("rules_set_on")
+    return out
 
 
 def live_picks(results: pd.DataFrame, history: pd.DataFrame | None = None) -> dict:
@@ -265,18 +283,17 @@ def live_picks(results: pd.DataFrame, history: pd.DataFrame | None = None) -> di
 
 
 def conf_key() -> list[dict]:
-    hi = getattr(config, "COVER_HIGH", 0.56)
-    md = getattr(config, "COVER_MEDIUM", 0.54)
-    ce = getattr(config, "CHECK_EDGE", 10.0)
-    cs = getattr(config, "CHECK_SPREAD_SHARE", 0.30)
+    hi_e = getattr(config, "HIGH_EDGE_MIN", 2.0)
+    hi_s = getattr(config, "HIGH_SPREAD_MIN", 3.0)
+    ce = getattr(config, "CHECK_EDGE", 6.0)
     return [
-        {"tier": "High", "range": f"Cover {hi:.0%}+",
-         "text": "The model's strongest spots: a solid edge the market hasn't closed."},
-        {"tier": "Medium", "range": f"Cover {md:.0%} to {hi:.0%}",
-         "text": "A real but modest edge. Worth a look alongside injury news and line moves."},
-        {"tier": "Low", "range": f"Cover under {md:.0%}",
-         "text": "Small disagreement with the line. Close to break-even (52.4% at -110)."},
-        {"tier": "Check", "range": f"Edge {ce:g}+ pts, or {cs:.0%} of the spread if larger",
+        {"tier": "High", "range": f"Underdog, edge {hi_e:g} to {ce:g} pts, spread {hi_s:g}+",
+         "text": "The spots that won 52%+ in the backtest (python backtest.py). The default Portfolio."},
+        {"tier": "Medium", "range": f"Other underdogs, edge under {ce:g}",
+         "text": "Small edges or tiny spreads. About break-even in testing."},
+        {"tier": "Low", "range": "The pick is the favorite (or a pick'em)",
+         "text": "Favorite picks lost badly in testing. Not recommended."},
+        {"tier": "Check", "range": f"Edge {ce:g}+ pts",
          "text": "The model and the books disagree too much to trust. Usually injuries, roster changes or "
                  "a stale rating. Check the news first; if nothing explains it, pass."},
     ]
@@ -296,13 +313,13 @@ def tips() -> dict:
             "Books": "How many sportsbooks posted a spread for this game (The Odds API).",
             "Best away": "The most points available on the away team at any single book. Higher is better for an away bet.",
             "Best home": "The most points available on the home team at any single book. Higher is better for a home bet.",
-            "Proj away margin": f"Points the model expects the away team to win (+) or lose (-) by. (Away net rating - Home net rating) x average tempo / 100, minus {hca:g} for home court. Net rating = adjusted offense - adjusted defense, per 100 possessions.",
+            "Proj away margin": f"Points the model expects the away team to win (+) or lose (-) by: ESPN's current BPI (away - home), minus {hca:g} for home court. If ESPN's current BPI is missing for a team, the locally saved ratings are used instead.",
             "Edge pick": "The side the model likes against the spread, at the line shown. It is whichever side the Edge points to.",
             "Edge": "How many points the model disagrees with the line. |Proj away margin + away line|. Example: model Arizona by 34.3, line Arizona -31, edge 3.3 on Arizona. Yellow = 2+, green = 4+.",
             "Model away win": f"Model's chance the away team wins outright (spread ignored). Normal distribution of the projected margin with a standard deviation of {config.MARGIN_STDEV:g} points.",
             "Market away win": "The market's chance the away team wins outright: average of Kalshi and Polymarket prices, or the sportsbooks' moneylines with the bookmaker's cut removed if neither lists the game.",
             "Cover %": "Estimated chance the Edge pick covers. Very large edges are flattened (they are usually a model miss, not value), only " + f"{getattr(config, 'COVER_MODEL_WEIGHT', 0.35):.0%}" + " of the model's disagreement with the line is trusted, and lopsided games get a wider range of outcomes. A 3 point edge is about 53.5%, 7 points about 56%. Realistic values stay between 50% and 58%. Break-even at -110 is 52.4%.",
-            "Conf.": "From Cover %: High " + f"{getattr(config, 'COVER_HIGH', 0.56):.0%}" + "+, Medium " + f"{getattr(config, 'COVER_MEDIUM', 0.54):.0%}" + "+, Low below that. Check = an edge of " + f"{getattr(config, 'CHECK_EDGE', 10.0):g}" + "+ points (or " + f"{getattr(config, 'CHECK_SPREAD_SHARE', 0.30):.0%}" + " of the spread in lopsided games): the model and the books disagree too much to trust. See the key below the table.",
+            "Conf.": "High = underdog pick with an edge of " + f"{getattr(config, 'HIGH_EDGE_MIN', 2.0):g}" + "+ points on a spread of " + f"{getattr(config, 'HIGH_SPREAD_MIN', 3.0):g}" + "+. Medium = other underdogs. Low = the pick is the favorite. Check = an edge of " + f"{getattr(config, 'CHECK_EDGE', 6.0):g}" + "+ points: the model and the books disagree too much to trust. See the key below the table.",
             "Model pick": "The team with the better weighted efficiency (Wtd Eff). It always backs the stronger team and does not check whether it is stronger by more than the line. Use Edge for that.",
         },
         "power": {
@@ -355,7 +372,8 @@ def history_groups(history: pd.DataFrame, limit_days: int = 120) -> list[dict]:
 
 def build_payload(day: date, results: pd.DataFrame, record: pd.DataFrame, trend: pd.DataFrame,
                   history: pd.DataFrame, games: list[dict], rows: list[dict], ratings: pd.DataFrame,
-                  ratings_source: str, data_dir: Path | None, notes: list[str]) -> dict:
+                  ratings_source: str, data_dir: Path | None, notes: list[str],
+                  backtest: dict | None = None) -> dict:
     today = pd.DataFrame()
     if not results.empty and "Edge Size" in results:
         today = results[results["Line"].fillna("") != ""].sort_values("Edge Size", ascending=False, na_position="last")
@@ -376,7 +394,7 @@ def build_payload(day: date, results: pd.DataFrame, record: pd.DataFrame, trend:
         "trend": {"cols": list(trend.columns), "rows": _records(trend, [(c, c) for c in trend.columns])},
         "history": history_groups(history),
         "livePicks": live_picks(results, history),
-        "portfolio": portfolio(history),
+        "portfolio": portfolio(history, backtest),
         "marketEval": _market_eval(data_dir),
         "clv": _clv(data_dir),
         "marketEdges": int((pd.to_numeric(results["Win% Edge (T1)"], errors="coerce").abs() >= config.MARKET_EDGE_MIN).sum())
@@ -1173,14 +1191,15 @@ const SECTIONS = [
   {id: 'Check', color: '--s5', test: b => b.conf === 'Check'}];
 const money = v => isNum(v) ? (v < 0 ? '-$' : '$') + Math.abs(v).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '';
 const smoney = v => isNum(v) ? (v > 0 ? '+' : '') + money(v) : '';
-let pfShow = new Set((store.get('pfShow', 'Overall,High,Medium,Check')).split(',').filter(Boolean));
+let pfShow = new Set((store.get('pfShow2', 'High')).split(',').filter(Boolean));
 const pfOpen = new Set();
 const pfLimit = {};
 const pfRes = {};
-$('pfRule').textContent = money(PF.stake) + ' on every Edge pick at ' + (PF.price || -110) + ' (a win pays ' + money(PF.win) + ')';
+$('pfRule').textContent = money(PF.stake) + ' per pick at ' + (PF.price || -110) + ' (a win pays ' + money(PF.win) + ')' +
+  (PF.source === 'backtest' ? ' · every game since Nov 8 re-scored with the current rules' + (PF.rulesSetOn ? ' (set ' + PF.rulesSetOn + '; earlier games are the backtest)' : '') : '');
 SECTIONS.forEach(sc => {
   const b = el('button', {type: 'button', textContent: sc.id}); b.dataset.s = sc.id; b.setAttribute('aria-pressed', pfShow.has(sc.id));
-  b.onclick = () => { if (pfShow.has(sc.id)) pfShow.delete(sc.id); else pfShow.add(sc.id); b.setAttribute('aria-pressed', pfShow.has(sc.id)); store.set('pfShow', [...pfShow].join(',')); drawPortfolio(); };
+  b.onclick = () => { if (pfShow.has(sc.id)) pfShow.delete(sc.id); else pfShow.add(sc.id); b.setAttribute('aria-pressed', pfShow.has(sc.id)); store.set('pfShow2', [...pfShow].join(',')); drawPortfolio(); };
   $('pfSections').append(b);
 });
 $('pfRange').onchange = () => drawPortfolio();
@@ -1198,8 +1217,10 @@ function pfStats(bets) {
 function drawPortfolio() {
   const bets = pfBets(), cs = getComputedStyle(document.documentElement), col = n => cs.getPropertyValue(n).trim();
   // tiles (overall)
-  const o = pfStats(bets), th = $('pfTiles'); th.replaceChildren();
-  tile(th, 1, 'Net profit', smoney(o.net) || '$0.00', o.n + ' graded bets', o.net >= 0 ? 'blue' : 'black');
+  const vis0 = SECTIONS.filter(sc => pfShow.has(sc.id)), inView = b => vis0.some(sc => sc.test(b));
+  const o = pfStats(bets.filter(inView)), th = $('pfTiles'); th.replaceChildren();
+  const viewName = vis0.length === 1 ? (vis0[0].id === 'Overall' ? 'All picks' : vis0[0].id + ' confidence') : vis0.map(sc => sc.id).join(' + ');
+  tile(th, 1, 'Net profit', smoney(o.net) || '$0.00', o.n + ' graded bets · ' + (viewName || 'nothing selected'), o.net >= 0 ? 'blue' : 'black');
   tile(th, 2, 'Return on money bet', o.roi == null ? 'n/a' : (o.roi * 100).toFixed(1) + '%', 'Net profit / amount risked', '');
   tile(th, 3, 'Record', o.w + '-' + o.l + '-' + o.p, o.rate == null ? 'No graded bets yet' : pct(o.rate) + ' wins (52.4% to break even)', '');
   tile(th, 4, 'Pending', o.pending, 'Bets on games not final yet', '');

@@ -21,7 +21,7 @@ State lives in data/team_adjustments.json; every game is processed once.
 """
 from __future__ import annotations
 
-VERSION = "2026-11-07.2"
+VERSION = "2026-11-25.1"
 
 import json
 from datetime import date, datetime, timedelta
