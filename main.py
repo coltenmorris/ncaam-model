@@ -55,7 +55,7 @@ from model import build_rows, run_model  # noqa: E402
 from names import TeamMatcher  # noqa: E402
 
 VERSION = "2026-11-25.1"
-CODE_FILES = ("backtest", "config", "espn", "gamelog", "results", "markets", "model", "names", "odds_api", "report", "torvik", "tracker", "web")
+CODE_FILES = ("backtest", "config", "espn", "gamelog", "results", "markets", "model", "names", "odds_api", "players", "report", "torvik", "tracker", "web")
 
 
 def code_check() -> tuple[str, list[str]]:
@@ -338,6 +338,15 @@ def run(args) -> int:
                 notes.append(f"Logged {added} pick(s)")
 
             report._public(results).to_csv(DATA / "slates" / f"slate_{day:%Y-%m-%d}.csv", index=False)
+
+    try:
+        import players
+        print("Updating box scores and player availability...")
+        msg = players.run(DATA, DATASET, torvik.season_for(day), games)
+        print(f"  {msg}")
+        notes.append(msg)
+    except Exception as e:
+        notes.append(f"Player availability skipped ({e.__class__.__name__}: {e})")
 
     bt = None
     try:

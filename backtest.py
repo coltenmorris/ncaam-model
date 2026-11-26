@@ -83,6 +83,8 @@ def score(df: pd.DataFrame) -> list[dict]:
             "team": r["away"] if side == "T1" else r["home"], "line": pick_line,
             "edge": round(abs(edge), 2), "cover": round(p, 4), "conf": tier, "proj_source": src,
             "result": result, "s1": s1, "s2": s2,
+            "out_pick": _num(r.get("t1_regulars_out" if side == "T1" else "t2_regulars_out")),
+            "out_opp": _num(r.get("t2_regulars_out" if side == "T1" else "t1_regulars_out")),
         })
     bets.sort(key=lambda b: (b["date"], str(b["start"] or "")))
     return bets
@@ -102,12 +104,19 @@ def run(path: Path = DATASET) -> dict:
     tiers = {t: _summary([b for b in bets if b["conf"] == t]) for t in TIERS}
     tiers["Overall"] = _summary(bets)
     after = [b for b in bets if b["date"] > RULES_SET_ON and b["conf"] == "High"]
+    known = [b for b in bets if b["conf"] == "High" and b["out_pick"] is not None and b["out_opp"] is not None]
+    availability = {
+        "No regulars out": _summary([b for b in known if not b["out_pick"] and not b["out_opp"]]),
+        "Picked team missing a regular": _summary([b for b in known if b["out_pick"]]),
+        "Opponent missing a regular": _summary([b for b in known if b["out_opp"] and not b["out_pick"]]),
+    }
     target = float(getattr(config, "BACKTEST_TARGET", 0.52))
     hi = tiers["High"]
     return {
         "games": sum(b["result"] is not None for b in bets),
         "tiers": tiers,
         "high_after_rules": _summary(after),
+        "availability": availability,
         "rules_set_on": RULES_SET_ON,
         "target": target,
         "passed": hi["rate"] is not None and hi["rate"] >= target,
@@ -141,6 +150,14 @@ def main() -> int:
     a = bt["high_after_rules"]
     if a["w"] + a["l"]:
         print(f"High since the rules were set ({bt['rules_set_on']}): {a['w']}-{a['l']} ({a['rate']:.1%})")
+    av = bt["availability"]
+    if any(v["w"] + v["l"] for v in av.values()):
+        print("\nHigh picks by player availability (regulars who sat out the team's last game):")
+        for k, v in av.items():
+            rate = f"{v['rate']:.1%}" if v["rate"] is not None else "n/a"
+            print(f"  {k:32s} {v['w']:>4d}-{v['l']:<4d} {rate:>7s} {v['units']:>+7.1f}")
+    else:
+        print("\nPlayer availability: not logged yet (players.py fills it in on the next daily runs).")
     print(f"\nTarget: High picks win {bt['target']:.0%}+ -> {'PASS' if bt['passed'] else 'BELOW TARGET'}")
     return 0 if bt["passed"] else 1
 

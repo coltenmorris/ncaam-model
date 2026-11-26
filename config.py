@@ -143,6 +143,10 @@ CHECK_SPREAD_SHARE = 0.0
 #   Medium = every other underdog pick
 HIGH_EDGE_MIN = 2.0
 HIGH_SPREAD_MIN = 3.0
+# players.py: a "regular" averages this many minutes in the games he plays.
+REGULAR_MINUTES = 20.0
+# ESPN box scores fetched per run while backfilling the season (about 0.3 s each).
+PLAYER_BOX_SCORES_PER_RUN = 400
 # backtest.py reports PASS when High picks win at least this often.
 BACKTEST_TARGET = 0.52
 # Log a sportsbook Edge pick when |projected margin + line| is at least this.
