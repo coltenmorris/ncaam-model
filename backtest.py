@@ -124,6 +124,53 @@ def run(path: Path = DATASET) -> dict:
     }
 
 
+# Edge picks logged before the new rules went live (the 2026-11-26 03:54 ET
+# merge) came from the old model. rebuild_history() swaps them for the
+# backtest picks so the History and Success Rate tabs match the backtest.
+OLD_MODEL_BEFORE = "2026-11-26 03:54"
+
+
+def rebuild_history(history: Path, dataset: Path = DATASET, before: str = OLD_MODEL_BEFORE) -> dict:
+    """Replace old-model Edge picks in pick_history.csv with the backtest pick
+    for the same game. The replaced picks are saved (once) to
+    pick_history_old_model_edge.csv. Running it again changes nothing."""
+    import tracker
+    from datetime import datetime
+    hist = tracker.load(history)
+    is_edge = hist["pick_type"] == "Edge"
+    logged = hist["logged_at"].fillna("").astype(str)
+    old = is_edge & (logged < before) & (logged != "backtest")
+    backup = history.with_name("pick_history_old_model_edge.csv")
+    if old.any():
+        prev = tracker.load(backup) if backup.exists() else pd.DataFrame(columns=tracker.COLUMNS)
+        tracker.save(pd.concat([prev, hist[old]], ignore_index=True), backup)
+    old_games = set(hist.loc[old, "game_id"].astype(str))
+    kept_edge = set(hist.loc[is_edge & ~old, "game_id"].astype(str))
+    ds = pd.read_csv(dataset, dtype={"game_id": str, "date": str})
+    src = dict(zip(ds["game_id"].astype(str), ds["close_source"]))
+    cutoff_day = before[:10]
+    now = datetime.now().strftime("%Y-%m-%d %H:%M")
+    rows = []
+    for b in score(ds):
+        gid = b["game_id"]
+        if gid in kept_edge or not (gid in old_games or b["date"] < cutoff_day):
+            continue
+        rows.append({
+            "date": b["date"], "start": b["start"], "game_id": gid, "pick_type": "Edge",
+            "t1": b["away"], "t2": b["home"], "pick_team": b["team"], "pick_side": b["side"],
+            "pick_line": b["line"], "line_source": f"Backtest: closing line ({src.get(gid) or 'consensus'})",
+            "confidence": b["conf"], "edge": b["edge"], "cover_prob": b["cover"],
+            "result": b["result"], "t1_score": b["s1"], "t2_score": b["s2"],
+            "logged_at": "backtest", "graded_on": now if b["result"] else None, "confidence_logged": b["conf"],
+        })
+    new = hist[~old]
+    if rows:
+        new = pd.concat([new, pd.DataFrame(rows, columns=tracker.COLUMNS)], ignore_index=True)
+    new = new.sort_values(["date", "start", "game_id"], na_position="last", kind="stable")
+    tracker.save(new, history)
+    return {"removed": int(old.sum()), "added": len(rows), "dropped_games": len(old_games - {r["game_id"] for r in rows})}
+
+
 def _halves(bets: list[dict], tier: str) -> str:
     graded = [b for b in bets if b["result"] and b["conf"] == tier]
     dates = sorted({b["date"] for b in graded})
@@ -137,6 +184,10 @@ def _halves(bets: list[dict], tier: str) -> str:
 
 
 def main() -> int:
+    if "--rebuild-history" in sys.argv:
+        r = rebuild_history(ROOT / "data" / "pick_history.csv")
+        print(f"History rebuilt: {r['removed']} old-model Edge picks replaced by {r['added']} backtest picks "
+              f"({r['dropped_games']} games had no backtest pick; originals in pick_history_old_model_edge.csv)\n")
     bt = run()
     print(f"Backtest of {bt['games']} graded games in {DATASET.name} (closing lines, -110)")
     print(f"Rules: underdog picks, High = edge {config.HIGH_EDGE_MIN:g}+ pts on a spread of "
