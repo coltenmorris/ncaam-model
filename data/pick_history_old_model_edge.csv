@@ -1,0 +1,863 @@
+date,start,game_id,pick_type,t1,t2,pick_team,pick_side,pick_line,line_source,confidence,enhanced_value,edge,cover_prob,market_prob,model_prob,result,t1_score,t2_score,logged_at,graded_on,confidence_logged
+2026-11-07,2026-11-07T12:00:00-05:00,401918948,Edge,Morehead State,Louisville,Morehead State,T1,37.5,Consensus (8 books),Check,,12.92,0.5591,,0.0127,L,57.0,107.0,2026-11-07 10:41,2026-11-07 17:39,Check
+2026-11-07,2026-11-07T12:00:00-05:00,401925707,Edge,North Dakota,Winthrop,North Dakota,T1,9.0,Consensus (7 books),Medium,,0.5,0.5063,,0.2199,W,93.0,90.0,2026-11-07 10:41,2026-11-07 17:39,Low
+2026-11-07,2026-11-07T13:00:00-05:00,401921154,Edge,North Carolina A&T,Ohio,North Carolina A&T,T1,14.5,Consensus (8 books),Check,,7.25,0.5609,,0.255,W,70.0,80.0,2026-11-07 10:41,2026-11-07 17:39,High
+2026-11-07,2026-11-07T14:00:00-05:00,401920856,Edge,Toledo,Marshall,Toledo,T1,2.5,Consensus (8 books),Medium,,0.89,0.5112,,0.4417,W,81.0,76.0,2026-11-07 10:41,2026-11-07 17:39,Low
+2026-11-07,2026-11-07T14:00:00-05:00,401920770,Edge,Colgate,Drexel,Colgate,T1,1.5,Consensus (7 books),Medium,,1.67,0.5207,,0.5063,L,74.0,77.0,2026-11-07 10:41,2026-11-07 17:39,Low
+2026-11-07,2026-11-07T14:00:00-05:00,401920156,Edge,Cal State Fullerton,South Dakota,South Dakota,T2,1.5,Draft Kings (no DraftKings line),Medium,,2.79,0.533,,0.5467,L,87.0,85.0,2026-11-07 10:41,2026-11-07 17:39,Low
+2026-11-07,2026-11-07T14:00:00-05:00,401918977,Edge,UNC Wilmington,East Carolina,East Carolina,T2,4.5,Consensus (8 books),High,,4.38,0.5473,,0.4957,W,78.0,75.0,2026-11-07 10:41,2026-11-07 17:39,Medium
+2026-11-07,2026-11-07T14:00:00-05:00,401917962,Edge,Lamar,Abilene Christian,Abilene Christian,T2,1.5,Consensus (7 books),Medium,,2.88,0.5339,,0.5501,W,81.0,83.0,2026-11-07 10:41,2026-11-07 17:39,Low
+2026-11-07,2026-11-07T15:00:00-05:00,401924264,Edge,Long Beach State,Montana State,Long Beach State,T1,10.5,Draft Kings (no DraftKings line),Medium,,1.05,0.5131,,0.1952,L,70.0,83.0,2026-11-07 10:41,2026-11-07 17:39,Low
+2026-11-07,2026-11-07T15:00:00-05:00,401922044,Edge,North Carolina Central,Longwood,North Carolina Central,T1,12.5,Consensus (7 books),High,,3.42,0.5383,,0.2046,W,75.0,80.0,2026-11-07 10:41,2026-11-07 17:39,Low
+2026-11-07,2026-11-07T15:00:00-05:00,401918986,Edge,VCU,Memphis,Memphis,T2,1.5,Consensus (8 books),Medium,,2.0,0.5245,,0.5183,W,88.0,89.0,2026-11-07 10:41,2026-11-07 17:39,Low
+2026-11-07,2026-11-07T15:30:00-05:00,401919805,Edge,Long Island University,La Salle,La Salle,T2,-4.5,Draft Kings (no DraftKings line),Low,,1.98,0.5242,,0.722,W,80.0,88.0,2026-11-07 10:41,2026-11-07 17:39,Low
+2026-11-07,2026-11-07T15:30:00-05:00,401909760,Edge,San Diego State,Colorado,Colorado,T2,3.5,Consensus (8 books),High,,5.4,0.5544,,0.5686,L,77.0,66.0,2026-11-07 10:41,2026-11-07 17:54,Medium
+2026-11-07,2026-11-07T16:00:00-05:00,401929293,Edge,Omaha,Utah State,Omaha,T1,29.5,Consensus (8 books),Check,,9.48,0.5592,,0.0344,L,56.0,90.0,2026-11-07 10:41,2026-11-07 17:54,Medium
+2026-11-07,2026-11-07T16:00:00-05:00,401928352,Edge,Oakland,UC Santa Barbara,Oakland,T1,13.5,Consensus (8 books),Check,,7.16,0.5611,,0.2823,L,67.0,90.0,2026-11-07 10:41,2026-11-07 18:30,High
+2026-11-07,2026-11-07T16:00:00-05:00,401924912,Edge,Samford,UNLV,Samford,T1,10.5,Consensus (8 books),Medium,,0.22,0.5028,,0.1751,W,79.0,88.0,2026-11-07 10:41,2026-11-07 18:05,Low
+2026-11-07,2026-11-07T16:00:00-05:00,401920192,Edge,Lafayette,Saint Joseph's,Lafayette,T1,16.5,Consensus (7 books),Medium,,1.49,0.5175,,0.0862,W,57.0,67.0,2026-11-07 10:41,2026-11-07 19:01,Low
+2026-11-07,2026-11-07T16:00:00-05:00,401920062,Edge,Monmouth,Rhode Island,Monmouth,T1,6.5,Consensus (8 books),High,,2.22,0.5269,,0.3487,L,66.0,84.0,2026-11-07 10:41,2026-11-07 18:30,Low
+2026-11-07,2026-11-07T17:00:00-05:00,401928788,Edge,New Mexico State,Gonzaga,New Mexico State,T1,29.5,Consensus (8 books),Check,,7.48,0.5546,,0.0226,L,68.0,109.0,2026-11-07 10:41,2026-11-07 22:04,Medium
+2026-11-07,2026-11-07T17:00:00-05:00,401926201,Edge,VMI,UTSA,UTSA,T2,-4.5,Consensus (8 books),Low,,2.42,0.5291,,0.7355,L,68.0,70.0,2026-11-07 10:41,2026-11-07 22:04,Low
+2026-11-07,2026-11-07T17:00:00-05:00,401926112,Edge,Northern Iowa,Furman,Furman,T2,-5.0,Consensus (8 books),Low,,1.87,0.523,,0.7338,W,83.0,98.0,2026-11-07 10:41,2026-11-07 22:04,Low
+2026-11-07,2026-11-07T17:00:00-05:00,401924940,Edge,Old Dominion,Bucknell,Bucknell,T2,6.0,Consensus (7 books),High,,3.24,0.5375,,0.401,L,82.0,62.0,2026-11-07 10:41,2026-11-07 19:01,Low
+2026-11-07,2026-11-07T17:00:00-05:00,401921174,Edge,UT Martin,IU Indianapolis,IU Indianapolis,T2,2.5,Draft Kings (no DraftKings line),Medium,,0.23,0.5029,,0.4181,W,74.0,75.0,2026-11-07 10:41,2026-11-07 22:04,Low
+2026-11-07,2026-11-07T17:00:00-05:00,401920703,Edge,SIU Edwardsville,Lipscomb,SIU Edwardsville,T1,7.5,Consensus (7 books),Medium,,0.15,0.5019,,0.2521,W,77.0,78.0,2026-11-07 10:41,2026-11-07 22:04,Low
+2026-11-07,2026-11-07T17:00:00-05:00,401920411,Edge,Washington State,High Point,High Point,T2,-13.5,Consensus (6 books),Low,,0.06,0.5007,,0.8911,L,71.0,83.0,2026-11-07 10:41,2026-11-07 22:04,Low
+2026-11-07,2026-11-07T17:00:00-05:00,401911007,Edge,Bellarmine,Miami (OH),Bellarmine,T1,20.5,Consensus (6 books),High,,5.6,0.5508,,0.0877,W,73.0,80.0,2026-11-07 10:41,2026-11-07 22:04,Medium
+2026-11-07,2026-11-07T17:30:00-05:00,401925106,Edge,Prairie View A&M,UT Rio Grande Valley,UT Rio Grande Valley,T2,-8.5,Draft Kings (no DraftKings line),Low,,2.36,0.5285,,0.8383,L,63.0,68.0,2026-11-07 10:41,2026-11-07 22:04,Low
+2026-11-07,2026-11-07T17:30:00-05:00,401922291,Edge,Western Carolina,UNC Asheville,UNC Asheville,T2,3.5,Consensus (7 books),Medium,,1.8,0.5222,,0.4385,L,83.0,75.0,2026-11-07 10:41,2026-11-07 22:04,Low
+2026-11-07,2026-11-07T18:00:00-05:00,401926825,Edge,Hampton,George Washington,Hampton,T1,20.5,DraftKings,High,,5.82,0.5519,,0.091,W,61.0,75.0,2026-11-07 17:54,2026-11-07 22:04,Medium
+2026-11-07,2026-11-07T18:00:00-05:00,401924895,Edge,Northern Arizona,New Mexico,Northern Arizona,T1,28.5,Consensus (8 books),Check,,8.88,0.5586,,0.0372,L,65.0,94.0,2026-11-07 17:54,2026-11-07 22:04,Medium
+2026-11-07,2026-11-07T18:30:00-05:00,401924843,Edge,Morgan State,Niagara,Morgan State,T1,3.5,Consensus (7 books),Medium,,0.68,0.5086,,0.3989,W,73.0,67.0,2026-11-07 18:05,2026-11-07 22:04,Low
+2026-11-07,2026-11-07T19:00:00-05:00,401925772,Edge,Mercer,Davidson,Mercer,T1,11.5,Consensus (8 books),Medium,,0.03,0.5004,,0.1484,L,76.0,88.0,2026-11-07 18:30,2026-11-07 22:04,Low
+2026-11-07,2026-11-07T19:00:00-05:00,401924951,Edge,Houston Christian,Western Illinois,Western Illinois,T2,9.5,Consensus (7 books),High,,4.95,0.5515,,0.3394,W,74.0,67.0,2026-11-07 18:30,2026-11-07 22:04,Medium
+2026-11-07,2026-11-07T19:00:00-05:00,401911262,Edge,St. Bonaventure,Canisius,Canisius,T2,9.5,Consensus (8 books),High,,4.53,0.5485,,0.3256,L,88.0,49.0,2026-11-07 18:30,2026-11-07 22:04,Medium
+2026-11-07,2026-11-07T19:00:00-05:00,401911186,Edge,Northern Illinois,Dayton,Northern Illinois,T1,19.5,Consensus (7 books),Medium,,0.54,0.5063,,0.0424,W,81.0,76.0,2026-11-07 18:30,2026-11-07 22:04,Low
+2026-11-07,2026-11-07T19:00:00-05:00,401909532,Edge,Providence,Nebraska,Nebraska,T2,-2.5,Consensus (8 books),Low,,2.69,0.532,,0.6814,W,58.0,67.0,2026-11-07 18:30,2026-11-07 22:04,Low
+2026-11-07,2026-11-07T19:30:00-05:00,401926227,Edge,Denver,UC Riverside,UC Riverside,T2,-1.5,Consensus (8 books),Low,,1.86,0.5229,,0.62,W,60.0,64.0,2026-11-07 19:01,2026-11-07 22:04,Low
+2026-11-07,2026-11-07T19:30:00-05:00,401909513,Edge,Maryland,Georgetown,Georgetown,T2,3.5,Consensus (8 books),Medium,,0.87,0.511,,0.4057,W,74.0,86.0,2026-11-07 19:01,2026-11-07 22:04,Low
+2026-11-07,2026-11-07T20:00:00-05:00,401925077,Edge,Northwestern State,Murray State,Northwestern State,T1,23.5,Consensus (7 books),Check,,6.8,0.5549,,0.0645,W,71.0,93.0,2026-11-07 19:01,2026-11-07 22:19,Medium
+2026-11-07,2026-11-07T20:00:00-05:00,401923392,Edge,Southern Indiana,Evansville,Southern Indiana,T1,7.5,Consensus (8 books),Check,,6.83,0.5617,,0.4757,W,76.0,78.0,2026-11-07 19:01,2026-11-08 00:58,High
+2026-11-07,2026-11-07T20:00:00-05:00,401920816,Edge,SE Louisiana,Little Rock,SE Louisiana,T1,10.5,Draft Kings (no DraftKings line),High,,3.4,0.5388,,0.2594,W,83.0,79.0,2026-11-07 19:01,2026-11-07 22:19,Low
+2026-11-07,2026-11-07T20:00:00-05:00,401917518,Edge,Pacific,Bradley,Bradley,T2,-1.0,Consensus (8 books),Low,,3.73,0.542,,0.6664,L,63.0,52.0,2026-11-07 19:01,2026-11-07 22:04,Medium
+2026-11-07,2026-11-07T20:00:00-05:00,401911345,Edge,Bethune-Cookman,Grand Canyon,Bethune-Cookman,T1,22.5,Draft Kings (no DraftKings line),High,,2.51,0.527,,0.0346,W,81.0,99.0,2026-11-07 19:01,2026-11-08 00:58,Low
+2026-11-07,2026-11-07T21:00:00-05:00,401920435,Edge,Utah Valley,Weber State,Weber State,T2,7.5,Consensus (8 books),Medium,,1.82,0.5224,,0.3029,L,101.0,93.0,2026-11-07 19:01,2026-11-08 00:58,Low
+2026-11-07,2026-11-07T22:00:00-05:00,401920371,Edge,Fresno State,UC San Diego,UC San Diego,T2,-11.0,Consensus (8 books),Low,,2.24,0.5269,,0.8856,W,65.0,81.0,2026-11-07 19:01,2026-11-08 00:58,Low
+2026-11-07,2026-11-07T22:00:00-05:00,401917519,Edge,Sacramento State,Santa Clara,Sacramento State,T1,19.5,Consensus (8 books),High,,4.11,0.5416,,0.0809,W,77.0,83.0,2026-11-07 19:01,2026-11-08 00:58,Medium
+2026-11-07,2026-11-07T22:00:00-05:00,401917517,Edge,Portland State,Seattle U,Portland State,T1,10.5,Draft Kings (no DraftKings line),Medium,,1.28,0.5159,,0.201,L,60.0,79.0,2026-11-07 19:01,2026-11-08 00:58,Low
+2026-11-07,2026-11-07T22:00:00-05:00,401911470,Edge,San José State,UC Irvine,San José State,T1,8.5,Consensus (8 books),Medium,,1.38,0.5172,,0.2586,L,79.0,91.0,2026-11-07 19:01,2026-11-08 00:58,Low
+2026-11-08,2026-11-08T12:00:00-05:00,401924646,Edge,Iona,St. John's,Iona,T1,28.5,Consensus (7 books),Check,,12.14,0.5627,,0.0685,L,65.0,104.0,2026-11-08 10:40,2026-11-08 17:41,Check
+2026-11-08,2026-11-08T13:00:00-05:00,401920424,Edge,Arkansas,Virginia,Arkansas,T1,3.0,Consensus (8 books),High,,5.63,0.5558,,0.5946,L,72.0,91.0,2026-11-08 10:40,2026-11-08 17:41,Medium
+2026-11-08,2026-11-08T13:00:00-05:00,401924734,Edge,Princeton,Siena,Princeton,T1,-2.0,Consensus (8 books),Low,,2.44,0.5293,,0.6567,L,68.0,82.0,2026-11-08 10:40,2026-11-08 17:41,Low
+2026-11-08,2026-11-08T13:00:00-05:00,401921820,Edge,Southeast Missouri State,South Carolina,Southeast Missouri State,T1,17.5,DraftKings,Medium,,1.47,0.5171,,0.0725,W,68.0,78.0,2026-11-08 10:40,2026-11-08 17:41,Low
+2026-11-08,2026-11-08T13:00:00-05:00,401921687,Edge,Marist,UMass Lowell,UMass Lowell,T2,-1.5,Consensus (7 books),Check,,6.19,0.5588,,0.7577,W,61.0,63.0,2026-11-08 10:40,2026-11-08 17:41,Medium
+2026-11-08,2026-11-08T13:00:00-05:00,401921685,Edge,Sacred Heart,New Hampshire,New Hampshire,T2,-1.5,Consensus (7 books),Low,,3.2,0.5371,,0.6653,L,81.0,76.0,2026-11-08 10:40,2026-11-08 17:41,Low
+2026-11-08,2026-11-08T13:00:00-05:00,401921684,Edge,Manhattan,Maine,Maine,T2,-3.5,Consensus (7 books),Low,,2.71,0.5322,,0.7139,L,68.0,62.0,2026-11-08 10:40,2026-11-08 17:41,Low
+2026-11-08,2026-11-08T13:00:00-05:00,401921683,Edge,Fairfield,Bryant,Bryant,T2,1.5,Consensus (7 books),Medium,,1.31,0.5164,,0.4931,L,68.0,59.0,2026-11-08 10:40,2026-11-08 17:41,Low
+2026-11-08,2026-11-08T14:00:00-05:00,401921686,Edge,Merrimack,UAlbany,UAlbany,T2,1.5,DraftKings,Medium,,3.92,0.5436,,0.587,L,73.0,60.0,2026-11-08 10:40,2026-11-08 17:41,Medium
+2026-11-08,2026-11-08T14:00:00-05:00,401920843,Edge,Green Bay,St. Thomas,Green Bay,T1,8.5,DraftKings,High,,2.13,0.5259,,0.2813,W,76.0,67.0,2026-11-08 10:40,2026-11-08 17:41,Low
+2026-11-08,2026-11-08T14:00:00-05:00,401920739,Edge,Campbell,Western Michigan,Campbell,T1,5.5,Consensus (8 books),Medium,,0.14,0.5018,,0.313,L,71.0,87.0,2026-11-08 10:40,2026-11-08 17:41,Low
+2026-11-08,2026-11-08T14:00:00-05:00,401920692,Edge,Quinnipiac,Vermont,Vermont,T2,-8.5,Consensus (7 books),Low,,0.43,0.5054,,0.7915,L,79.0,76.0,2026-11-08 10:40,2026-11-08 17:41,Low
+2026-11-08,2026-11-08T14:00:00-05:00,401920233,Edge,Central Connecticut,Dartmouth,Dartmouth,T2,-6.5,DraftKings,Low,,5.64,0.5558,,0.8651,L,78.0,71.0,2026-11-08 10:40,2026-11-08 17:41,Medium
+2026-11-08,2026-11-08T14:00:00-05:00,401911306,Edge,Brown,Lehigh,Brown,T1,5.5,Consensus (7 books),Medium,,0.67,0.5085,,0.3304,W,65.0,55.0,2026-11-08 10:40,2026-11-08 17:41,Low
+2026-11-08,2026-11-08T14:00:00-05:00,401902277,Edge,Butler,Boise State,Butler,T1,2.5,Consensus (8 books),Medium,,0.52,0.5066,,0.4286,L,81.0,100.0,2026-11-08 10:40,2026-11-08 17:41,Low
+2026-11-08,2026-11-08T15:00:00-05:00,401927362,Edge,Southern,Drake,Drake,T2,-13.5,Consensus (7 books),Low,,1.79,0.5214,,0.9177,L,68.0,75.0,2026-11-08 10:40,2026-11-08 17:41,Low
+2026-11-08,2026-11-08T15:00:00-05:00,401926215,Edge,Western Kentucky,Tennessee Tech,Western Kentucky,T1,-3.0,Consensus (8 books),Low,,3.47,0.5396,,0.7218,L,94.0,97.0,2026-11-08 10:40,2026-11-09 02:58,Low
+2026-11-08,2026-11-08T15:00:00-05:00,401911335,Edge,Idaho State,Air Force,Idaho State,T1,6.0,Consensus (8 books),High,,3.16,0.5367,,0.3982,L,82.0,89.0,2026-11-08 10:40,2026-11-08 17:41,Low
+2026-11-08,2026-11-08T16:00:00-05:00,401920865,Edge,Saint Peter's,NJIT,NJIT,T2,1.5,Consensus (7 books),Medium,,1.15,0.5144,,0.4874,W,52.0,54.0,2026-11-08 10:40,2026-11-09 02:58,Low
+2026-11-08,2026-11-08T16:00:00-05:00,401911274,Edge,Rider,Binghamton,Binghamton,T2,-7.5,Consensus (7 books),Low,,0.4,0.5051,,0.7636,W,63.0,75.0,2026-11-08 10:40,2026-11-09 02:58,Low
+2026-11-08,2026-11-08T16:30:00-05:00,401911453,Edge,Saint Mary's,Nevada,Nevada,T2,-1.5,Consensus (7 books),Low,,4.2,0.5459,,0.6978,L,95.0,96.0,2026-11-08 10:40,2026-11-09 02:58,Medium
+2026-11-08,2026-11-08T17:00:00-05:00,401911238,Edge,Richmond,Temple,Richmond,T1,-1.5,Consensus (8 books),Low,,1.88,0.5231,,0.6208,W,79.0,53.0,2026-11-08 10:40,2026-11-09 02:58,Low
+2026-11-08,2026-11-08T18:00:00-05:00,401925894,Edge,Norfolk State,William & Mary,Norfolk State,T1,10.5,Consensus (7 books),High,,5.51,0.5548,,0.325,L,73.0,104.0,2026-11-08 17:41,2026-11-09 02:58,Medium
+2026-11-08,2026-11-08T18:00:00-05:00,401920134,Edge,North Dakota State,Cal State Bakersfield,Cal State Bakersfield,T2,2.5,Draft Kings (no DraftKings line),Medium,,3.98,0.5441,,0.5536,W,80.0,91.0,2026-11-08 17:41,2026-11-09 02:58,Medium
+2026-11-08,2026-11-08T19:00:00-05:00,401929352,Edge,Incarnate Word,UTEP,Incarnate Word,T1,12.5,Consensus (7 books),Medium,,1.51,0.5183,,0.1589,L,60.0,79.0,2026-11-08 17:41,2026-11-09 02:58,Low
+2026-11-08,2026-11-08T20:00:00-05:00,401909707,Edge,Pittsburgh,Penn State,Penn State,T2,2.5,Consensus (8 books),Medium,,0.36,0.5046,,0.4227,L,82.0,76.0,2026-11-08 17:41,2026-11-09 02:58,Low
+2026-11-08,2026-11-08T20:30:00-05:00,401918053,Edge,Houston,California,California,T2,19.5,Consensus (8 books),Medium,,1.64,0.5187,,0.0522,W,68.0,86.0,2026-11-08 17:41,2026-11-09 02:58,Low
+2026-11-08,2026-11-08T23:00:00-05:00,401919029,Edge,USC,Wichita State,USC,T1,-6.5,Consensus (8 books),Low,,0.87,0.511,,0.7485,L,86.0,93.0,2026-11-08 17:41,2026-11-09 02:58,Low
+2026-11-08,2026-11-08T23:00:00-05:00,401929002,Edge,UT Arlington,Hawai'i,Hawai'i,T2,-8.0,Consensus (8 books),Low,,1.68,0.5208,,0.8105,W,62.0,71.0,2026-11-08 17:41,2026-11-09 02:58,Low
+2026-11-09,2026-11-09T18:00:00-05:00,401916315,Edge,Marshall,Ohio State,Marshall,T1,25.5,Consensus (7 books),Check,,8.55,0.5592,,0.0616,W,74.0,84.0,2026-11-09 17:48,2026-11-10 02:50,Medium
+2026-11-09,2026-11-09T18:30:00-05:00,401921180,Edge,Howard,Pennsylvania,Howard,T1,5.5,Consensus (7 books),Medium,,0.73,0.5092,,0.3323,L,65.0,78.0,2026-11-09 17:48,2026-11-10 02:50,Low
+2026-11-09,2026-11-09T18:30:00-05:00,401909718,Edge,Syracuse,Indiana,Syracuse,T1,5.5,Consensus (8 books),High,,3.36,0.5386,,0.4229,W,80.0,83.0,2026-11-09 17:48,2026-11-10 02:50,Low
+2026-11-09,2026-11-09T19:00:00-05:00,401920686,Edge,Wagner,UConn,Wagner,T1,39.5,Consensus (7 books),Check,,6.65,0.5481,,0.0014,L,41.0,83.0,2026-11-09 17:48,2026-11-10 02:50,Medium
+2026-11-09,2026-11-09T19:00:00-05:00,401906865,Edge,Grambling,Texas,Grambling,T1,37.5,DraftKings,High,,4.86,0.5407,,0.0015,W,62.0,93.0,2026-11-09 17:48,2026-11-10 02:50,Medium
+2026-11-09,2026-11-09T19:00:00-05:00,401906849,Edge,Radford,Tennessee,Radford,T1,29.5,Consensus (7 books),Medium,,1.92,0.52,,0.0061,W,47.0,70.0,2026-11-09 17:48,2026-11-10 02:50,Low
+2026-11-09,2026-11-09T19:00:00-05:00,401921720,Edge,North Florida,Miami,North Florida,T1,35.5,Consensus (6 books),Check,,7.49,0.5523,,0.0054,L,51.0,89.0,2026-11-09 17:48,2026-11-10 02:50,Medium
+2026-11-09,2026-11-09T19:00:00-05:00,401926181,Edge,UNC Greensboro,UIC,UNC Greensboro,T1,20.0,Consensus (8 books),Check,,7.06,0.5575,,0.1198,W,72.0,82.0,2026-11-09 17:48,2026-11-10 02:50,Medium
+2026-11-09,2026-11-09T19:00:00-05:00,401925681,Edge,Eastern Illinois,Notre Dame,Eastern Illinois,T1,28.0,Consensus (8 books),High,,2.3,0.5239,,0.0097,W,70.0,94.0,2026-11-09 17:48,2026-11-10 02:50,Low
+2026-11-09,2026-11-09T19:00:00-05:00,401922060,Edge,South Carolina Upstate,Coastal Carolina,South Carolina Upstate,T1,10.5,Consensus (7 books),High,,5.37,0.554,,0.3205,W,56.0,65.0,2026-11-09 17:48,2026-11-10 02:50,Medium
+2026-11-09,2026-11-09T19:00:00-05:00,401920877,Edge,Kansas City,Jacksonville,Kansas City,T1,4.5,DraftKings,High,,2.83,0.5334,,0.4397,L,61.0,79.0,2026-11-09 17:48,2026-11-10 02:50,Low
+2026-11-09,2026-11-09T19:00:00-05:00,401919846,Edge,Stonehill,Columbia,Stonehill,T1,13.5,Consensus (7 books),High,,2.62,0.5303,,0.1612,L,55.0,75.0,2026-11-09 17:48,2026-11-10 02:50,Low
+2026-11-09,2026-11-09T19:00:00-05:00,401919806,Edge,Long Island University,Towson,Long Island University,T1,7.5,DraftKings,Medium,,0.87,0.511,,0.2735,L,46.0,66.0,2026-11-09 17:48,2026-11-10 02:50,Low
+2026-11-09,2026-11-09T19:00:00-05:00,401919733,Edge,South Carolina State,Chicago State,South Carolina State,T1,2.0,Consensus (7 books),Medium,,2.01,0.5246,,0.5004,W,82.0,67.0,2026-11-09 17:48,2026-11-10 02:50,Low
+2026-11-09,2026-11-09T19:00:00-05:00,401918074,Edge,North Dakota,Clemson,North Dakota,T1,23.5,Consensus (8 books),High,,3.75,0.5376,,0.0363,W,77.0,92.0,2026-11-09 17:48,2026-11-10 02:50,Low
+2026-11-09,2026-11-09T19:00:00-05:00,401916305,Edge,Minnesota,Cincinnati,Cincinnati,T2,-7.5,Consensus (8 books),Low,,0.13,0.5016,,0.756,L,63.0,61.0,2026-11-09 17:48,2026-11-10 02:50,Low
+2026-11-09,2026-11-09T19:00:00-05:00,401911010,Edge,Cleveland State,Bowling Green,Bowling Green,T2,-13.5,Consensus (8 books),Low,,2.0,0.5237,,0.9207,W,79.0,95.0,2026-11-09 17:48,2026-11-10 02:50,Low
+2026-11-09,2026-11-09T19:00:00-05:00,401906781,Edge,Florida Gulf Coast,Georgia,Florida Gulf Coast,T1,22.5,Consensus (7 books),Check,,6.04,0.5521,,0.0673,W,72.0,80.0,2026-11-09 17:48,2026-11-10 02:50,Medium
+2026-11-09,2026-11-09T19:30:00-05:00,401906759,Edge,Oakland,Alabama,Oakland,T1,32.0,Consensus (8 books),Check,,7.68,0.5542,,0.0135,L,68.0,109.0,2026-11-09 17:48,2026-11-10 02:50,Medium
+2026-11-09,2026-11-09T19:30:00-05:00,401919016,Edge,Florida A&M,UAB,Florida A&M,T1,18.5,Consensus (6 books),Medium,,0.48,0.5056,,0.0507,L,64.0,92.0,2026-11-09 17:48,2026-11-10 02:50,Low
+2026-11-09,2026-11-09T19:30:00-05:00,401906793,Edge,Jackson State,Mississippi State,Jackson State,T1,24.5,Consensus (7 books),Medium,,0.42,0.5047,,0.0143,L,57.0,98.0,2026-11-09 17:48,2026-11-10 02:50,Low
+2026-11-09,2026-11-09T20:00:00-05:00,401921815,Edge,SIU Edwardsville,Missouri,SIU Edwardsville,T1,29.5,Consensus (8 books),Check,,7.12,0.5535,,0.0209,L,58.0,96.0,2026-11-09 17:48,2026-11-10 02:50,Medium
+2026-11-09,2026-11-09T20:00:00-05:00,401921810,Edge,Louisiana Tech,LSU,Louisiana Tech,T1,29.5,Consensus (8 books),Check,,14.26,0.5633,,0.0829,L,50.0,90.0,2026-11-09 17:48,2026-11-10 02:50,Check
+2026-11-09,2026-11-09T20:00:00-05:00,401920734,Edge,Boston University,Northwestern,Northwestern,T2,-13.5,DraftKings,Low,,0.19,0.5023,,0.8933,W,55.0,72.0,2026-11-09 17:48,2026-11-10 02:50,Low
+2026-11-09,2026-11-09T20:00:00-05:00,401917978,Edge,UL Monroe,Texas A&M,UL Monroe,T1,36.0,Consensus (8 books),High,,3.86,0.5349,,0.0017,L,67.0,108.0,2026-11-09 17:48,2026-11-10 02:50,Low
+2026-11-09,2026-11-09T20:00:00-05:00,401906803,Edge,North Alabama,Oklahoma,North Alabama,T1,28.5,Consensus (8 books),Check,,8.86,0.5585,,0.0371,W,72.0,81.0,2026-11-09 17:48,2026-11-10 02:50,Medium
+2026-11-09,2026-11-09T20:30:00-05:00,401926132,Edge,Illinois State,Purdue,Illinois State,T1,15.5,Consensus (8 books),Check,,7.88,0.5625,,0.2441,L,59.0,76.0,2026-11-09 17:48,2026-11-10 02:50,High
+2026-11-09,2026-11-09T21:00:00-05:00,401920887,Edge,Seton Hall,Charlotte,Seton Hall,T1,-4.0,Consensus (8 books),Low,,0.58,0.5073,,0.6615,W,68.0,62.0,2026-11-09 17:48,2026-11-10 02:50,Low
+2026-11-09,2026-11-09T21:00:00-05:00,401920799,Edge,App State,Auburn,App State,T1,23.5,DraftKings,Check,,6.38,0.5532,,0.0598,W,53.0,75.0,2026-11-09 17:48,2026-11-10 02:50,Medium
+2026-11-09,2026-11-09T21:00:00-05:00,401909502,Edge,Alabama A&M,DePaul,Alabama A&M,T1,24.5,Consensus (6 books),Check,,7.22,0.556,,0.0581,L,47.0,84.0,2026-11-09 17:48,2026-11-10 02:50,Medium
+2026-11-09,2026-11-09T21:30:00-05:00,401920718,Edge,Eastern Washington,Oregon State,Eastern Washington,T1,17.5,Consensus (8 books),High,,3.89,0.5406,,0.1079,W,84.0,94.0,2026-11-09 17:48,2026-11-10 02:50,Medium
+2026-11-09,2026-11-09T22:00:00-05:00,401925737,Edge,Mississippi Valley State,Washington,Mississippi Valley State,T1,32.5,DraftKings,Check,,6.03,0.5482,,0.0081,W,64.0,77.0,2026-11-09 17:48,2026-11-10 02:50,Medium
+2026-11-09,2026-11-09T22:00:00-05:00,401921095,Edge,Rice,Stanford,Rice,T1,18.5,Consensus (8 books),High,,3.7,0.5387,,0.0893,W,73.0,91.0,2026-11-09 17:48,2026-11-10 02:50,Low
+2026-11-09,2026-11-09T23:59:00-05:00,401929003,Edge,Portland,Hawai'i,Hawai'i,T2,-8.0,Consensus (8 books),Low,,0.62,0.5078,,0.7833,L,73.0,66.0,2026-11-09 17:48,2026-11-10 02:50,Low
+2026-11-10,2026-11-10T18:00:00-05:00,401906771,Edge,Florida,Florida State,Florida,T1,-9.0,Consensus (8 books),Low,,0.16,0.502,,0.7974,P,81.0,72.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T18:30:00-05:00,401920866,Edge,NJIT,Rutgers,NJIT,T1,25.5,Consensus (7 books),High,,2.59,0.5271,,0.0186,L,64.0,101.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T18:30:00-05:00,401909514,Edge,Delaware State,Georgetown,Delaware State,T1,30.5,Consensus (7 books),Check,,7.95,0.5555,,0.0202,W,78.0,83.0,2026-11-10 17:45,2026-11-11 02:52,Medium
+2026-11-10,2026-11-10T19:00:00-05:00,401909564,Edge,Michigan State,Duke,Michigan State,T1,7.5,Consensus (8 books),Medium,,0.27,0.5034,,0.2556,W,79.0,73.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T19:00:00-05:00,401928828,Edge,Wright State,Toledo,Wright State,T1,-1.0,Consensus (8 books),Low,,2.02,0.5247,,0.608,W,76.0,68.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T19:00:00-05:00,401925781,Edge,Washington State,Duquesne,Washington State,T1,3.5,Consensus (8 books),Medium,,0.08,0.501,,0.378,W,71.0,72.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T19:00:00-05:00,401925773,Edge,Bradley,Davidson,Davidson,T2,-9.5,Consensus (8 books),Low,,1.87,0.523,,0.8494,W,45.0,62.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T19:00:00-05:00,401925708,Edge,Winthrop,Kennesaw State,Winthrop,T1,10.5,Consensus (7 books),Medium,,0.26,0.5033,,0.1759,W,79.0,88.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T19:00:00-05:00,401921774,Edge,La Salle,Villanova,La Salle,T1,21.0,Consensus (8 books),High,,2.14,0.5237,,0.0432,P,59.0,80.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T19:00:00-05:00,401921755,Edge,South Alabama,UCF,South Alabama,T1,13.5,Consensus (8 books),Medium,,0.86,0.5105,,0.1253,W,69.0,76.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T19:00:00-05:00,401921025,Edge,Mercer,Georgia Southern,Georgia Southern,T2,-1.5,Consensus (8 books),Low,,2.83,0.5334,,0.6529,L,97.0,91.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T19:00:00-05:00,401920378,Edge,Virginia Tech,Iowa,Iowa,T2,-4.0,Consensus (8 books),Low,,0.85,0.5107,,0.6703,L,93.0,88.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T19:00:00-05:00,401920356,Edge,Harvard,Northeastern,Northeastern,T2,2.0,Consensus (8 books),Medium,,1.11,0.5139,,0.4676,W,70.0,74.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T19:00:00-05:00,401920306,Edge,Eastern Kentucky,Georgia Tech,Eastern Kentucky,T1,15.5,Consensus (8 books),High,,3.29,0.5362,,0.1335,W,71.0,85.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T19:00:00-05:00,401920063,Edge,Maine,Rhode Island,Rhode Island,T2,-20.5,Consensus (7 books),Low,,0.42,0.5049,,0.9714,L,65.0,71.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T19:00:00-05:00,401918957,Edge,Presbyterian,NC State,NC State,T2,-18.5,Consensus (7 books),Low,,0.69,0.5081,,0.9594,W,60.0,94.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T19:00:00-05:00,401917520,Edge,Loyola Marymount,Troy,Loyola Marymount,T1,-1.0,Consensus (8 books),Low,,0.7,0.5088,,0.5613,L,69.0,74.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T19:00:00-05:00,401913101,Edge,Wyoming,North Carolina,Wyoming,T1,12.5,Consensus (8 books),Medium,,0.81,0.51,,0.144,L,63.0,76.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T19:00:00-05:00,401912228,Edge,Army,New Haven,Army,T1,-1.5,DraftKings,Low,,0.65,0.5082,,0.5776,L,55.0,63.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T19:00:00-05:00,401911209,Edge,Elon,George Washington,Elon,T1,13.5,DraftKings,High,,3.11,0.5351,,0.1724,L,50.0,69.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T19:00:00-05:00,401911196,Edge,Iona,Fordham,Iona,T1,11.5,Consensus (8 books),High,,3.55,0.5398,,0.2348,W,72.0,78.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T19:00:00-05:00,401911187,Edge,Siena,Dayton,Siena,T1,14.0,Consensus (8 books),High,,2.52,0.5291,,0.1483,W,99.0,89.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T19:00:00-05:00,401911011,Edge,Youngstown State,Central Michigan,Youngstown State,T1,3.5,Consensus (8 books),High,,4.32,0.5469,,0.5297,L,78.0,91.0,2026-11-10 17:45,2026-11-11 02:52,Medium
+2026-11-10,2026-11-10T19:00:00-05:00,401909727,Edge,Charleston Southern,Wake Forest,Charleston Southern,T1,18.5,Consensus (7 books),High,,2.29,0.5257,,0.0703,W,64.0,82.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T19:00:00-05:00,401909553,Edge,Maryland Eastern Shore,Boston College,Maryland Eastern Shore,T1,26.5,Consensus (7 books),High,,5.98,0.5502,,0.031,L,54.0,82.0,2026-11-10 17:45,2026-11-11 02:52,Medium
+2026-11-10,2026-11-10T19:00:00-05:00,401909543,Edge,Detroit Mercy,Xavier,Detroit Mercy,T1,35.5,Consensus (8 books),High,,5.02,0.5422,,0.0028,L,55.0,100.0,2026-11-10 17:45,2026-11-11 02:52,Medium
+2026-11-10,2026-11-10T19:00:00-05:00,401909533,Edge,Bryant,Providence,Bryant,T1,30.5,Consensus (7 books),Check,,6.94,0.5525,,0.0161,W,55.0,78.0,2026-11-10 17:45,2026-11-11 02:52,Medium
+2026-11-10,2026-11-10T19:15:00-05:00,401918987,Edge,Memphis,Vanderbilt,Memphis,T1,14.0,Consensus (8 books),High,,2.15,0.5252,,0.1407,L,81.0,105.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T19:30:00-05:00,401927369,Edge,Evansville,Middle Tennessee,Evansville,T1,9.5,Consensus (8 books),High,,2.94,0.5346,,0.2755,W,68.0,73.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T19:30:00-05:00,401925107,Edge,Texas State,UT Rio Grande Valley,Texas State,T1,-5.5,Consensus (7 books),Low,,2.06,0.5252,,0.754,W,72.0,65.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T19:30:00-05:00,401919003,Edge,Nicholls,Tulane,Nicholls,T1,9.5,DraftKings,Check,,6.66,0.561,,0.3983,L,63.0,77.0,2026-11-10 17:45,2026-11-11 02:52,High
+2026-11-10,2026-11-10T20:00:00-05:00,401913527,Edge,Illinois,Texas Tech,Illinois,T1,-2.5,Consensus (8 books),Low,,4.65,0.5494,,0.7421,L,78.0,84.0,2026-11-10 17:45,2026-11-11 02:52,Medium
+2026-11-10,2026-11-10T20:00:00-05:00,401927386,Edge,Green Bay,Northern Iowa,Green Bay,T1,3.5,Consensus (8 books),High,,2.62,0.5313,,0.4681,L,76.0,89.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T20:00:00-05:00,401926731,Edge,UT Martin,Arkansas State,Arkansas State,T2,-5.5,DraftKings,Low,,3.17,0.5368,,0.7848,L,82.0,65.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T20:00:00-05:00,401925685,Edge,Alcorn State,Murray State,Alcorn State,T1,30.5,Consensus (7 books),Check,,6.48,0.5508,,0.0145,L,57.0,94.0,2026-11-10 17:45,2026-11-11 02:52,Medium
+2026-11-10,2026-11-10T20:00:00-05:00,401924952,Edge,Houston Christian,South Dakota,Houston Christian,T1,3.5,Consensus (7 books),High,,2.54,0.5304,,0.4651,W,87.0,76.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T20:00:00-05:00,401920704,Edge,Belmont,Lipscomb,Lipscomb,T2,3.5,Consensus (7 books),Medium,,1.82,0.5224,,0.4394,W,75.0,88.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T20:00:00-05:00,401918969,Edge,Prairie View A&M,SMU,Prairie View A&M,T1,26.5,DraftKings,High,,3.47,0.5345,,0.0182,L,63.0,98.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T20:00:00-05:00,401911250,Edge,Northern Kentucky,Saint Louis,Northern Kentucky,T1,23.0,Consensus (8 books),High,,3.01,0.5315,,0.0346,L,63.0,125.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T20:00:00-05:00,401909773,Edge,Southern,Iowa State,Southern,T1,35.5,Consensus (7 books),Check,,6.02,0.5471,,0.0037,L,47.0,84.0,2026-11-10 17:45,2026-11-11 02:52,Medium
+2026-11-10,2026-11-10T20:00:00-05:00,401909752,Edge,Yale,Baylor,Yale,T1,19.5,Consensus (8 books),High,,2.61,0.5287,,0.0623,L,61.0,90.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T20:30:00-05:00,401920895,Edge,Fairfield,Wisconsin,Fairfield,T1,25.5,Consensus (8 books),Check,,10.46,0.5625,,0.0858,L,42.0,89.0,2026-11-10 17:45,2026-11-11 02:52,Check
+2026-11-10,2026-11-10T20:30:00-05:00,401920817,Edge,SE Louisiana,Ole Miss,SE Louisiana,T1,26.0,Consensus (7 books),Medium,,1.32,0.5144,,0.0124,L,51.0,91.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T21:00:00-05:00,401920425,Edge,Bucknell,Virginia,Bucknell,T1,38.5,Consensus (7 books),High,,4.33,0.5373,,0.0009,W,61.0,95.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T21:00:00-05:00,401909740,Edge,Northern Arizona,Arizona,Northern Arizona,T1,35.5,Consensus (8 books),Check,,8.53,0.5549,,0.0071,W,59.0,90.0,2026-11-10 17:45,2026-11-11 02:52,Medium
+2026-11-10,2026-11-10T21:00:00-05:00,401921740,Edge,Queens University,BYU,Queens University,T1,28.5,Consensus (7 books),Medium,,1.37,0.5146,,0.0068,W,82.0,98.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T21:00:00-05:00,401929180,Edge,Georgia State,Fresno State,Georgia State,T1,6.0,Consensus (8 books),High,,4.9,0.5511,,0.4601,W,92.0,95.0,2026-11-10 17:45,2026-11-11 02:52,Medium
+2026-11-10,2026-11-10T21:00:00-05:00,401925940,Edge,Utah Tech,Utah State,Utah Tech,T1,25.5,Consensus (8 books),High,,2.48,0.5261,,0.0182,L,86.0,118.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T21:00:00-05:00,401924896,Edge,Little Rock,New Mexico,Little Rock,T1,22.5,DraftKings,High,,2.11,0.5231,,0.0319,L,69.0,94.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T21:00:00-05:00,401921733,Edge,Hofstra,Arizona State,Hofstra,T1,18.5,Consensus (8 books),Check,,6.4,0.5555,,0.1356,L,63.0,85.0,2026-11-10 17:45,2026-11-11 02:52,Medium
+2026-11-10,2026-11-10T21:00:00-05:00,401921699,Edge,Weber State,Utah,Utah,T2,-16.5,Consensus (8 books),Low,,1.07,0.5127,,0.9449,W,64.0,85.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T21:00:00-05:00,401917979,Edge,UL Monroe,TCU,TCU,T2,-33.5,Consensus (8 books),Low,,2.73,0.5267,,0.9995,L,92.0,100.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T21:00:00-05:00,401909761,Edge,San Diego,Colorado,Colorado,T2,-12.5,Consensus (8 books),Low,,3.07,0.535,,0.9215,L,75.0,83.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T21:00:00-05:00,401909492,Edge,Creighton,Kansas State,Creighton,T1,-3.0,Consensus (8 books),Low,,2.25,0.5273,,0.6834,L,82.0,89.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T21:30:00-05:00,401909786,Edge,Kansas,Kentucky,Kansas,T1,-5.0,Consensus (8 books),Low,,2.72,0.5323,,0.7587,W,89.0,69.0,2026-11-10 17:45,2026-11-11 02:52,Low
+2026-11-10,2026-11-10T22:00:00-05:00,401921062,Edge,Montana,San Francisco,Montana,T1,11.5,Consensus (8 books),High,,5.98,0.5569,,0.308,W,58.0,63.0,2026-11-10 17:45,2026-11-11 02:52,Medium
+2026-11-11,2026-11-11T11:30:00-05:00,401919759,Edge,Fairleigh Dickinson,East Texas A&M,East Texas A&M,T2,-11.0,Consensus (6 books),Check,,7.11,0.5623,,0.9502,L,80.0,76.0,2026-11-11 10:55,2026-11-11 17:55,High
+2026-11-11,2026-11-11T12:00:00-05:00,401921005,Edge,Kansas City,Florida A&M,Kansas City,T1,-7.5,Draft Kings (no DraftKings line),Low,,4.59,0.5489,,0.8642,W,87.0,65.0,2026-11-11 10:55,2026-11-11 17:55,Medium
+2026-11-11,2026-11-11T13:00:00-05:00,401920234,Edge,Dartmouth,UAlbany,Dartmouth,T1,-1.5,Draft Kings (no DraftKings line),Low,,0.15,0.5019,,0.5597,W,85.0,76.0,2026-11-11 10:55,2026-11-11 17:55,Low
+2026-11-11,2026-11-11T14:00:00-05:00,401911519,Edge,Incarnate Word,UC Davis,Incarnate Word,T1,11.5,Consensus (7 books),Medium,,1.34,0.5165,,0.1778,L,69.0,81.0,2026-11-11 10:55,2026-11-11 17:55,Low
+2026-11-11,2026-11-11T15:00:00-05:00,401918992,Edge,Saint Joseph's,South Florida,Saint Joseph's,T1,8.0,Consensus (7 books),Medium,,1.67,0.5207,,0.2824,W,80.0,83.0,2026-11-11 10:55,2026-11-11 17:55,Low
+2026-11-11,2026-11-11T15:00:00-05:00,401911230,Edge,Loyola Chicago,Air Force,Loyola Chicago,T1,-10.5,Draft Kings (no DraftKings line),Low,,1.65,0.5203,,0.8653,L,93.0,107.0,2026-11-11 10:55,2026-11-11 17:55,Low
+2026-11-11,2026-11-11T16:00:00-05:00,401918978,Edge,North Carolina A&T,East Carolina,North Carolina A&T,T1,12.0,Consensus (8 books),High,,5.57,0.5544,,0.2793,W,67.0,72.0,2026-11-11 10:55,2026-11-12 02:54,Medium
+2026-11-11,2026-11-11T17:00:00-05:00,401925717,Edge,Bethune-Cookman,San Diego State,Bethune-Cookman,T1,18.5,Consensus (7 books),High,,2.38,0.5266,,0.0714,W,75.0,88.0,2026-11-11 10:55,2026-11-12 02:54,Low
+2026-11-11,2026-11-11T17:58:00-05:00,401921181,Edge,Pennsylvania,Navy,Pennsylvania,T1,-7.5,Consensus (7 books),Low,,0.46,0.5058,,0.7653,L,76.0,81.0,2026-11-11 17:55,2026-11-12 02:54,Low
+2026-11-11,2026-11-11T18:00:00-05:00,401926202,Edge,North Carolina Central,VMI,North Carolina Central,T1,7.5,Consensus (7 books),Check,,6.23,0.559,,0.4539,L,51.0,65.0,2026-11-11 17:55,2026-11-12 02:54,Medium
+2026-11-11,2026-11-11T18:30:00-05:00,401925858,Edge,Charleston,Temple,Charleston,T1,-1.5,Consensus (8 books),Low,,1.62,0.5201,,0.6116,W,91.0,81.0,2026-11-11 17:55,2026-11-12 02:54,Low
+2026-11-11,2026-11-11T18:30:00-05:00,401921175,Edge,Southern Indiana,IU Indianapolis,Southern Indiana,T1,8.5,DraftKings,Check,,11.81,0.5728,,0.6184,W,70.0,74.0,2026-11-11 17:55,2026-11-12 02:54,Check
+2026-11-11,2026-11-11T19:00:00-05:00,401920680,Edge,Colgate,St. John's,Colgate,T1,29.0,Consensus (6 books),Check,,8.91,0.5584,,0.0339,L,59.0,90.0,2026-11-11 17:55,2026-11-12 02:54,Medium
+2026-11-11,2026-11-11T19:00:00-05:00,401909524,Edge,Marquette,Michigan,Marquette,T1,3.0,Consensus (8 books),Check,,7.94,0.5658,,0.6732,L,70.0,84.0,2026-11-11 17:55,2026-11-12 02:54,High
+2026-11-11,2026-11-11T19:00:00-05:00,401926868,Edge,Milwaukee,Indiana State,Indiana State,T2,-4.5,Consensus (8 books),Low,,2.09,0.5255,,0.7253,L,82.0,73.0,2026-11-11 17:55,2026-11-12 02:54,Low
+2026-11-11,2026-11-11T19:00:00-05:00,401926863,Edge,Kent State,UNC Wilmington,Kent State,T1,7.5,Consensus (8 books),High,,3.4,0.539,,0.3548,L,73.0,91.0,2026-11-11 17:55,2026-11-12 02:54,Low
+2026-11-11,2026-11-11T19:00:00-05:00,401925895,Edge,Old Dominion,Norfolk State,Old Dominion,T1,-6.5,Consensus (7 books),Low,,2.24,0.5272,,0.7865,W,71.0,60.0,2026-11-11 17:55,2026-11-12 02:54,Low
+2026-11-11,2026-11-11T19:00:00-05:00,401925682,Edge,South Carolina State,Notre Dame,South Carolina State,T1,26.5,Consensus (7 books),Check,,10.09,0.5615,,0.0679,L,59.0,99.0,2026-11-11 17:55,2026-11-12 02:54,Check
+2026-11-11,2026-11-11T19:00:00-05:00,401924735,Edge,Stony Brook,Princeton,Stony Brook,T1,5.0,Consensus (8 books),Medium,,0.71,0.509,,0.3483,L,59.0,69.0,2026-11-11 17:55,2026-11-12 02:54,Low
+2026-11-11,2026-11-11T19:00:00-05:00,401921821,Edge,Saint Peter's,South Carolina,Saint Peter's,T1,21.5,Consensus (8 books),High,,3.73,0.538,,0.0531,L,41.0,77.0,2026-11-11 17:55,2026-11-12 02:54,Low
+2026-11-11,2026-11-11T19:00:00-05:00,401921286,Edge,Furman,Holy Cross,Furman,T1,-12.5,Consensus (7 books),Low,,3.93,0.5427,,0.9323,W,80.0,67.0,2026-11-11 17:55,2026-11-12 02:54,Medium
+2026-11-11,2026-11-11T19:00:00-05:00,401920903,Edge,James Madison,Delaware,Delaware,T2,3.5,Consensus (8 books),High,,5.39,0.5543,,0.5681,L,71.0,61.0,2026-11-11 17:55,2026-11-12 02:54,Medium
+2026-11-11,2026-11-11T19:00:00-05:00,401920740,Edge,Campbell,East Tennessee State,East Tennessee State,T2,-5.0,Consensus (7 books),Low,,5.16,0.5529,,0.8221,W,53.0,68.0,2026-11-11 17:55,2026-11-12 02:54,Medium
+2026-11-11,2026-11-11T19:00:00-05:00,401920202,Edge,NJIT,VCU,NJIT,T1,33.5,Consensus (7 books),High,,4.74,0.5412,,0.0045,L,49.0,87.0,2026-11-11 17:55,2026-11-12 02:54,Medium
+2026-11-11,2026-11-11T19:00:00-05:00,401918452,Edge,William & Mary,Florida Atlantic,William & Mary,T1,5.0,Consensus (8 books),Medium,,0.38,0.5048,,0.3373,P,90.0,95.0,2026-11-11 17:55,2026-11-12 02:54,Low
+2026-11-11,2026-11-11T19:00:00-05:00,401917901,Edge,UNC Asheville,West Georgia,UNC Asheville,T1,2.0,Consensus (7 books),Medium,,1.08,0.5136,,0.4667,W,73.0,70.0,2026-11-11 17:55,2026-11-12 02:54,Low
+2026-11-11,2026-11-11T19:00:00-05:00,401912209,Edge,American University,Drexel,American University,T1,1.0,Consensus (7 books),Medium,,0.93,0.5117,,0.4975,W,66.0,64.0,2026-11-11 17:55,2026-11-12 02:54,Low
+2026-11-11,2026-11-11T19:00:00-05:00,401911263,Edge,Cornell,St. Bonaventure,Cornell,T1,7.5,Consensus (8 books),Medium,,0.04,0.5005,,0.2489,L,64.0,88.0,2026-11-11 17:55,2026-11-12 02:54,Low
+2026-11-11,2026-11-11T19:00:00-05:00,401911012,Edge,UMass Lowell,Massachusetts,UMass Lowell,T1,7.5,Consensus (7 books),High,,3.23,0.5374,,0.3491,L,62.0,72.0,2026-11-11 17:55,2026-11-12 02:54,Low
+2026-11-11,2026-11-11T19:30:00-05:00,401928794,Edge,Pepperdine,Sam Houston,Sam Houston,T2,3.5,DraftKings,Check,,6.21,0.5589,,0.5973,W,77.0,85.0,2026-11-11 17:55,2026-11-12 02:54,Medium
+2026-11-11,2026-11-11T20:00:00-05:00,401925702,Edge,Jacksonville State,Houston,Jacksonville State,T1,34.5,Consensus (8 books),Check,,8.43,0.555,,0.0089,L,46.0,92.0,2026-11-11 17:55,2026-11-12 02:54,Medium
+2026-11-11,2026-11-11T20:00:00-05:00,401928824,Edge,Robert Morris,Arkansas,Robert Morris,T1,30.0,Consensus (8 books),Check,,7.31,0.5539,,0.0196,W,53.0,76.0,2026-11-11 17:55,2026-11-12 02:54,Medium
+2026-11-11,2026-11-11T20:00:00-05:00,401928996,Edge,Valparaiso,South Dakota State,Valparaiso,T1,-1.5,Consensus (8 books),Low,,0.12,0.5015,,0.5584,L,69.0,81.0,2026-11-11 17:55,2026-11-12 02:54,Low
+2026-11-11,2026-11-11T20:00:00-05:00,401925863,Edge,Oral Roberts,Tulsa,Oral Roberts,T1,18.5,Consensus (8 books),High,,3.88,0.5402,,0.092,W,71.0,80.0,2026-11-11 17:55,2026-11-12 02:54,Medium
+2026-11-11,2026-11-11T20:00:00-05:00,401921037,Edge,Jackson State,Southern Miss,Southern Miss,T2,-8.5,Consensus (7 books),Low,,2.52,0.5302,,0.8418,L,80.0,84.0,2026-11-11 17:55,2026-11-12 02:54,Low
+2026-11-11,2026-11-11T20:00:00-05:00,401917963,Edge,Stephen F. Austin,Abilene Christian,Stephen F. Austin,T1,-6.5,Consensus (7 books),Low,,1.62,0.5201,,0.7697,L,76.0,71.0,2026-11-11 17:55,2026-11-12 02:54,Low
+2026-11-11,2026-11-11T20:00:00-05:00,401917522,Edge,Santa Clara,North Texas,North Texas,T2,1.5,Consensus (8 books),Medium,,5.02,0.5519,,0.6257,L,76.0,71.0,2026-11-11 17:55,2026-11-12 02:54,Medium
+2026-11-11,2026-11-11T21:00:00-05:00,401930177,Edge,Arkansas-Pine Bluff,UCLA,Arkansas-Pine Bluff,T1,47.5,Consensus (7 books),High,,2.97,0.526,,0.0,L,37.0,106.0,2026-11-11 17:55,2026-11-12 02:54,Low
+2026-11-11,2026-11-11T21:00:00-05:00,401926062,Edge,Lindenwood,Nebraska,Lindenwood,T1,34.5,Consensus (8 books),Check,,6.67,0.55,,0.0057,W,60.0,94.0,2026-11-11 17:55,2026-11-12 02:54,Medium
+2026-11-11,2026-11-11T21:00:00-05:00,401928814,Edge,Oakland,Boise State,Boise State,T2,-16.5,Consensus (8 books),Low,,5.83,0.5537,,0.9788,W,79.0,111.0,2026-11-11 17:55,2026-11-12 02:54,Medium
+2026-11-11,2026-11-11T21:00:00-05:00,401925915,Edge,Portland State,Colorado State,Portland State,T1,16.5,Consensus (8 books),Medium,,1.15,0.5136,,0.0814,W,71.0,87.0,2026-11-11 17:55,2026-11-12 02:54,Low
+2026-11-11,2026-11-11T21:00:00-05:00,401911454,Edge,Nevada,UC Santa Barbara,Nevada,T1,1.0,Consensus (8 books),Medium,,5.76,0.5565,,0.6673,L,63.0,76.0,2026-11-11 17:55,2026-11-12 02:54,Medium
+2026-11-11,2026-11-11T21:00:00-05:00,401911346,Edge,Cal Poly,Grand Canyon,Grand Canyon,T2,-18.5,DraftKings,Low,,0.75,0.5088,,0.96,W,71.0,99.0,2026-11-11 17:55,2026-11-12 02:54,Low
+2026-11-11,2026-11-11T22:00:00-05:00,401925738,Edge,Mississippi Valley State,Oregon,Mississippi Valley State,T1,33.5,DraftKings,High,,5.45,0.5451,,0.0054,L,66.0,100.0,2026-11-11 17:55,2026-11-12 02:54,Medium
+2026-11-11,2026-11-11T22:00:00-05:00,401919734,Edge,Chicago State,California Baptist,Chicago State,T1,11.5,DraftKings,High,,3.67,0.5409,,0.2383,W,81.0,62.0,2026-11-11 17:55,2026-11-12 02:54,Medium
+2026-11-11,2026-11-11T22:00:00-05:00,401917523,Edge,Pacific,Long Beach State,Long Beach State,T2,5.5,DraftKings,High,,4.4,0.5475,,0.46,W,59.0,62.0,2026-11-11 17:55,2026-11-12 02:54,Medium
+2026-11-11,2026-11-11T22:00:00-05:00,401917521,Edge,UTSA,Seattle U,UTSA,T1,16.5,DraftKings,Medium,,1.23,0.5145,,0.0826,W,86.0,59.0,2026-11-11 17:55,2026-11-12 02:54,Low
+2026-11-11,2026-11-11T23:00:00-05:00,401918054,Edge,USC,California,California,T2,8.5,Consensus (8 books),Medium,,0.41,0.5052,,0.231,L,77.0,65.0,2026-11-11 17:55,2026-11-12 02:54,Low
+2026-11-12,2026-11-12T15:00:00-05:00,401920073,Edge,Kansas City,George Mason,Kansas City,T1,15.5,Draft Kings (no DraftKings line),High,,5.72,0.5536,,0.187,W,68.0,76.0,2026-11-12 11:04,2026-11-12 17:48,Medium
+2026-11-12,2026-11-12T18:00:00-05:00,401925631,Edge,Bradley,Coppin State,Coppin State,T2,13.0,Consensus (6 books),High,,4.64,0.548,,0.2236,W,56.0,54.0,2026-11-12 17:48,2026-11-13 02:53,Medium
+2026-11-12,2026-11-12T18:00:00-05:00,401921086,Edge,Morgan State,UMBC,Morgan State,T1,8.0,Consensus (6 books),High,,4.7,0.5497,,0.3821,L,70.0,85.0,2026-11-12 17:48,2026-11-13 02:53,Medium
+2026-11-12,2026-11-12T18:30:00-05:00,401917176,Edge,Mercyhurst,Penn State,Penn State,T2,-20.5,Consensus (7 books),Low,,0.32,0.5037,,0.9708,L,57.0,72.0,2026-11-12 17:48,2026-11-13 02:53,Low
+2026-11-12,2026-11-12T18:30:00-05:00,401916288,Edge,Tennessee Tech,Indiana,Tennessee Tech,T1,25.0,Consensus (8 books),High,,3.18,0.5325,,0.0237,W,66.0,90.0,2026-11-12 17:48,2026-11-13 02:53,Low
+2026-11-12,2026-11-12T19:00:00-05:00,401928818,Edge,Western Michigan,Purdue Fort Wayne,Purdue Fort Wayne,T2,2.5,Draft Kings (no DraftKings line),Medium,,2.55,0.5305,,0.5019,L,81.0,59.0,2026-11-12 17:48,2026-11-13 02:53,Low
+2026-11-12,2026-11-12T19:00:00-05:00,401924876,Edge,Central Connecticut,Sacred Heart,Sacred Heart,T2,-6.5,Draft Kings (no DraftKings line),Low,,1.2,0.515,,0.758,L,79.0,75.0,2026-11-12 17:48,2026-11-13 02:53,Low
+2026-11-12,2026-11-12T19:00:00-05:00,401924857,Edge,Monmouth,Quinnipiac,Quinnipiac,T2,-1.0,Consensus (8 books),Low,,1.67,0.5207,,0.596,L,74.0,70.0,2026-11-12 17:48,2026-11-13 02:53,Low
+2026-11-12,2026-11-12T19:00:00-05:00,401922239,Edge,Stetson,Howard,Howard,T2,-9.5,Consensus (7 books),Low,,0.21,0.5027,,0.8113,W,62.0,75.0,2026-11-12 17:48,2026-11-13 02:53,Low
+2026-11-12,2026-11-12T19:00:00-05:00,401921768,Edge,Mercer,West Virginia,West Virginia,T2,-24.5,Consensus (8 books),Low,,0.36,0.504,,0.9881,L,61.0,75.0,2026-11-12 17:48,2026-11-13 02:53,Low
+2026-11-12,2026-11-12T19:00:00-05:00,401920566,Edge,Loyola Maryland,Towson,Loyola Maryland,T1,13.5,Draft Kings (no DraftKings line),Medium,,0.25,0.5031,,0.1143,L,60.0,90.0,2026-11-12 17:48,2026-11-13 02:53,Low
+2026-11-12,2026-11-12T19:00:00-05:00,401920412,Edge,Southern Utah,High Point,Southern Utah,T1,22.5,Consensus (7 books),Check,,9.4,0.5624,,0.1168,L,59.0,88.0,2026-11-12 17:48,2026-11-13 02:53,High
+2026-11-12,2026-11-12T19:00:00-05:00,401920135,Edge,Cal State Bakersfield,Western Illinois,Western Illinois,T2,9.5,Draft Kings (no DraftKings line),High,,5.73,0.5563,,0.3658,W,91.0,83.0,2026-11-12 17:48,2026-11-13 02:53,Medium
+2026-11-12,2026-11-12T19:00:00-05:00,401920064,Edge,Maryland Eastern Shore,Rhode Island,Maryland Eastern Shore,T1,23.0,Consensus (7 books),High,,2.5,0.5268,,0.0312,W,47.0,67.0,2026-11-12 17:48,2026-11-13 02:53,Low
+2026-11-12,2026-11-12T19:00:00-05:00,401911307,Edge,Canisius,Brown,Brown,T2,-13.0,Consensus (8 books),Low,,3.49,0.5388,,0.9331,L,86.0,81.0,2026-11-12 17:48,2026-11-13 02:53,Low
+2026-11-12,2026-11-12T19:00:00-05:00,401911013,Edge,Niagara,Bowling Green,Bowling Green,T2,-14.5,Consensus (8 books),Low,,0.9,0.5109,,0.9193,L,76.0,88.0,2026-11-12 17:48,2026-11-13 02:53,Low
+2026-11-12,2026-11-12T20:00:00-05:00,401922250,Edge,West Florida,Alabama A&M,West Florida,T1,5.0,Consensus (5 books),High,,5.77,0.5566,,0.528,W,83.0,85.0,2026-11-12 17:48,2026-11-13 02:53,Medium
+2026-11-12,2026-11-12T20:00:00-05:00,401919041,Edge,Oklahoma State,Texas A&M,Oklahoma State,T1,8.0,Consensus (8 books),Check,,7.88,0.5656,,0.4955,L,69.0,88.0,2026-11-12 17:48,2026-11-13 02:53,High
+2026-11-12,2026-11-12T20:00:00-05:00,401917524,Edge,Loyola Marymount,South Alabama,Loyola Marymount,T1,0.0,Consensus (7 books),Low,,3.36,0.5386,,0.6199,L,72.0,79.0,2026-11-12 17:48,2026-11-13 02:53,Low
+2026-11-12,2026-11-12T20:00:00-05:00,401916306,Edge,Southern,Minnesota,Southern,T1,26.5,Consensus (7 books),High,,2.37,0.5249,,0.0141,L,61.0,91.0,2026-11-12 17:48,2026-11-13 02:53,Low
+2026-11-12,2026-11-12T20:00:00-05:00,401911239,Edge,Richmond,Southern Illinois,Richmond,T1,-2.5,Consensus (8 books),Low,,4.38,0.5473,,0.7342,L,70.0,80.0,2026-11-12 17:48,2026-11-13 02:53,Medium
+2026-11-12,2026-11-12T21:00:00-05:00,401921741,Edge,Montana State,BYU,Montana State,T1,22.0,Consensus (8 books),High,,5.48,0.5495,,0.0666,W,71.0,86.0,2026-11-12 17:48,2026-11-13 02:53,Medium
+2026-11-12,2026-11-12T21:00:00-05:00,401911533,Edge,New Mexico State,UTEP,UTEP,T2,-4.5,Consensus (8 books),Low,,1.32,0.5165,,0.7016,L,58.0,60.0,2026-11-12 17:48,2026-11-13 02:53,Low
+2026-11-12,2026-11-12T22:00:00-05:00,401911471,Edge,UC Riverside,San José State,UC Riverside,T1,8.5,Consensus (8 books),High,,3.58,0.5407,,0.3272,W,80.0,75.0,2026-11-12 17:48,2026-11-13 02:53,Medium
+2026-11-13,2026-11-13T15:00:00-05:00,401921167,Edge,West Florida,Cleveland State,West Florida,T1,3.5,Consensus (6 books),Check,,9.47,0.5696,,0.7064,W,67.0,69.0,2026-11-13 10:53,2026-11-13 17:46,High
+2026-11-13,2026-11-13T17:00:00-05:00,401921721,Edge,North Alabama,Miami,North Alabama,T1,34.0,Consensus (7 books),Check,,8.53,0.5555,,0.0103,L,52.0,94.0,2026-11-13 10:53,2026-11-14 02:41,Medium
+2026-11-13,2026-11-13T17:00:00-05:00,401909696,Edge,Texas A&M-Corpus Christi,Florida State,Texas A&M-Corpus Christi,T1,24.5,DraftKings,Check,,9.61,0.5618,,0.088,W,60.0,84.0,2026-11-13 10:53,2026-11-14 02:41,High
+2026-11-13,2026-11-13T18:00:00-05:00,401923270,Edge,Bryant,Rutgers,Rutgers,T2,-21.5,Consensus (7 books),Low,,1.12,0.5127,,0.9801,L,51.0,72.0,2026-11-13 17:46,2026-11-14 02:41,Low
+2026-11-13,2026-11-13T18:00:00-05:00,401909515,Edge,Georgetown,Clemson,Clemson,T2,-4.5,Consensus (8 books),Low,,1.59,0.5197,,0.7101,L,85.0,78.0,2026-11-13 17:46,2026-11-14 02:41,Low
+2026-11-13,2026-11-13T18:30:00-05:00,401902278,Edge,Pittsburgh,Butler,Pittsburgh,T1,3.0,Consensus (8 books),High,,3.22,0.5373,,0.5078,W,76.0,64.0,2026-11-13 17:46,2026-11-14 02:41,Low
+2026-11-13,2026-11-13T19:00:00-05:00,401906772,Edge,Merrimack,Florida,Merrimack,T1,35.5,Consensus (8 books),Check,,6.09,0.5474,,0.0038,W,54.0,83.0,2026-11-13 17:46,2026-11-14 02:41,Medium
+2026-11-13,2026-11-13T19:00:00-05:00,401913528,Edge,Sam Houston,Illinois,Sam Houston,T1,35.5,Draft Kings (no DraftKings line),High,,5.1,0.5426,,0.0029,W,86.0,108.0,2026-11-13 17:46,2026-11-14 02:41,Medium
+2026-11-13,2026-11-13T19:00:00-05:00,401925755,Edge,Northern Iowa,Michigan State,Northern Iowa,T1,27.5,Consensus (8 books),Medium,,1.34,0.5144,,0.0087,L,72.0,106.0,2026-11-13 17:46,2026-11-14 02:41,Low
+2026-11-13,2026-11-13T19:00:00-05:00,401906850,Edge,Tennessee State,Tennessee,Tennessee,T2,-27.5,Consensus (8 books),Low,,2.89,0.5294,,0.9971,L,78.0,83.0,2026-11-13 17:46,2026-11-14 02:41,Low
+2026-11-13,2026-11-13T19:00:00-05:00,401921825,Edge,Prairie View A&M,Vanderbilt,Prairie View A&M,T1,41.5,Draft Kings (no DraftKings line),Check,,8.65,0.5528,,0.0014,W,62.0,89.0,2026-11-13 17:46,2026-11-14 02:41,Medium
+2026-11-13,2026-11-13T19:00:00-05:00,401921803,Edge,Northern Arizona,Kentucky,Northern Arizona,T1,30.5,Consensus (8 books),Check,,8.29,0.5564,,0.0218,W,77.0,78.0,2026-11-13 17:46,2026-11-14 02:41,Medium
+2026-11-13,2026-11-13T19:00:00-05:00,401926133,Edge,Ohio,Purdue,Ohio,T1,18.5,Consensus (8 books),High,,5.92,0.5533,,0.1263,W,62.0,80.0,2026-11-13 17:46,2026-11-14 02:41,Medium
+2026-11-13,2026-11-13T19:00:00-05:00,401925820,Edge,App State,Charlotte,App State,T1,8.5,Draft Kings (no DraftKings line),High,,4.41,0.5476,,0.3551,W,66.0,60.0,2026-11-13 17:46,2026-11-14 02:41,Medium
+2026-11-13,2026-11-13T19:00:00-05:00,401924796,Edge,Marist,Lehigh,Marist,T1,2.5,Consensus (7 books),Medium,,1.83,0.5225,,0.4757,L,60.0,65.0,2026-11-13 17:46,2026-11-14 02:41,Low
+2026-11-13,2026-11-13T19:00:00-05:00,401924704,Edge,Columbia,Bucknell,Columbia,T1,-5.5,Consensus (7 books),Low,,2.35,0.5284,,0.7623,W,77.0,59.0,2026-11-13 17:46,2026-11-14 02:41,Low
+2026-11-13,2026-11-13T19:00:00-05:00,401922211,Edge,Florida International,Florida Gulf Coast,Florida Gulf Coast,T2,-2.5,Draft Kings (no DraftKings line),Low,,0.69,0.5087,,0.614,L,89.0,80.0,2026-11-13 17:46,2026-11-14 02:41,Low
+2026-11-13,2026-11-13T19:00:00-05:00,401921191,Edge,Iona,Hofstra,Iona,T1,7.0,Consensus (8 books),Medium,,1.62,0.5201,,0.3125,W,59.0,62.0,2026-11-13 17:46,2026-11-14 02:41,Low
+2026-11-13,2026-11-13T19:00:00-05:00,401920973,Edge,Chattanooga,Elon,Elon,T2,-2.0,Consensus (8 books),Low,,1.18,0.5148,,0.6136,L,77.0,70.0,2026-11-13 17:46,2026-11-14 02:41,Low
+2026-11-13,2026-11-13T19:00:00-05:00,401920747,Edge,Yale,Northeastern,Yale,T1,-1.5,Consensus (8 books),Low,,0.74,0.5093,,0.5807,L,73.0,84.0,2026-11-13 17:46,2026-11-14 02:41,Low
+2026-11-13,2026-11-13T19:00:00-05:00,401920379,Edge,Mount St. Mary's,Virginia Tech,Mount St. Mary's,T1,27.5,Draft Kings (no DraftKings line),High,,4.26,0.5401,,0.0173,W,62.0,82.0,2026-11-13 17:46,2026-11-14 02:41,Medium
+2026-11-13,2026-11-13T19:00:00-05:00,401918958,Edge,Troy,NC State,Troy,T1,22.5,Consensus (8 books),High,,2.13,0.5233,,0.0321,W,62.0,81.0,2026-11-13 17:46,2026-11-14 02:41,Low
+2026-11-13,2026-11-13T19:00:00-05:00,401911210,Edge,Harvard,George Washington,George Washington,T2,-10.5,Draft Kings (no DraftKings line),Low,,3.28,0.5377,,0.8948,W,57.0,85.0,2026-11-13 17:46,2026-11-14 02:41,Low
+2026-11-13,2026-11-13T19:00:00-05:00,401911197,Edge,Long Island University,Fordham,Long Island University,T1,12.5,Draft Kings (no DraftKings line),Medium,,0.91,0.5112,,0.146,L,58.0,80.0,2026-11-13 17:46,2026-11-14 02:41,Low
+2026-11-13,2026-11-13T19:00:00-05:00,401906782,Edge,Georgia,North Carolina,North Carolina,T2,-4.0,Consensus (8 books),Low,,5.63,0.5558,,0.8093,L,78.0,70.0,2026-11-13 17:46,2026-11-14 02:41,Medium
+2026-11-13,2026-11-13T19:30:00-05:00,401916316,Edge,Ohio State,UConn,UConn,T2,-12.5,Consensus (7 books),Low,,0.94,0.5116,,0.8891,W,68.0,84.0,2026-11-13 17:46,2026-11-14 02:41,Low
+2026-11-13,2026-11-13T19:30:00-05:00,401927363,Edge,South Dakota,Drake,Drake,T2,-13.5,Consensus (8 books),Low,,2.02,0.5239,,0.9209,L,72.0,81.0,2026-11-13 17:46,2026-11-14 02:41,Low
+2026-11-13,2026-11-13T19:30:00-05:00,401926794,Edge,North Carolina Central,Liberty,North Carolina Central,T1,16.5,Consensus (7 books),High,,3.08,0.5339,,0.1113,W,66.0,74.0,2026-11-13 17:46,2026-11-14 02:41,Low
+2026-11-13,2026-11-13T19:30:00-05:00,401926152,Edge,Southeast Missouri State,Middle Tennessee,Southeast Missouri State,T1,5.5,Draft Kings (no DraftKings line),High,,4.46,0.548,,0.4624,L,75.0,88.0,2026-11-13 17:46,2026-11-14 02:41,Medium
+2026-11-13,2026-11-13T20:00:00-05:00,401909565,Edge,SIU Edwardsville,Duke,SIU Edwardsville,T1,42.5,Consensus (8 books),Check,,7.31,0.5492,,0.0007,L,47.0,90.0,2026-11-13 17:46,2026-11-14 02:41,Medium
+2026-11-13,2026-11-13T20:00:00-05:00,401916297,Edge,Virginia,Maryland,Virginia,T1,-6.0,Consensus (8 books),Low,,0.25,0.5032,,0.715,L,87.0,83.0,2026-11-13 17:46,2026-11-14 02:41,Low
+2026-11-13,2026-11-13T20:00:00-05:00,401917916,Edge,Central Arkansas,Arkansas,Central Arkansas,T1,22.5,Consensus (8 books),Check,,7.16,0.5567,,0.0816,W,66.0,79.0,2026-11-13 17:46,2026-11-14 02:41,Medium
+2026-11-13,2026-11-13T20:00:00-05:00,401929199,Edge,Southern Miss,Texas State,Texas State,T2,-10.5,Consensus (8 books),Low,,1.59,0.5196,,0.8641,W,65.0,85.0,2026-11-13 17:46,2026-11-14 02:41,Low
+2026-11-13,2026-11-13T20:00:00-05:00,401927380,Edge,Texas Southern,Murray State,Texas Southern,T1,29.0,Consensus (7 books),High,,3.37,0.533,,0.0099,W,78.0,99.0,2026-11-13 17:46,2026-11-14 02:41,Low
+2026-11-13,2026-11-13T20:00:00-05:00,401927374,Edge,Illinois State,North Dakota State,Illinois State,T1,-3.0,Consensus (8 books),Low,,4.46,0.548,,0.7511,L,81.0,82.0,2026-11-13 17:46,2026-11-14 02:41,Medium
+2026-11-13,2026-11-13T20:00:00-05:00,401926117,Edge,Wright State,Samford,Wright State,T1,-1.0,Consensus (8 books),Low,,5.79,0.5567,,0.7315,W,90.0,66.0,2026-11-13 17:46,2026-11-14 02:41,Medium
+2026-11-13,2026-11-13T20:00:00-05:00,401925686,Edge,Alcorn State,Tarleton State,Alcorn State,T1,16.0,Consensus (7 books),High,,2.94,0.5328,,0.1176,W,69.0,73.0,2026-11-13 17:46,2026-11-14 02:41,Low
+2026-11-13,2026-11-13T20:00:00-05:00,401921026,Edge,Georgia Southern,UCF,Georgia Southern,T1,22.5,Consensus (8 books),Check,,10.15,0.5636,,0.1308,W,70.0,84.0,2026-11-13 17:46,2026-11-14 02:41,Check
+2026-11-13,2026-11-13T20:00:00-05:00,401919049,Edge,Milwaukee,TCU,Milwaukee,T1,22.5,Consensus (8 books),Medium,,0.61,0.5069,,0.0233,W,64.0,76.0,2026-11-13 17:46,2026-11-14 02:41,Low
+2026-11-13,2026-11-13T20:00:00-05:00,401906804,Edge,Fairleigh Dickinson,Oklahoma,Fairleigh Dickinson,T1,31.5,Consensus (7 books),Check,,8.63,0.5567,,0.0188,W,58.0,74.0,2026-11-13 17:46,2026-11-14 02:41,Medium
+2026-11-13,2026-11-13T20:45:00-05:00,401929040,Edge,Lindenwood,Omaha,Lindenwood,T1,4.5,Consensus (8 books),Check,,8.06,0.5661,,0.6268,L,56.0,67.0,2026-11-13 17:46,2026-11-14 02:41,High
+2026-11-13,2026-11-13T21:00:00-05:00,401909741,Edge,Arizona,Auburn,Auburn,T2,2.5,Consensus (8 books),Check,,6.08,0.5582,,0.6276,L,80.0,69.0,2026-11-13 17:46,2026-11-14 02:41,Medium
+2026-11-13,2026-11-13T21:00:00-05:00,401906760,Edge,Seton Hall,Alabama,Seton Hall,T1,17.5,Consensus (8 books),High,,4.51,0.5453,,0.1188,W,76.0,82.0,2026-11-13 17:46,2026-11-14 02:41,Medium
+2026-11-13,2026-11-13T21:00:00-05:00,401921728,Edge,Stanford,UNLV,UNLV,T2,1.0,Consensus (8 books),Medium,,1.2,0.515,,0.5074,W,68.0,76.0,2026-11-13 17:46,2026-11-14 02:41,Low
+2026-11-13,2026-11-13T21:00:00-05:00,401920123,Edge,Cal Poly,Idaho,Idaho,T2,-1.5,Consensus (7 books),Low,,1.55,0.5192,,0.6093,L,83.0,74.0,2026-11-13 17:46,2026-11-14 02:41,Low
+2026-11-13,2026-11-13T21:00:00-05:00,401917980,Edge,UL Monroe,Arizona State,UL Monroe,T1,29.5,Consensus (8 books),Check,,6.32,0.5505,,0.0175,L,62.0,92.0,2026-11-13 17:46,2026-11-14 02:41,Medium
+2026-11-13,2026-11-13T21:00:00-05:00,401911014,Edge,Ball State,SMU,Ball State,T1,22.5,Consensus (8 books),High,,3.32,0.5344,,0.0406,L,65.0,90.0,2026-11-13 17:46,2026-11-14 02:41,Low
+2026-11-13,2026-11-13T21:00:00-05:00,401909503,Edge,DePaul,Northwestern,Northwestern,T2,-1.0,Consensus (8 books),Low,,2.35,0.5284,,0.6198,L,67.0,47.0,2026-11-13 17:46,2026-11-14 02:41,Low
+2026-11-13,2026-11-13T21:00:00-05:00,401906794,Edge,Xavier,Mississippi State,Mississippi State,T2,3.5,Consensus (8 books),High,,2.01,0.5246,,0.446,L,81.0,63.0,2026-11-13 17:46,2026-11-14 02:41,Low
+2026-11-13,2026-11-13T21:30:00-05:00,401925739,Edge,Mississippi Valley State,Oregon State,Mississippi Valley State,T1,34.5,Draft Kings (no DraftKings line),Check,,8.82,0.5558,,0.0098,W,65.0,81.0,2026-11-13 17:46,2026-11-14 02:41,Medium
+2026-11-13,2026-11-13T21:30:00-05:00,401917526,Edge,Chicago State,San Diego,Chicago State,T1,16.5,Consensus (7 books),Check,,7.84,0.5618,,0.2155,L,67.0,87.0,2026-11-13 17:46,2026-11-14 02:41,High
+2026-11-13,2026-11-13T22:00:00-05:00,401920372,Edge,UC San Diego,Utah State,Utah State,T2,-12.5,Consensus (8 books),Low,,0.96,0.5118,,0.8895,W,82.0,120.0,2026-11-13 17:46,2026-11-14 02:41,Low
+2026-11-13,2026-11-13T22:00:00-05:00,401917527,Edge,East Texas A&M,Portland,East Texas A&M,T1,7.5,Consensus (7 books),Medium,,0.55,0.507,,0.2636,W,94.0,88.0,2026-11-13 17:46,2026-11-14 02:41,Low
+2026-11-13,2026-11-13T22:00:00-05:00,401917525,Edge,UIC,Saint Mary's,UIC,T1,6.0,Consensus (7 books),Medium,,1.96,0.524,,0.3565,L,61.0,84.0,2026-11-13 17:46,2026-11-14 02:41,Low
+2026-11-13,2026-11-13T22:30:00-05:00,401920345,Edge,Arkansas-Pine Bluff,California Baptist,Arkansas-Pine Bluff,T1,14.5,Draft Kings (no DraftKings line),High,,3.46,0.538,,0.1577,W,60.0,74.0,2026-11-13 17:46,2026-11-14 02:41,Low
+2026-11-14,2026-11-14T12:00:00-05:00,401919004,Edge,Tulane,Akron,Tulane,T1,12.5,Consensus (8 books),Medium,,1.11,0.5136,,0.1501,W,63.0,65.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T13:00:00-05:00,401923303,Edge,Drexel,Maine,Maine,T2,3.5,Consensus (7 books),High,,3.49,0.5398,,0.4997,W,66.0,64.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T13:00:00-05:00,401920750,Edge,Marshall,Youngstown State,Marshall,T1,0.0,Consensus (8 books),Low,,2.34,0.5283,,0.5844,L,71.0,74.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T13:00:00-05:00,401920074,Edge,Bradley,George Mason,Bradley,T1,13.0,Consensus (8 books),High,,2.13,0.5253,,0.1615,W,61.0,62.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T13:00:00-05:00,401912229,Edge,St. Thomas,Army,Army,T2,5.5,Draft Kings (no DraftKings line),High,,4.28,0.5466,,0.456,W,77.0,79.0,2026-11-14 10:42,2026-11-15 02:44,Medium
+2026-11-14,2026-11-14T13:30:00-05:00,401911231,Edge,Loyola Chicago,Colorado State,Colorado State,T2,-8.5,Draft Kings (no DraftKings line),Low,,0.84,0.5106,,0.802,L,73.0,58.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T14:00:00-05:00,401919847,Edge,Stonehill,Texas Tech,Stonehill,T1,40.5,Consensus (7 books),High,,5.44,0.5428,,0.0007,L,37.0,88.0,2026-11-14 10:42,2026-11-15 02:44,Medium
+2026-11-14,2026-11-14T14:00:00-05:00,401922230,Edge,Wofford,Queens University,Queens University,T2,-5.5,Consensus (7 books),Low,,2.69,0.532,,0.7717,L,92.0,97.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T14:00:00-05:00,401922220,Edge,The Citadel,North Florida,The Citadel,T1,4.5,Consensus (7 books),Medium,,1.85,0.5228,,0.4048,W,77.0,74.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T14:00:00-05:00,401921096,Edge,Rice,Stephen F. Austin,Stephen F. Austin,T2,-9.5,Consensus (7 books),Low,,0.06,0.5008,,0.8076,L,81.0,78.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T14:00:00-05:00,401920915,Edge,Northern Illinois,Bellarmine,Northern Illinois,T1,-1.5,Consensus (6 books),Low,,0.22,0.5028,,0.5621,W,72.0,64.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T14:00:00-05:00,401918993,Edge,Coppin State,South Florida,Coppin State,T1,26.5,Consensus (7 books),Check,,6.32,0.5517,,0.0333,W,63.0,73.0,2026-11-14 10:42,2026-11-15 02:44,Medium
+2026-11-14,2026-11-14T14:00:00-05:00,401911392,Edge,Gardner-Webb,South Carolina,Gardner-Webb,T1,27.5,Draft Kings (no DraftKings line),Medium,,1.92,0.5203,,0.01,W,62.0,79.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T14:00:00-05:00,401911015,Edge,Miami (OH),Evansville,Evansville,T2,8.5,Consensus (7 books),Medium,,0.89,0.5112,,0.2446,W,86.0,78.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T14:30:00-05:00,401921038,Edge,Jackson State,Winthrop,Jackson State,T1,9.0,Consensus (7 books),Medium,,0.8,0.5101,,0.228,W,76.0,72.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T15:00:00-05:00,401924921,Edge,Wyoming,Denver,Denver,T2,7.5,Consensus (8 books),High,,3.99,0.5442,,0.3748,L,76.0,53.0,2026-11-14 10:42,2026-11-15 02:44,Medium
+2026-11-14,2026-11-14T15:30:00-05:00,401921689,Edge,LSU,Gonzaga,Gonzaga,T2,-5.5,Consensus (8 books),Low,,0.84,0.5106,,0.7179,L,81.0,80.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T15:30:00-05:00,401911016,Edge,Central Michigan,Northern Kentucky,Central Michigan,T1,3.5,Consensus (8 books),High,,5.67,0.556,,0.578,W,68.0,57.0,2026-11-14 10:42,2026-11-15 02:44,Medium
+2026-11-14,2026-11-14T16:00:00-05:00,401928804,Edge,Toledo,Detroit Mercy,Toledo,T1,-10.5,Consensus (8 books),Low,,2.32,0.5279,,0.8781,W,85.0,72.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T16:00:00-05:00,401925889,Edge,South Dakota State,Northern Colorado,South Dakota State,T1,-3.5,Draft Kings (no DraftKings line),Low,,1.03,0.5129,,0.6597,W,71.0,46.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T16:00:00-05:00,401922046,Edge,Longwood,Old Dominion,Old Dominion,T2,-7.5,Consensus (7 books),Low,,0.97,0.5122,,0.7793,L,74.0,80.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T16:00:00-05:00,401921221,Edge,Hampton,Navy,Navy,T2,-1.5,Consensus (7 books),Low,,2.44,0.5293,,0.6399,W,56.0,58.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T16:00:00-05:00,401920307,Edge,UNC Asheville,Georgia Tech,UNC Asheville,T1,17.0,Consensus (7 books),High,,2.81,0.5312,,0.0985,W,74.0,75.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T16:00:00-05:00,401918979,Edge,Delaware State,East Carolina,Delaware State,T1,15.5,Consensus (7 books),Check,,6.97,0.5594,,0.219,L,48.0,72.0,2026-11-14 10:42,2026-11-15 02:44,Medium
+2026-11-14,2026-11-14T16:00:00-05:00,401911264,Edge,Lafayette,St. Bonaventure,Lafayette,T1,16.5,Consensus (7 books),Medium,,0.49,0.5059,,0.0728,L,58.0,81.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T16:00:00-05:00,401909728,Edge,Southern Utah,Wake Forest,Southern Utah,T1,18.5,Consensus (8 books),Check,,7.32,0.5591,,0.1547,L,51.0,89.0,2026-11-14 10:42,2026-11-15 02:44,Medium
+2026-11-14,2026-11-14T16:30:00-05:00,401920741,Edge,South Carolina Upstate,Campbell,South Carolina Upstate,T1,10.0,Consensus (7 books),High,,5.03,0.552,,0.3256,L,77.0,93.0,2026-11-14 10:42,2026-11-15 02:44,Medium
+2026-11-14,2026-11-14T17:00:00-05:00,401927387,Edge,Northern Iowa,Oakland,Northern Iowa,T1,1.5,Consensus (8 books),Check,,7.11,0.5629,,0.6949,L,76.0,80.0,2026-11-14 10:42,2026-11-15 02:44,High
+2026-11-14,2026-11-14T17:00:00-05:00,401920567,Edge,Morgan State,Loyola Maryland,Morgan State,T1,-1.5,Draft Kings (no DraftKings line),Low,,1.53,0.519,,0.6086,W,63.0,61.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T17:00:00-05:00,401918055,Edge,Utah Tech,California,Utah Tech,T1,14.5,Consensus (8 books),Medium,,1.71,0.5203,,0.1224,W,73.0,79.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T18:00:00-05:00,401926777,Edge,UC Riverside,Fresno State,UC Riverside,T1,4.5,Consensus (8 books),Check,,7.34,0.5638,,0.6018,L,80.0,89.0,2026-11-14 10:42,2026-11-15 02:44,High
+2026-11-14,2026-11-14T18:00:00-05:00,401925827,Edge,South Alabama,North Texas,North Texas,T2,-8.5,Consensus (8 books),Low,,2.21,0.5268,,0.835,L,65.0,66.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T18:00:00-05:00,401919782,Edge,Manhattan,Le Moyne,Le Moyne,T2,-2.5,Consensus (7 books),Low,,1.15,0.5144,,0.6299,W,62.0,76.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T18:00:00-05:00,401909534,Edge,Colorado,Providence,Colorado,T1,12.5,Consensus (8 books),High,,5.51,0.5538,,0.2626,L,53.0,67.0,2026-11-14 10:42,2026-11-15 02:44,Medium
+2026-11-14,2026-11-14T18:30:00-05:00,401920193,Edge,Pennsylvania,Saint Joseph's,Saint Joseph's,T2,-4.5,Consensus (7 books),Low,,0.22,0.5028,,0.6661,W,77.0,83.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T19:00:00-05:00,401925774,Edge,Howard,Davidson,Davidson,T2,-9.5,Consensus (7 books),Low,,1.4,0.5174,,0.8391,L,64.0,58.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T19:00:00-05:00,401925108,Edge,UT Rio Grande Valley,UT Arlington,UT Arlington,T2,-4.5,Consensus (7 books),Low,,1.37,0.5171,,0.7033,W,77.0,85.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T19:00:00-05:00,401921775,Edge,Rider,Villanova,Rider,T1,36.0,Consensus (8 books),Check,,6.98,0.5505,,0.0042,L,62.0,99.0,2026-11-14 10:42,2026-11-15 02:44,Medium
+2026-11-14,2026-11-14T19:00:00-05:00,401921063,Edge,Portland State,San Francisco,Portland State,T1,10.5,Consensus (8 books),Medium,,0.82,0.5103,,0.1895,W,84.0,68.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T19:00:00-05:00,401920867,Edge,NJIT,Fairfield,Fairfield,T2,-11.5,Consensus (7 books),Low,,0.24,0.503,,0.8571,L,60.0,63.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T19:00:00-05:00,401920705,Edge,Lipscomb,Western Carolina,Western Carolina,T2,-3.5,Consensus (7 books),Low,,2.6,0.5311,,0.7105,L,75.0,68.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T19:00:00-05:00,401919017,Edge,UAB,Jacksonville State,UAB,T1,-2.5,Consensus (8 books),Low,,0.35,0.5044,,0.6023,L,68.0,71.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T19:00:00-05:00,401917951,Edge,Austin Peay,Wichita State,Austin Peay,T1,12.5,Consensus (8 books),Medium,,1.5,0.5182,,0.1586,L,60.0,76.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T19:00:00-05:00,401911376,Edge,West Georgia,Charleston Southern,Charleston Southern,T2,-5.0,Consensus (7 books),Low,,0.26,0.5033,,0.6836,W,68.0,92.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T19:00:00-05:00,401911308,Edge,Brown,Siena,Brown,T1,10.5,Consensus (8 books),Medium,,0.28,0.5035,,0.1764,W,74.0,79.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T19:30:00-05:00,401920961,Edge,IU Indianapolis,Morehead State,Morehead State,T2,2.5,Draft Kings (no DraftKings line),Medium,,1.43,0.5178,,0.4613,W,75.0,79.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T19:30:00-05:00,401920568,Edge,UMBC,Towson,Towson,T2,-10.5,Consensus (6 books),Low,,2.26,0.5273,,0.877,W,42.0,68.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T19:30:00-05:00,401911276,Edge,Binghamton,Duquesne,Binghamton,T1,17.5,Consensus (7 books),Check,,8.67,0.5635,,0.2111,W,58.0,71.0,2026-11-14 10:42,2026-11-15 02:44,High
+2026-11-14,2026-11-14T19:30:00-05:00,401911188,Edge,Cincinnati,Dayton,Cincinnati,T1,-6.5,Consensus (8 books),Low,,2.8,0.5331,,0.8012,W,95.0,72.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T20:00:00-05:00,401925079,Edge,Northwestern State,Little Rock,Northwestern State,T1,9.5,Draft Kings (no DraftKings line),Medium,,1.15,0.5144,,0.2238,W,83.0,84.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T20:00:00-05:00,401925063,Edge,Louisiana Tech,Nicholls,Louisiana Tech,T1,1.5,Draft Kings (no DraftKings line),Medium,,1.05,0.5132,,0.4837,L,68.0,71.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T20:00:00-05:00,401911520,Edge,UC Davis,Sacramento State,Sacramento State,T2,-3.0,Consensus (8 books),Low,,4.25,0.5463,,0.7452,L,75.0,56.0,2026-11-14 10:42,2026-11-15 02:44,Medium
+2026-11-14,2026-11-14T20:00:00-05:00,401911347,Edge,UL Monroe,Grand Canyon,UL Monroe,T1,32.5,Draft Kings (no DraftKings line),Check,,6.0,0.548,,0.008,L,52.0,88.0,2026-11-14 10:42,2026-11-15 02:44,Medium
+2026-11-14,2026-11-14T20:30:00-05:00,401920760,Edge,Furman,Belmont,Furman,T1,2.5,Consensus (8 books),Medium,,4.28,0.5466,,0.5642,L,62.0,72.0,2026-11-14 10:42,2026-11-15 02:44,Medium
+2026-11-14,2026-11-14T21:00:00-05:00,401922031,Edge,Montana,North Dakota,Montana,T1,-1.5,Consensus (8 books),Low,,1.5,0.5186,,0.6075,W,80.0,71.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T22:00:00-05:00,401917530,Edge,New Mexico,Santa Clara,New Mexico,T1,-1.5,Consensus (8 books),Low,,2.05,0.525,,0.6267,L,85.0,90.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-14,2026-11-14T22:00:00-05:00,401911455,Edge,Utah Valley,Nevada,Nevada,T2,-9.5,Consensus (8 books),Low,,3.36,0.5386,,0.8788,L,73.0,71.0,2026-11-14 10:42,2026-11-15 02:44,Low
+2026-11-15,2026-11-15T12:00:00-05:00,401924858,Edge,Quinnipiac,Central Connecticut,Central Connecticut,T2,3.5,Draft Kings (no DraftKings line),High,,3.28,0.5379,,0.4919,W,67.0,72.0,2026-11-15 10:43,2026-11-15 17:42,Low
+2026-11-15,2026-11-15T13:00:00-05:00,401918949,Edge,Louisville,Memphis,Memphis,T2,9.0,Consensus (8 books),High,,3.69,0.5416,,0.3148,W,78.0,98.0,2026-11-15 10:43,2026-11-15 17:42,Medium
+2026-11-15,2026-11-15T13:00:00-05:00,401926063,Edge,Boise State,Nebraska,Boise State,T1,10.0,Consensus (8 books),High,,2.05,0.525,,0.2349,L,75.0,102.0,2026-11-15 10:43,2026-11-15 17:42,Low
+2026-11-15,2026-11-15T13:00:00-05:00,401925896,Edge,Norfolk State,Georgia State,Norfolk State,T1,12.5,Consensus (7 books),Medium,,0.84,0.5104,,0.1446,L,53.0,78.0,2026-11-15 10:43,2026-11-15 17:42,Low
+2026-11-15,2026-11-15T13:00:00-05:00,401920771,Edge,Colgate,Delaware,Delaware,T2,-1.5,Consensus (7 books),Low,,0.67,0.5085,,0.5783,W,58.0,64.0,2026-11-15 10:43,2026-11-15 17:42,Low
+2026-11-15,2026-11-15T13:00:00-05:00,401920235,Edge,Dartmouth,Boston University,Boston University,T2,-3.5,Draft Kings (no DraftKings line),Low,,0.24,0.503,,0.633,W,75.0,90.0,2026-11-15 10:43,2026-11-15 17:42,Low
+2026-11-15,2026-11-15T13:00:00-05:00,401912210,Edge,Harvard,American University,American University,T2,-1.5,Consensus (7 books),Low,,5.64,0.5558,,0.7419,W,64.0,70.0,2026-11-15 10:43,2026-11-15 17:42,Medium
+2026-11-15,2026-11-15T13:00:00-05:00,401909774,Edge,Niagara,Iowa State,Niagara,T1,39.5,Consensus (8 books),High,,4.67,0.5391,,0.0008,W,45.0,66.0,2026-11-15 10:43,2026-11-15 17:42,Low
+2026-11-15,2026-11-15T13:30:00-05:00,401909554,Edge,New Hampshire,Boston College,New Hampshire,T1,22.5,Consensus (7 books),High,,5.16,0.5475,,0.0575,W,55.0,67.0,2026-11-15 10:43,2026-11-15 17:42,Medium
+2026-11-15,2026-11-15T14:00:00-05:00,401918453,Edge,William & Mary,Michigan,William & Mary,T1,26.5,Consensus (8 books),High,,5.34,0.547,,0.0272,L,79.0,123.0,2026-11-15 10:43,2026-11-15 17:42,Medium
+2026-11-15,2026-11-15T14:00:00-05:00,401925926,Edge,South Carolina State,Charleston,South Carolina State,T1,18.5,Consensus (7 books),High,,2.47,0.5275,,0.0725,L,66.0,90.0,2026-11-15 10:43,2026-11-15 17:42,Low
+2026-11-15,2026-11-15T14:00:00-05:00,401925812,Edge,Temple,La Salle,La Salle,T2,-1.0,Consensus (8 books),Low,,1.62,0.5201,,0.594,L,84.0,71.0,2026-11-15 10:43,2026-11-15 17:42,Low
+2026-11-15,2026-11-15T14:00:00-05:00,401921287,Edge,UAlbany,Holy Cross,Holy Cross,T2,3.5,Draft Kings (no DraftKings line),High,,4.8,0.5504,,0.5472,W,62.0,60.0,2026-11-15 10:43,2026-11-15 17:42,Medium
+2026-11-15,2026-11-15T14:00:00-05:00,401920136,Edge,Cal State Bakersfield,North Dakota State,Cal State Bakersfield,T1,4.5,Draft Kings (no DraftKings line),High,,3.37,0.5387,,0.4591,W,73.0,69.0,2026-11-15 10:43,2026-11-15 17:42,Low
+2026-11-15,2026-11-15T14:00:00-05:00,401920065,Edge,Princeton,Rhode Island,Rhode Island,T2,-7.0,Consensus (8 books),Low,,3.23,0.5374,,0.8237,P,72.0,79.0,2026-11-15 10:43,2026-11-15 17:42,Low
+2026-11-15,2026-11-15T14:30:00-05:00,401909525,Edge,Missouri,Marquette,Missouri,T1,1.5,Consensus (8 books),Medium,,1.24,0.5155,,0.4905,L,64.0,69.0,2026-11-15 10:43,2026-11-15 17:42,Low
+2026-11-15,2026-11-15T15:00:00-05:00,401906866,Edge,Baylor,Texas,Texas,T2,-3.5,Consensus (8 books),Low,,1.32,0.5165,,0.6695,L,72.0,75.0,2026-11-15 10:43,2026-11-15 17:42,Low
+2026-11-15,2026-11-15T15:00:00-05:00,401926068,Edge,Purdue Fort Wayne,Eastern Illinois,Eastern Illinois,T2,3.5,Draft Kings (no DraftKings line),High,,2.42,0.5291,,0.4608,L,86.0,74.0,2026-11-15 10:43,2026-11-15 17:42,Low
+2026-11-15,2026-11-15T15:00:00-05:00,401921168,Edge,Cleveland State,Alabama A&M,Alabama A&M,T2,-2.5,Consensus (6 books),Low,,2.17,0.5264,,0.6644,L,74.0,73.0,2026-11-15 10:43,2026-11-15 17:42,Low
+2026-11-15,2026-11-15T15:00:00-05:00,401911251,Edge,High Point,Saint Louis,Saint Louis,T2,-7.0,Consensus (7 books),Low,,3.7,0.5417,,0.8347,L,68.0,58.0,2026-11-15 10:43,2026-11-15 17:42,Medium
+2026-11-15,2026-11-15T15:00:00-05:00,401909493,Edge,Creighton,Iowa,Creighton,T1,4.5,Consensus (8 books),Medium,,0.14,0.5018,,0.346,W,70.0,69.0,2026-11-15 10:43,2026-11-15 17:42,Low
+2026-11-15,2026-11-15T16:00:00-05:00,401934396,Edge,Air Force,Pacific,Air Force,T1,11.5,Consensus (2 books),Medium,,0.1,0.5013,,0.15,L,69.0,93.0,2026-11-15 10:43,2026-11-16 04:23,Low
+2026-11-15,2026-11-15T16:00:00-05:00,401928789,Edge,New Mexico State,San Diego State,San Diego State,T2,-12.5,Consensus (8 books),Low,,1.06,0.513,,0.8912,L,61.0,73.0,2026-11-15 10:43,2026-11-16 04:23,Low
+2026-11-15,2026-11-15T16:00:00-05:00,401919825,Edge,Mercyhurst,James Madison,James Madison,T2,-14.5,Consensus (7 books),Low,,0.13,0.5016,,0.9082,L,71.0,80.0,2026-11-15 10:43,2026-11-16 04:23,Low
+2026-11-15,2026-11-15T16:00:00-05:00,401917531,Edge,Chicago State,Loyola Marymount,Chicago State,T1,18.5,Consensus (7 books),Check,,7.73,0.5605,,0.1638,L,49.0,86.0,2026-11-15 10:43,2026-11-16 04:23,High
+2026-11-15,2026-11-15T16:00:00-05:00,401917528,Edge,Idaho State,Seattle U,Idaho State,T1,15.5,Draft Kings (no DraftKings line),High,,2.34,0.5269,,0.1159,W,70.0,77.0,2026-11-15 10:43,2026-11-16 04:23,Low
+2026-11-15,2026-11-15T16:30:00-05:00,401923393,Edge,Western Michigan,Southern Indiana,Southern Indiana,T2,7.5,Consensus (8 books),High,,3.63,0.5411,,0.3625,L,80.0,59.0,2026-11-15 10:43,2026-11-16 04:23,Medium
+2026-11-15,2026-11-15T16:30:00-05:00,401917175,Edge,New Haven,Penn State,New Haven,T1,24.0,Consensus (7 books),Check,,6.5,0.5535,,0.0558,L,52.0,86.0,2026-11-15 10:43,2026-11-16 04:23,Medium
+2026-11-15,2026-11-15T17:00:00-05:00,401926073,Edge,Pepperdine,Oregon,Oregon,T2,-13.0,Consensus (7 books),Low,,4.57,0.5475,,0.9449,NR,,,2026-11-15 10:43,2026-11-19 02:56,Medium
+2026-11-15,2026-11-15T17:30:00-05:00,401911017,Edge,Canisius,Buffalo,Canisius,T1,14.0,Consensus (8 books),Medium,,1.81,0.5215,,0.134,L,55.0,79.0,2026-11-15 10:43,2026-11-16 04:23,Low
+2026-11-15,2026-11-15T18:00:00-05:00,401920124,Edge,Cal Poly,Montana State,Montana State,T2,-7.0,Consensus (7 books),Low,,1.62,0.5201,,0.7835,W,52.0,77.0,2026-11-15 17:42,2026-11-16 04:23,Low
+2026-11-15,2026-11-15T19:00:00-05:00,401920681,Edge,Syracuse,St. John's,Syracuse,T1,12.5,Consensus (7 books),High,,3.91,0.5426,,0.2174,L,62.0,79.0,2026-11-15 17:42,2026-11-16 04:23,Medium
+2026-11-15,2026-11-15T19:00:00-05:00,401926772,Edge,Arkansas-Pine Bluff,USC,Arkansas-Pine Bluff,T1,46.5,Consensus (7 books),High,,5.82,0.5427,,0.0001,L,46.0,122.0,2026-11-15 17:42,2026-11-16 04:23,Medium
+2026-11-15,2026-11-15T20:00:00-05:00,401929200,Edge,Texas State,UTSA,Texas State,T1,-3.5,Consensus (8 books),Low,,0.12,0.5015,,0.6288,W,87.0,67.0,2026-11-15 17:42,2026-11-16 04:23,Low
+2026-11-15,2026-11-15T20:00:00-05:00,401920896,Edge,Coastal Carolina,Wisconsin,Coastal Carolina,T1,27.5,Consensus (8 books),High,,3.33,0.5331,,0.014,W,81.0,89.0,2026-11-15 17:42,2026-11-16 04:23,Low
+2026-11-15,2026-11-15T21:00:00-05:00,401911472,Edge,Alabama State,San José State,San José State,T2,-13.5,Consensus (7 books),Low,,3.13,0.5353,,0.9347,L,68.0,80.0,2026-11-15 17:42,2026-11-16 04:23,Low
+2026-11-16,2026-11-16T14:00:00-05:00,401929419,Edge,Florida A&M,UTEP,Florida A&M,T1,20.5,Consensus (6 books),Medium,,1.29,0.5147,,0.0404,L,46.0,79.0,2026-11-16 11:44,2026-11-16 17:50,Low
+2026-11-16,2026-11-16T18:00:00-05:00,401921087,Edge,Iona,UMBC,Iona,T1,-2.5,Consensus (6 books),Low,,1.16,0.5145,,0.6302,L,67.0,75.0,2026-11-16 17:50,2026-11-17 02:55,Low
+2026-11-16,2026-11-16T18:00:00-05:00,401916298,Edge,Alcorn State,Maryland,Alcorn State,T1,35.5,Consensus (7 books),Check,,9.51,0.5567,,0.0091,L,57.0,117.0,2026-11-16 17:50,2026-11-17 02:55,Medium
+2026-11-16,2026-11-16T18:30:00-05:00,401916317,Edge,Prairie View A&M,Ohio State,Prairie View A&M,T1,32.5,DraftKings,Check,,6.37,0.5496,,0.0088,W,59.0,86.0,2026-11-16 17:50,2026-11-17 02:55,Medium
+2026-11-16,2026-11-16T19:00:00-05:00,401928841,Edge,Eastern Kentucky,Kent State,Eastern Kentucky,T1,9.5,Consensus (8 books),High,,3.05,0.5356,,0.2789,W,65.0,49.0,2026-11-16 17:50,2026-11-17 02:55,Low
+2026-11-16,2026-11-16T19:00:00-05:00,401925864,Edge,Western Kentucky,Tulsa,Western Kentucky,T1,6.0,Consensus (8 books),Medium,,0.71,0.509,,0.3151,W,64.0,67.0,2026-11-16 17:50,2026-11-17 02:55,Low
+2026-11-16,2026-11-16T19:00:00-05:00,401921804,Edge,Grambling,Kentucky,Grambling,T1,28.5,DraftKings,Check,,11.22,0.5619,,0.0581,L,59.0,88.0,2026-11-16 17:50,2026-11-17 02:55,Check
+2026-11-16,2026-11-16T19:00:00-05:00,401919807,Edge,St. Thomas,Long Island University,St. Thomas,T1,-1.5,DraftKings,Low,,2.01,0.5246,,0.6251,W,79.0,70.0,2026-11-16 17:50,2026-11-17 02:55,Low
+2026-11-16,2026-11-16T19:00:00-05:00,401918075,Edge,The Citadel,Clemson,The Citadel,T1,24.5,Consensus (8 books),Check,,8.24,0.559,,0.0697,L,51.0,87.0,2026-11-16 17:50,2026-11-17 02:55,Medium
+2026-11-16,2026-11-16T19:00:00-05:00,401911240,Edge,Richmond,Virginia Tech,Richmond,T1,12.5,Consensus (8 books),High,,3.36,0.5378,,0.203,L,68.0,85.0,2026-11-16 17:50,2026-11-17 02:55,Low
+2026-11-16,2026-11-16T19:00:00-05:00,401906783,Edge,Jacksonville,Georgia,Jacksonville,T1,22.0,Consensus (7 books),Check,,7.39,0.5577,,0.092,L,62.0,107.0,2026-11-16 17:50,2026-11-17 02:55,Medium
+2026-11-16,2026-11-16T19:30:00-05:00,401927364,Edge,Tarleton State,Drake,Drake,T2,-8.5,Consensus (8 books),Low,,1.82,0.5224,,0.8259,L,83.0,79.0,2026-11-16 17:50,2026-11-17 02:55,Low
+2026-11-16,2026-11-16T20:00:00-05:00,401920735,Edge,Columbia,Northwestern,Columbia,T1,12.0,Consensus (8 books),High,,4.12,0.5445,,0.2368,W,75.0,53.0,2026-11-16 17:50,2026-11-17 02:55,Medium
+2026-11-16,2026-11-16T20:00:00-05:00,401917964,Edge,Abilene Christian,Missouri State,Abilene Christian,T1,5.5,Consensus (8 books),Medium,,1.68,0.5208,,0.3642,L,64.0,73.0,2026-11-16 17:50,2026-11-17 02:55,Low
+2026-11-16,2026-11-16T20:00:00-05:00,401917917,Edge,Central Arkansas,Oklahoma State,Central Arkansas,T1,18.5,Consensus (8 books),Medium,,0.86,0.5101,,0.0544,L,66.0,99.0,2026-11-16 17:50,2026-11-17 02:55,Low
+2026-11-16,2026-11-16T20:00:00-05:00,401916307,Edge,Western Illinois,Minnesota,Western Illinois,T1,33.5,Consensus (8 books),High,,4.53,0.54,,0.0042,L,63.0,99.0,2026-11-16 17:50,2026-11-17 02:55,Low
+2026-11-16,2026-11-16T20:00:00-05:00,401909798,Edge,Montana,Kansas State,Montana,T1,14.5,Consensus (8 books),High,,5.22,0.5512,,0.1995,L,45.0,86.0,2026-11-16 17:50,2026-11-17 02:55,Medium
+2026-11-16,2026-11-16T20:30:00-05:00,401920808,Edge,SE Louisiana,Texas A&M,SE Louisiana,T1,33.5,Consensus (7 books),High,,3.25,0.531,,0.003,W,69.0,101.0,2026-11-16 17:50,2026-11-17 02:55,Low
+2026-11-16,2026-11-16T21:30:00-05:00,401929192,Edge,East Texas A&M,Oregon State,East Texas A&M,T1,16.5,Consensus (7 books),High,,3.51,0.5378,,0.1189,L,71.0,109.0,2026-11-16 17:50,2026-11-17 02:55,Low
+2026-11-16,2026-11-16T22:00:00-05:00,401924265,Edge,Long Beach State,UCLA,UCLA,T2,-29.5,DraftKings,Low,,0.83,0.5089,,0.9971,W,66.0,105.0,2026-11-16 17:50,2026-11-17 02:55,Low
+2026-11-16,2026-11-16T22:00:00-05:00,401920373,Edge,Texas Southern,UC San Diego,Texas Southern,T1,18.5,Consensus (7 books),High,,2.86,0.5313,,0.0775,W,92.0,97.0,2026-11-16 17:50,2026-11-17 02:55,Low
+2026-11-16,2026-11-16T22:00:00-05:00,401917532,Edge,Portland State,Saint Mary's,Portland State,T1,18.5,Consensus (7 books),High,,3.75,0.5391,,0.09,W,78.0,94.0,2026-11-16 17:50,2026-11-17 02:55,Low
+2026-11-17,2026-11-17T12:00:00-05:00,401927381,Edge,Hofstra,Murray State,Hofstra,T1,11.5,Consensus (8 books),Medium,,1.38,0.517,,0.1787,L,66.0,82.0,2026-11-17 10:59,2026-11-17 17:57,Low
+2026-11-17,2026-11-17T14:00:00-05:00,401920511,Edge,Rutgers,Houston,Rutgers,T1,17.5,Consensus (8 books),High,,4.43,0.5447,,0.1174,W,73.0,85.0,2026-11-17 10:59,2026-11-17 17:57,Medium
+2026-11-17,2026-11-17T16:30:00-05:00,401906773,Edge,Notre Dame,Florida,Notre Dame,T1,15.5,Consensus (8 books),High,,4.33,0.5447,,0.1549,W,78.0,86.0,2026-11-17 10:59,2026-11-18 02:54,Medium
+2026-11-17,2026-11-17T22:00:00-05:00,401917533,Edge,Seattle U,California Baptist,California Baptist,T2,8.5,DraftKings,High,,2.73,0.5324,,0.2998,L,83.0,54.0,2026-11-17 10:59,2026-11-18 02:54,Low
+2026-11-17,2026-11-17T18:00:00-05:00,401923325,Edge,Saint Peter's,UMass Lowell,UMass Lowell,T2,-4.5,Consensus (7 books),Low,,0.24,0.503,,0.6668,W,51.0,66.0,2026-11-17 17:57,2026-11-18 02:54,Low
+2026-11-17,2026-11-17T18:00:00-05:00,401920953,Edge,Liberty,Southern Illinois,Liberty,T1,1.5,Consensus (8 books),Medium,,3.49,0.5398,,0.5718,W,87.0,78.0,2026-11-17 17:57,2026-11-18 02:54,Low
+2026-11-17,2026-11-17T18:00:00-05:00,401912230,Edge,Marist,Army,Marist,T1,1.5,Draft Kings (no DraftKings line),Check,,6.7,0.5612,,0.6817,W,73.0,68.0,2026-11-17 17:57,2026-11-18 02:54,High
+2026-11-17,2026-11-17T18:30:00-05:00,401920706,Edge,Lipscomb,Purdue,Lipscomb,T1,22.5,Consensus (7 books),High,,3.73,0.5377,,0.044,W,78.0,95.0,2026-11-17 17:57,2026-11-18 02:54,Low
+2026-11-17,2026-11-17T19:00:00-05:00,401909566,Edge,Illinois,Duke,Illinois,T1,8.5,Consensus (8 books),High,,3.21,0.5372,,0.3152,W,99.0,78.0,2026-11-17 17:57,2026-11-18 02:54,Low
+2026-11-17,2026-11-17T19:00:00-05:00,401921722,Edge,Rider,Miami FL,Rider,T1,41.5,Consensus (7 books),High,,5.84,0.5443,,0.0006,L,48.0,95.0,2026-11-17 17:57,2026-11-18 02:54,Medium
+2026-11-17,2026-11-17T19:00:00-05:00,401925775,Edge,Charlotte,Davidson,Charlotte,T1,3.5,Consensus (8 books),Medium,,0.46,0.5058,,0.3911,W,73.0,66.0,2026-11-17 17:57,2026-11-18 02:54,Low
+2026-11-17,2026-11-17T19:00:00-05:00,401924941,Edge,Akron,Bucknell,Akron,T1,-15.5,Consensus (7 books),Low,,0.76,0.5091,,0.9304,L,49.0,53.0,2026-11-17 17:57,2026-11-18 02:54,Low
+2026-11-17,2026-11-17T19:00:00-05:00,401922251,Edge,Green Bay,West Florida,Green Bay,T1,-5.5,Consensus (7 books),Low,,2.17,0.5264,,0.7573,L,69.0,87.0,2026-11-17 17:57,2026-11-18 02:54,Low
+2026-11-17,2026-11-17T19:00:00-05:00,401921756,Edge,Mississippi St.,UCF,UCF,T2,-1.5,Consensus (8 books),Low,,0.14,0.5018,,0.5592,L,86.0,83.0,2026-11-17 17:57,2026-11-18 02:54,Low
+2026-11-17,2026-11-17T19:00:00-05:00,401920921,Edge,Lehigh,Mount St. Mary's,Lehigh,T1,1.5,Draft Kings (no DraftKings line),Medium,,1.17,0.5147,,0.4879,W,99.0,65.0,2026-11-17 17:57,2026-11-18 02:54,Low
+2026-11-17,2026-11-17T19:00:00-05:00,401920857,Edge,East Tennessee St.,Marshall,East Tennessee St.,T1,1.5,Consensus (7 books),Medium,,2.18,0.5265,,0.5248,L,55.0,67.0,2026-11-17 17:57,2026-11-18 02:54,Low
+2026-11-17,2026-11-17T19:00:00-05:00,401920308,Edge,Norfolk St.,Georgia Tech,Norfolk St.,T1,20.5,Consensus (7 books),Medium,,0.93,0.5107,,0.0376,W,79.0,93.0,2026-11-17 17:57,2026-11-18 02:54,Low
+2026-11-17,2026-11-17T19:00:00-05:00,401920297,Edge,Cal St. Northridge,Troy,Troy,T2,-1.5,Draft Kings (no DraftKings line),Low,,3.54,0.5403,,0.6766,W,74.0,84.0,2026-11-17 17:57,2026-11-18 02:54,Medium
+2026-11-17,2026-11-17T19:00:00-05:00,401920194,Edge,Wagner,Saint Joseph's,Saint Joseph's,T2,-16.0,Consensus (7 books),Low,,1.2,0.5143,,0.9411,W,65.0,84.0,2026-11-17 17:57,2026-11-18 02:54,Low
+2026-11-17,2026-11-17T19:00:00-05:00,401918994,Edge,Tennessee St.,South Florida,Tennessee St.,T1,11.0,Consensus (8 books),Medium,,1.71,0.5209,,0.1992,L,71.0,98.0,2026-11-17 17:57,2026-11-18 02:54,Low
+2026-11-17,2026-11-17T19:00:00-05:00,401911198,Edge,Fordham,Manhattan,Manhattan,T2,12.5,Consensus (8 books),Medium,,0.37,0.5046,,0.1351,L,80.0,61.0,2026-11-17 17:57,2026-11-18 02:54,Low
+2026-11-17,2026-11-17T19:00:00-05:00,401911019,Edge,Central Michigan,Dayton,Central Michigan,T1,13.0,Consensus (8 books),High,,2.93,0.5335,,0.18,L,63.0,88.0,2026-11-17 17:57,2026-11-18 02:54,Low
+2026-11-17,2026-11-17T19:00:00-05:00,401911018,Edge,Bowling Green,William & Mary,Bowling Green,T1,2.5,Consensus (8 books),Medium,,1.13,0.5142,,0.4503,L,73.0,77.0,2026-11-17 17:57,2026-11-18 02:54,Low
+2026-11-17,2026-11-17T19:00:00-05:00,401909729,Edge,Monmouth,Wake Forest,Monmouth,T1,14.5,Consensus (8 books),Medium,,1.68,0.52,,0.122,W,76.0,81.0,2026-11-17 17:57,2026-11-18 02:54,Low
+2026-11-17,2026-11-17T19:00:00-05:00,401909708,Edge,Villanova,Pittsburgh,Villanova,T1,-1.5,Consensus (8 books),Low,,1.4,0.5174,,0.6041,L,61.0,81.0,2026-11-17 17:57,2026-11-18 02:54,Low
+2026-11-17,2026-11-17T19:00:00-05:00,401909697,Edge,Ball St.,Florida St.,Ball St.,T1,25.5,Consensus (8 books),High,,3.47,0.5348,,0.0226,W,71.0,85.0,2026-11-17 17:57,2026-11-18 02:54,Low
+2026-11-17,2026-11-17T19:00:00-05:00,401909544,Edge,Cleveland St.,Xavier,Cleveland St.,T1,32.5,Consensus (8 books),Check,,7.13,0.5523,,0.0106,W,67.0,75.0,2026-11-17 17:57,2026-11-18 02:54,Medium
+2026-11-17,2026-11-17T19:00:00-05:00,401909535,Edge,Sacred Heart,Providence,Sacred Heart,T1,30.5,Consensus (8 books),Check,,7.18,0.5533,,0.017,W,67.0,86.0,2026-11-17 17:57,2026-11-18 02:54,Medium
+2026-11-17,2026-11-17T19:00:00-05:00,401902279,Edge,Western Carolina,Butler,Western Carolina,T1,11.5,Consensus (8 books),Medium,,1.4,0.5172,,0.1792,L,64.0,89.0,2026-11-17 17:57,2026-11-18 02:54,Low
+2026-11-17,2026-11-17T19:30:00-05:00,401906761,Edge,Kennesaw St.,Alabama,Kennesaw St.,T1,25.5,Consensus (8 books),Check,,6.24,0.5518,,0.04,W,91.0,109.0,2026-11-17 17:57,2026-11-18 02:54,Medium
+2026-11-17,2026-11-17T19:30:00-05:00,401916289,Edge,Arkansas,Indiana,Arkansas,T1,1.5,Consensus (8 books),Medium,,1.26,0.5158,,0.4912,L,76.0,81.0,2026-11-17 17:57,2026-11-18 02:54,Low
+2026-11-17,2026-11-17T19:30:00-05:00,401926781,Edge,Jacksonville St.,Louisiana Tech,Jacksonville St.,T1,1.5,Consensus (8 books),Medium,,0.94,0.5118,,0.4796,L,63.0,68.0,2026-11-17 17:57,2026-11-18 02:54,Low
+2026-11-17,2026-11-17T19:30:00-05:00,401919018,Edge,FIU,UAB,UAB,T2,-3.5,Draft Kings (no DraftKings line),Low,,1.09,0.5137,,0.6616,W,82.0,94.0,2026-11-17 17:57,2026-11-18 02:54,Low
+2026-11-17,2026-11-17T19:30:00-05:00,401911020,Edge,Bryant,Massachusetts,Massachusetts,T2,-9.5,Consensus (7 books),Low,,2.25,0.5273,,0.8573,L,83.0,79.0,2026-11-17 17:57,2026-11-18 02:54,Low
+2026-11-17,2026-11-17T20:00:00-05:00,401921826,Edge,Eastern Illinois,Vanderbilt,Eastern Illinois,T1,40.5,Consensus (8 books),Check,,9.48,0.5546,,0.0024,L,50.0,96.0,2026-11-17 17:57,2026-11-18 02:54,Medium
+2026-11-17,2026-11-17T20:00:00-05:00,401929358,Edge,UT Arlington,Southern Miss,Southern Miss,T2,-1.5,Consensus (8 books),Low,,0.21,0.5027,,0.5619,L,83.0,72.0,2026-11-17 17:57,2026-11-18 02:54,Low
+2026-11-17,2026-11-17T20:00:00-05:00,401927388,Edge,Lindenwood,Northern Iowa,Lindenwood,T1,13.5,Consensus (8 books),Medium,,0.86,0.5105,,0.1253,W,74.0,81.0,2026-11-17 17:57,2026-11-18 02:54,Low
+2026-11-17,2026-11-17T20:00:00-05:00,401926143,Edge,SIU Edwardsville,North Dakota,SIU Edwardsville,T1,2.0,Consensus (8 books),Medium,,1.16,0.5145,,0.4696,L,78.0,83.0,2026-11-17 17:57,2026-11-18 02:54,Low
+2026-11-17,2026-11-17T20:00:00-05:00,401925012,Edge,Lamar,Nebraska Omaha,Lamar,T1,1.0,Consensus (7 books),Medium,,2.69,0.532,,0.5611,W,104.0,74.0,2026-11-17 17:57,2026-11-18 02:54,Low
+2026-11-17,2026-11-17T20:00:00-05:00,401921106,Edge,Bellarmine,Illinois St.,Bellarmine,T1,17.5,Consensus (7 books),High,,2.09,0.5239,,0.0806,W,59.0,76.0,2026-11-17 17:57,2026-11-18 02:54,Low
+2026-11-17,2026-11-17T20:00:00-05:00,401921097,Edge,Texas A&M Corpus Chris,Rice,Texas A&M Corpus Chris,T1,2.5,Draft Kings (no DraftKings line),Medium,,0.96,0.5121,,0.4442,L,74.0,81.0,2026-11-17 17:57,2026-11-18 02:54,Low
+2026-11-17,2026-11-17T20:00:00-05:00,401921027,Edge,Middle Tennessee,Georgia Southern,Middle Tennessee,T1,-2.0,Consensus (8 books),Low,,3.1,0.5361,,0.6786,W,85.0,78.0,2026-11-17 17:57,2026-11-18 02:54,Low
+2026-11-17,2026-11-17T20:00:00-05:00,401919783,Edge,Le Moyne,Evansville,Le Moyne,T1,7.5,Consensus (7 books),Medium,,1.91,0.5234,,0.3058,L,65.0,79.0,2026-11-17 17:57,2026-11-18 02:54,Low
+2026-11-17,2026-11-17T20:00:00-05:00,401918970,Edge,Oral Roberts,SMU,Oral Roberts,T1,22.5,Consensus (8 books),High,,2.77,0.5295,,0.0365,W,72.0,76.0,2026-11-17 17:57,2026-11-18 02:54,Low
+2026-11-17,2026-11-17T20:00:00-05:00,401909504,Edge,Maryland Eastern Shore,DePaul,Maryland Eastern Shore,T1,30.5,Consensus (7 books),High,,2.16,0.5222,,0.005,L,39.0,83.0,2026-11-17 17:57,2026-11-18 02:54,Low
+2026-11-17,2026-11-17T20:30:00-05:00,401925064,Edge,Nicholls St.,Mississippi,Nicholls St.,T1,27.5,Draft Kings (no DraftKings line),High,,5.63,0.5481,,0.0234,L,41.0,76.0,2026-11-17 17:57,2026-11-18 02:54,Medium
+2026-11-17,2026-11-17T20:30:00-05:00,401924922,Edge,Sam Houston St.,Wyoming,Sam Houston St.,T1,12.5,Draft Kings (no DraftKings line),High,,5.78,0.5554,,0.2705,W,79.0,81.0,2026-11-17 17:57,2026-11-18 02:54,Medium
+2026-11-17,2026-11-17T20:30:00-05:00,401920720,Edge,Eastern Washington,Utah,Eastern Washington,T1,12.5,Consensus (8 books),High,,3.66,0.5405,,0.2107,W,71.0,67.0,2026-11-17 17:57,2026-11-18 02:54,Medium
+2026-11-17,2026-11-17T21:00:00-05:00,401906851,Edge,Michigan St.,Tennessee,Tennessee,T2,2.5,Consensus (7 books),Medium,,0.96,0.5121,,0.4442,W,46.0,61.0,2026-11-17 17:57,2026-11-18 02:54,Low
+2026-11-17,2026-11-17T21:00:00-05:00,401920426,Edge,Old Dominion,Virginia,Old Dominion,T1,26.0,Consensus (8 books),High,,2.27,0.524,,0.0155,W,65.0,85.0,2026-11-17 17:57,2026-11-18 02:54,Low
+2026-11-17,2026-11-17T21:00:00-05:00,401911521,Edge,Alabama St.,UC Davis,Alabama St.,T1,12.0,Consensus (7 books),High,,5.04,0.5512,,0.2634,W,75.0,68.0,2026-11-17 17:57,2026-11-18 02:54,Medium
+2026-11-17,2026-11-17T21:30:00-05:00,401909787,Edge,UNLV,Kansas,UNLV,T1,16.5,Consensus (8 books),Medium,,1.4,0.5165,,0.085,L,77.0,102.0,2026-11-17 17:57,2026-11-18 02:54,Low
+2026-11-17,2026-11-17T22:00:00-05:00,401921729,Edge,UC Irvine,Stanford,UC Irvine,T1,6.5,Consensus (8 books),High,,2.24,0.5272,,0.3493,W,61.0,65.0,2026-11-17 17:57,2026-11-18 02:54,Low
+2026-11-17,2026-11-17T23:00:00-05:00,401925879,Edge,Montana St.,Gonzaga,Montana St.,T1,22.5,Consensus (8 books),High,,4.65,0.5444,,0.0523,W,62.0,74.0,2026-11-17 17:57,2026-11-18 02:54,Medium
+2026-11-17,2026-11-17T23:59:00-05:00,401920512,Edge,West Virginia,Auburn,Auburn,T2,-0.0,Consensus (8 books),Low,,1.01,0.5127,,0.5365,L,76.0,70.0,2026-11-17 17:57,2026-11-18 02:54,Low
+2026-11-18,2026-11-18T12:00:00-05:00,401909753,Edge,Jackson St.,Baylor,Jackson St.,T1,34.5,Consensus (7 books),Check,,12.4,0.5601,,0.0223,L,55.0,104.0,2026-11-18 11:03,2026-11-18 17:55,Check
+2026-11-18,2026-11-18T14:00:00-05:00,401920513,Edge,Rutgers,Notre Dame,Rutgers,T1,3.5,Consensus (8 books),High,,2.09,0.5255,,0.4491,L,100.0,110.0,2026-11-18 11:03,2026-11-18 17:55,Low
+2026-11-18,2026-11-18T16:30:00-05:00,401920514,Edge,Houston,Florida,Houston,T1,2.5,Consensus (8 books),Medium,,2.52,0.5302,,0.5006,W,86.0,76.0,2026-11-18 11:03,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T18:30:00-05:00,401922292,Edge,Tennessee Tech,UNC Asheville,UNC Asheville,T2,3.5,Consensus (7 books),High,,3.09,0.536,,0.4851,L,98.0,77.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T18:30:00-05:00,401922283,Edge,Samford,South Carolina Upstate,South Carolina Upstate,T2,7.5,Consensus (6 books),High,,3.39,0.5389,,0.3542,L,74.0,64.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T18:30:00-05:00,401920974,Edge,Chattanooga,Winthrop,Chattanooga,T1,-4.0,Consensus (7 books),Low,,1.4,0.5174,,0.6882,W,90.0,79.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T18:30:00-05:00,401920947,Edge,Detroit Mercy,Eastern Michigan,Eastern Michigan,T2,-10.5,Consensus (8 books),Check,,6.0,0.5575,,0.9332,W,62.0,99.0,2026-11-18 17:55,2026-11-19 02:56,Medium
+2026-11-18,2026-11-18T18:30:00-05:00,401917181,Edge,IU Indianapolis,Penn State,Penn State,T2,-16.5,DraftKings,Low,,4.12,0.5428,,0.9695,L,74.0,81.0,2026-11-18 17:55,2026-11-19 02:56,Medium
+2026-11-18,2026-11-18T18:30:00-05:00,401909516,Edge,Navy,Georgetown,Navy,T1,20.5,Consensus (7 books),High,,3.09,0.5329,,0.0568,L,53.0,84.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T19:00:00-05:00,401920682,Edge,Siena,St. John's,Siena,T1,29.0,Consensus (7 books),High,,5.54,0.5471,,0.0165,L,72.0,119.0,2026-11-18 17:55,2026-11-19 02:56,Medium
+2026-11-18,2026-11-18T19:00:00-05:00,401928347,Edge,Mercer,Presbyterian,Mercer,T1,1.5,Consensus (7 books),Medium,,2.83,0.5334,,0.5481,L,84.0,88.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T19:00:00-05:00,401926838,Edge,James Madison,Towson,Towson,T2,-3.5,Consensus (8 books),Low,,2.85,0.5336,,0.7181,L,70.0,52.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T19:00:00-05:00,401925782,Edge,Howard,Duquesne,Howard,T1,4.5,Consensus (7 books),Check,,6.57,0.5606,,0.5745,L,68.0,74.0,2026-11-18 17:55,2026-11-19 02:56,High
+2026-11-18,2026-11-18T19:00:00-05:00,401925632,Edge,Coppin State,La Salle,Coppin State,T1,15.5,Consensus (7 books),Check,,9.37,0.5661,,0.2885,L,61.0,88.0,2026-11-18 17:55,2026-11-19 02:56,High
+2026-11-18,2026-11-18T19:00:00-05:00,401923401,Edge,Boston University,Merrimack,Boston University,T1,3.5,DraftKings,High,,2.67,0.5318,,0.4701,W,65.0,60.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T19:00:00-05:00,401922212,Edge,Florida Gulf Coast,Florida Atlantic,Florida Gulf Coast,T1,6.5,Consensus (7 books),High,,5.02,0.5519,,0.4466,L,76.0,86.0,2026-11-18 17:55,2026-11-19 02:56,Medium
+2026-11-18,2026-11-18T19:00:00-05:00,401922055,Edge,Furman,Radford,Radford,T2,4.5,Consensus (7 books),Medium,,0.41,0.5052,,0.3551,L,78.0,71.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T19:00:00-05:00,401922047,Edge,VMI,Longwood,Longwood,T2,-7.5,Consensus (7 books),Low,,0.68,0.5086,,0.7713,L,76.0,82.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T19:00:00-05:00,401921156,Edge,Morgan State,North Carolina A&T,Morgan State,T1,8.5,Consensus (7 books),High,,2.88,0.5339,,0.3048,L,70.0,82.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T19:00:00-05:00,401921141,Edge,Elon,South Carolina,Elon,T1,15.5,Consensus (8 books),Medium,,1.7,0.52,,0.1048,W,72.0,80.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T19:00:00-05:00,401920963,Edge,Morehead State,Ohio,Ohio,T2,-15.5,Consensus (8 books),Low,,0.14,0.5017,,0.9225,L,77.0,91.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T19:00:00-05:00,401920694,Edge,Vermont,Yale,Vermont,T1,7.5,Consensus (7 books),High,,5.36,0.5541,,0.4229,W,74.0,76.0,2026-11-18 17:55,2026-11-19 02:56,Medium
+2026-11-18,2026-11-18T19:00:00-05:00,401920075,Edge,North Carolina Central,George Mason,North Carolina Central,T1,22.5,Consensus (7 books),Check,,8.21,0.5598,,0.097,L,60.0,83.0,2026-11-18 17:55,2026-11-19 02:56,Medium
+2026-11-18,2026-11-18T19:00:00-05:00,401919808,Edge,UNC Wilmington,Long Island University,UNC Wilmington,T1,-8.5,DraftKings,Low,,3.35,0.5385,,0.8593,L,114.0,115.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T19:00:00-05:00,401919760,Edge,NJIT,Fairleigh Dickinson,Fairleigh Dickinson,T2,-4.5,Consensus (7 books),Low,,1.24,0.5155,,0.6992,W,66.0,78.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T19:00:00-05:00,401919735,Edge,Chicago State,UIC,Chicago State,T1,23.5,Consensus (7 books),High,,3.19,0.533,,0.0324,W,52.0,60.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T19:00:00-05:00,401911377,Edge,Wofford,Charleston Southern,Charleston Southern,T2,-0.0,Consensus (7 books),Low,,4.53,0.5485,,0.6598,L,79.0,77.0,2026-11-18 17:55,2026-11-19 02:56,Medium
+2026-11-18,2026-11-18T19:00:00-05:00,401911309,Edge,Brown,Holy Cross,Holy Cross,T2,6.5,Consensus (7 books),Medium,,0.74,0.5093,,0.3001,L,74.0,63.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T19:00:00-05:00,401911277,Edge,Binghamton,Lafayette,Binghamton,T1,4.0,Consensus (7 books),High,,2.08,0.5254,,0.4308,L,65.0,80.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T19:30:00-05:00,401921134,Edge,LSU New Orleans,Texas Tech,Texas Tech,T2,-35.5,DraftKings,Low,,0.92,0.5094,,0.9995,W,41.0,86.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T19:30:00-05:00,401920515,Edge,Kansas,West Virginia,West Virginia,T2,7.5,Consensus (8 books),Medium,,0.37,0.5047,,0.2585,W,86.0,82.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T19:30:00-05:00,401920751,Edge,Youngstown State,Cincinnati,Youngstown State,T1,28.5,Consensus (8 books),Check,,6.7,0.5524,,0.0237,L,54.0,91.0,2026-11-18 17:55,2026-11-19 02:56,Medium
+2026-11-18,2026-11-18T19:30:00-05:00,401909526,Edge,Northern Illinois,Marquette,Northern Illinois,T1,27.0,Consensus (7 books),High,,3.8,0.5369,,0.0175,W,65.0,79.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T20:00:00-05:00,401917982,Edge,UL Monroe,LSU,UL Monroe,T1,37.5,Consensus (8 books),High,,4.66,0.5396,,0.0014,W,67.0,79.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T20:00:00-05:00,401929420,Edge,Florida A&M,UTSA,UTSA,T2,-17.5,Consensus (6 books),Low,,3.71,0.5391,,0.9731,W,78.0,98.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T20:00:00-05:00,401929201,Edge,Incarnate Word,Texas State,Texas State,T2,-18.0,Consensus (7 books),Low,,5.84,0.5531,,0.9849,W,51.0,84.0,2026-11-18 17:55,2026-11-19 02:56,Medium
+2026-11-18,2026-11-18T20:00:00-05:00,401928398,Edge,Arkansas-Pine Bluff,Arkansas State,Arkansas-Pine Bluff,T1,28.5,Consensus (7 books),High,,2.29,0.5237,,0.0086,L,69.0,100.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T20:00:00-05:00,401927357,Edge,Purdue Fort Wayne,Bradley,Purdue Fort Wayne,T1,6.5,DraftKings,Medium,,1.74,0.5215,,0.3325,W,78.0,73.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T20:00:00-05:00,401924721,Edge,Cornell,Syracuse,Syracuse,T2,-18.5,Consensus (8 books),Low,,0.48,0.5056,,0.9578,L,82.0,91.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T20:00:00-05:00,401919848,Edge,New Hampshire,Stonehill,New Hampshire,T1,-1.5,Consensus (7 books),Check,,6.03,0.558,,0.7531,W,90.0,70.0,2026-11-18 17:55,2026-11-19 02:56,Medium
+2026-11-18,2026-11-18T20:00:00-05:00,401911393,Edge,UNC Greensboro,Gardner-Webb,UNC Greensboro,T1,-2.5,DraftKings,Low,,2.22,0.5269,,0.666,W,78.0,72.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T20:00:00-05:00,401911232,Edge,Wichita State,Loyola Chicago,Loyola Chicago,T2,1.5,DraftKings,Medium,,0.7,0.5088,,0.4712,L,79.0,75.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T20:00:00-05:00,401909555,Edge,Boston College,Harvard,Boston College,T1,-3.5,Consensus (8 books),Check,,6.14,0.5585,,0.8097,W,74.0,69.0,2026-11-18 17:55,2026-11-19 02:56,Medium
+2026-11-18,2026-11-18T20:00:00-05:00,401906805,Edge,Campbell,Oklahoma,Campbell,T1,20.5,Consensus (8 books),Check,,6.13,0.5534,,0.0957,W,78.0,87.0,2026-11-18 17:55,2026-11-19 02:56,Medium
+2026-11-18,2026-11-18T20:30:00-05:00,401926064,Edge,South Dakota,Nebraska,Nebraska,T2,-32.5,Consensus (8 books),Low,,3.41,0.5325,,0.9995,L,47.0,73.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T21:00:00-05:00,401909742,Edge,UConn,Arizona,UConn,T1,3.5,Consensus (8 books),High,,4.22,0.5461,,0.5262,L,79.0,85.0,2026-11-18 17:55,2026-11-19 02:56,Medium
+2026-11-18,2026-11-18T21:00:00-05:00,401921742,Edge,Northern Colorado,BYU,Northern Colorado,T1,28.5,DraftKings,Medium,,1.78,0.5188,,0.0076,L,54.0,98.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T21:00:00-05:00,401929176,Edge,North Dakota State,Colorado State,Colorado State,T2,-12.5,Consensus (8 books),Low,,2.32,0.5274,,0.9111,L,64.0,71.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T21:00:00-05:00,401925949,Edge,Weber State,Utah State,Utah State,T2,-28.5,Consensus (8 books),Low,,4.33,0.5402,,0.9986,W,71.0,101.0,2026-11-18 17:55,2026-11-19 02:56,Medium
+2026-11-18,2026-11-18T21:00:00-05:00,401921816,Edge,Alcorn State,Missouri,Missouri,T2,-40.5,Consensus (7 books),Low,,0.03,0.5003,,0.9999,W,41.0,102.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T21:00:00-05:00,401921734,Edge,Oakland,Arizona State,Arizona State,T2,-22.5,Consensus (8 books),Low,,1.4,0.5157,,0.9851,L,65.0,68.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T21:00:00-05:00,401911473,Edge,Fresno State,San José State,Fresno State,T1,6.0,Consensus (8 books),Medium,,1.0,0.5126,,0.3247,P,86.0,92.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T21:00:00-05:00,401909762,Edge,Portland,Colorado,Portland,T1,14.5,Consensus (8 books),High,,2.24,0.5261,,0.1325,W,77.0,74.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T21:00:00-05:00,401909494,Edge,Bethune-Cookman,Creighton,Bethune-Cookman,T1,24.0,Consensus (7 books),Check,,8.27,0.5593,,0.0763,W,65.0,88.0,2026-11-18 17:55,2026-11-19 02:56,Medium
+2026-11-18,2026-11-18T21:30:00-05:00,401917535,Edge,UC Riverside,San Diego,UC Riverside,T1,6.5,Consensus (8 books),High,,2.33,0.5282,,0.3525,L,62.0,71.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T22:00:00-05:00,401929146,Edge,Texas Southern,San Diego State,Texas Southern,T1,25.5,Consensus (7 books),High,,2.45,0.5258,,0.018,L,51.0,97.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T22:00:00-05:00,401929004,Edge,Washington State,Hawai'i,Washington State,T1,1.5,Consensus (8 books),Medium,,0.14,0.5018,,0.451,W,79.0,63.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T22:00:00-05:00,401921064,Edge,Louisiana,San Francisco,Louisiana,T1,10.5,Consensus (8 books),High,,2.36,0.5283,,0.2296,L,56.0,77.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T22:00:00-05:00,401920516,Edge,UNLV,Auburn,UNLV,T1,9.5,Consensus (8 books),Medium,,0.4,0.5051,,0.2041,L,71.0,86.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T22:00:00-05:00,401911456,Edge,Idaho,Nevada,Idaho,T1,18.5,Consensus (8 books),Medium,,1.51,0.5174,,0.0612,W,74.0,91.0,2026-11-18 17:55,2026-11-19 02:56,Low
+2026-11-18,2026-11-18T22:30:00-05:00,401920158,Edge,Cal State Fullerton,UCLA,UCLA,T2,-31.5,DraftKings,Check,,6.43,0.5502,,0.9997,L,71.0,75.0,2026-11-18 17:55,2026-11-19 02:56,Medium
+2026-11-19,2026-11-19T14:30:00-05:00,401920517,Edge,Florida,West Virginia,West Virginia,T2,8.5,Consensus (8 books),High,,5.25,0.5534,,0.3837,L,85.0,72.0,2026-11-19 11:03,2026-11-19 17:52,Medium
+2026-11-19,2026-11-19T17:00:00-05:00,401920519,Edge,Notre Dame,Auburn,Notre Dame,T1,3.5,Consensus (8 books),Medium,,1.49,0.5185,,0.4277,W,78.0,73.0,2026-11-19 11:03,2026-11-20 02:54,Low
+2026-11-19,2026-11-19T18:00:00-05:00,401918959,Edge,N.C. State,Murray St.,N.C. State,T1,-3.5,Consensus (8 books),Low,,4.04,0.5446,,0.7534,L,83.0,93.0,2026-11-19 17:52,2026-11-20 02:54,Medium
+2026-11-19,2026-11-19T19:00:00-05:00,401928826,Edge,Robert Morris,Toledo,Robert Morris,T1,7.0,Consensus (8 books),Medium,,1.55,0.5192,,0.3102,P,76.0,83.0,2026-11-19 17:52,2026-11-20 02:54,Low
+2026-11-19,2026-11-19T19:00:00-05:00,401923304,Edge,Maine,Quinnipiac,Maine,T1,8.5,Consensus (7 books),Medium,,0.31,0.5039,,0.2282,W,69.0,67.0,2026-11-19 17:52,2026-11-20 02:54,Low
+2026-11-19,2026-11-19T19:00:00-05:00,401920878,Edge,Little Rock,Jacksonville,Jacksonville,T2,-1.5,Draft Kings (no DraftKings line),Low,,3.89,0.5434,,0.6881,L,78.0,72.0,2026-11-19 17:52,2026-11-20 02:54,Medium
+2026-11-19,2026-11-19T19:00:00-05:00,401920413,Edge,Montana St.,High Point,Montana St.,T1,12.0,Consensus (7 books),High,,2.57,0.5302,,0.1956,W,74.0,85.0,2026-11-19 17:52,2026-11-20 02:54,Low
+2026-11-19,2026-11-19T19:00:00-05:00,401916318,Edge,UMBC,Ohio St.,UMBC,T1,28.5,Consensus (6 books),High,,4.22,0.5395,,0.0136,L,62.0,101.0,2026-11-19 17:52,2026-11-20 02:54,Low
+2026-11-19,2026-11-19T19:00:00-05:00,401911021,Edge,Buffalo,St. Bonaventure,Buffalo,T1,11.5,Consensus (8 books),Medium,,1.11,0.5137,,0.1724,W,69.0,78.0,2026-11-19 17:52,2026-11-20 02:54,Low
+2026-11-19,2026-11-19T19:00:00-05:00,401902280,Edge,Northeastern,Butler,Northeastern,T1,16.0,Consensus (8 books),High,,2.82,0.5316,,0.1155,W,77.0,84.0,2026-11-19 17:52,2026-11-20 02:54,Low
+2026-11-19,2026-11-19T19:30:00-05:00,401926814,Edge,Charleston,Drake,Charleston,T1,1.5,Consensus (8 books),Medium,,0.48,0.5061,,0.4631,L,70.0,86.0,2026-11-19 17:52,2026-11-20 02:54,Low
+2026-11-19,2026-11-19T19:30:00-05:00,401919005,Edge,Tulane,Louisiana Tech,Tulane,T1,2.0,Consensus (8 books),Medium,,3.21,0.5372,,0.544,L,67.0,74.0,2026-11-19 17:52,2026-11-20 02:54,Low
+2026-11-19,2026-11-19T20:00:00-05:00,401906867,Edge,Southern Utah,Texas,Southern Utah,T1,35.5,Consensus (8 books),Check,,10.92,0.5585,,0.0127,W,68.0,92.0,2026-11-19 17:52,2026-11-20 02:54,Check
+2026-11-19,2026-11-19T20:00:00-05:00,401918950,Edge,Stetson,Louisville,Stetson,T1,36.5,Consensus (7 books),Check,,10.75,0.5579,,0.0096,W,69.0,83.0,2026-11-19 17:52,2026-11-20 02:54,Medium
+2026-11-19,2026-11-19T20:00:00-05:00,401921028,Edge,Georgia Southern,Houston Christian,Houston Christian,T2,-3.5,Consensus (7 books),Low,,1.14,0.5143,,0.6635,L,86.0,79.0,2026-11-19 17:52,2026-11-20 02:54,Low
+2026-11-19,2026-11-19T20:00:00-05:00,401920845,Edge,Southeast Missouri St.,St. Thomas,St. Thomas,T2,-6.5,Draft Kings (no DraftKings line),Low,,0.09,0.5011,,0.7256,W,61.0,93.0,2026-11-19 17:52,2026-11-20 02:54,Low
+2026-11-19,2026-11-19T20:00:00-05:00,401919050,Edge,Texas A&M,TCU,Texas A&M,T1,0.0,Consensus (8 books),Low,,1.59,0.5197,,0.5575,W,97.0,92.0,2026-11-19 17:52,2026-11-20 02:54,Low
+2026-11-19,2026-11-19T20:30:00-05:00,401920888,Edge,Seton Hall,Wisconsin,Seton Hall,T1,5.0,Consensus (8 books),High,,2.83,0.5334,,0.4217,W,74.0,69.0,2026-11-19 17:52,2026-11-20 02:54,Low
+2026-11-19,2026-11-19T20:30:00-05:00,401920520,Edge,Rutgers,UNLV,Rutgers,T1,-2.5,Consensus (8 books),Low,,0.93,0.5117,,0.6223,W,89.0,70.0,2026-11-19 17:52,2026-11-20 02:54,Low
+2026-11-19,2026-11-19T21:00:00-05:00,401930884,Edge,Oregon St.,Oregon,Oregon,T2,-1.5,Consensus (8 books),Low,,3.56,0.5405,,0.6774,L,82.0,71.0,2026-11-19 17:52,2026-11-20 02:54,Medium
+2026-11-19,2026-11-19T21:00:00-05:00,401928388,Edge,Southern Miss,Grambling St.,Southern Miss,T1,-1.5,Draft Kings (no DraftKings line),Low,,0.46,0.5058,,0.5708,W,103.0,100.0,2026-11-19 17:52,2026-11-20 02:54,Low
+2026-11-19,2026-11-19T21:00:00-05:00,401928354,Edge,UC Santa Barbara,Pepperdine,UC Santa Barbara,T1,-1.5,Consensus (8 books),Low,,2.4,0.5289,,0.6387,W,88.0,80.0,2026-11-19 17:52,2026-11-20 02:54,Low
+2026-11-19,2026-11-19T21:00:00-05:00,401925941,Edge,Utah Tech,Washington,Washington,T2,-16.5,Consensus (8 books),Low,,0.68,0.5081,,0.9408,L,69.0,82.0,2026-11-19 17:52,2026-11-20 02:54,Low
+2026-11-19,2026-11-19T21:00:00-05:00,401911534,Edge,UTEP,New Mexico St.,New Mexico St.,T2,-1.5,Consensus (8 books),Low,,1.02,0.5128,,0.5907,L,84.0,69.0,2026-11-19 17:52,2026-11-20 02:54,Low
+2026-11-19,2026-11-19T22:00:00-05:00,401920349,Edge,Sacramento St.,Stanford,Sacramento St.,T1,17.0,Consensus (8 books),Check,,7.45,0.5603,,0.1927,W,65.0,78.0,2026-11-19 17:52,2026-11-20 02:54,High
+2026-11-19,2026-11-19T22:00:00-05:00,401918056,Edge,East Texas A&M,California,East Texas A&M,T1,14.0,Consensus (7 books),High,,2.92,0.5331,,0.1569,L,54.0,86.0,2026-11-19 17:52,2026-11-20 02:54,Low
+2026-11-19,2026-11-19T22:30:00-05:00,401917536,Edge,VCU,Santa Clara,VCU,T1,2.0,Consensus (8 books),Medium,,0.96,0.5121,,0.4623,W,83.0,77.0,2026-11-19 17:52,2026-11-20 02:54,Low
+2026-11-19,2026-11-19T23:00:00-05:00,401920518,Edge,Houston,Kansas,Kansas,T2,3.5,Consensus (8 books),High,,3.63,0.5411,,0.5046,L,92.0,83.0,2026-11-19 17:52,2026-11-20 02:54,Medium
+2026-11-19,2026-11-19T23:00:00-05:00,401926773,Edge,Tarleton St.,USC,Tarleton St.,T1,27.5,Consensus (8 books),Check,,10.81,0.562,,0.0646,L,51.0,96.0,2026-11-19 17:52,2026-11-20 02:54,Check
+2026-11-20,2026-11-20T12:00:00-05:00,401909698,Edge,Green Bay,Florida State,Green Bay,T1,23.0,Consensus (8 books),High,,3.69,0.5372,,0.0396,L,63.0,87.0,2026-11-20 10:59,2026-11-20 17:50,Low
+2026-11-20,2026-11-20T12:30:00-05:00,401921418,Edge,Oklahoma State,Minnesota,Oklahoma State,T1,1.5,Consensus (8 books),Medium,,4.4,0.5475,,0.6038,L,70.0,85.0,2026-11-20 10:59,2026-11-20 17:50,Medium
+2026-11-20,2026-11-20T12:30:00-05:00,401916122,Edge,Temple,Middle Tennessee,Middle Tennessee,T2,3.5,Consensus (8 books),High,,2.46,0.5296,,0.4625,L,85.0,76.0,2026-11-20 10:59,2026-11-20 17:50,Low
+2026-11-20,2026-11-20T14:00:00-05:00,401919019,Edge,UAB,George Washington,George Washington,T2,-9.5,Draft Kings (no DraftKings line),Low,,1.96,0.524,,0.8513,L,81.0,76.0,2026-11-20 10:59,2026-11-20 17:50,Low
+2026-11-20,2026-11-20T15:00:00-05:00,401920380,Edge,Northwestern,Virginia Tech,Virginia Tech,T2,-11.5,Consensus (8 books),Low,,0.32,0.504,,0.8586,W,70.0,87.0,2026-11-20 10:59,2026-11-20 17:50,Low
+2026-11-20,2026-11-20T15:00:00-05:00,401919826,Edge,Western Illinois,UAlbany,Western Illinois,T1,6.5,Draft Kings (no DraftKings line),High,,4.04,0.5446,,0.4114,W,65.0,60.0,2026-11-20 10:59,2026-11-20 17:50,Medium
+2026-11-20,2026-11-20T15:00:00-05:00,401916123,Edge,Indiana State,Stephen F. Austin,Indiana State,T1,4.0,Consensus (8 books),Medium,,1.09,0.5137,,0.3956,L,76.0,86.0,2026-11-20 10:59,2026-11-20 17:50,Low
+2026-11-20,2026-11-20T16:00:00-05:00,401922022,Edge,South Dakota State,Idaho State,South Dakota State,T1,-5.5,Consensus (8 books),Check,,8.03,0.5661,,0.8907,L,71.0,86.0,2026-11-20 10:59,2026-11-21 02:50,High
+2026-11-20,2026-11-20T16:30:00-05:00,401920066,Edge,Rhode Island,Liberty,Rhode Island,T1,-1.5,Consensus (8 books),Low,,2.11,0.5257,,0.6288,L,68.0,71.0,2026-11-20 10:59,2026-11-21 02:50,Low
+2026-11-20,2026-11-20T17:00:00-05:00,401921723,Edge,Manhattan,Miami,Manhattan,T1,38.5,Consensus (7 books),High,,3.6,0.5324,,0.0008,L,54.0,106.0,2026-11-20 10:59,2026-11-21 02:50,Low
+2026-11-20,2026-11-20T17:30:00-05:00,401921419,Edge,Dayton,Utah,Utah,T2,-1.5,Consensus (8 books),Low,,0.2,0.5025,,0.5613,L,63.0,46.0,2026-11-20 10:59,2026-11-21 02:50,Low
+2026-11-20,2026-11-20T17:30:00-05:00,401919827,Edge,Mercyhurst,Canisius,Mercyhurst,T1,-3.0,Consensus (7 books),Low,,1.72,0.5212,,0.666,L,56.0,63.0,2026-11-20 10:59,2026-11-21 02:50,Low
+2026-11-20,2026-11-20T17:30:00-05:00,401916124,Edge,UT Martin,Southern Illinois,UT Martin,T1,1.5,Draft Kings (no DraftKings line),Medium,,1.92,0.5236,,0.5151,W,76.0,73.0,2026-11-20 10:59,2026-11-21 02:50,Low
+2026-11-20,2026-11-20T18:00:00-05:00,401920298,Edge,Delaware,Cal State Northridge,Delaware,T1,7.5,Draft Kings (no DraftKings line),Check,,6.01,0.5579,,0.4463,W,97.0,92.0,2026-11-20 17:50,2026-11-21 02:50,Medium
+2026-11-20,2026-11-20T18:30:00-05:00,401925828,Edge,North Texas,App State,App State,T2,2.5,Draft Kings (no DraftKings line),Medium,,4.39,0.5474,,0.5682,W,75.0,81.0,2026-11-20 17:50,2026-11-21 02:50,Medium
+2026-11-20,2026-11-20T19:00:00-05:00,401920427,Edge,Loyola Maryland,Virginia,Loyola Maryland,T1,41.5,Draft Kings (no DraftKings line),Check,,6.36,0.5464,,0.0007,L,61.0,103.0,2026-11-20 17:50,2026-11-21 02:50,Medium
+2026-11-20,2026-11-20T19:00:00-05:00,401906852,Edge,Coastal Carolina,Tennessee,Coastal Carolina,T1,26.5,Consensus (7 books),Medium,,0.13,0.5014,,0.0082,L,51.0,78.0,2026-11-20 17:50,2026-11-21 02:50,Low
+2026-11-20,2026-11-20T19:00:00-05:00,401927396,Edge,Richmond,Western Kentucky,Richmond,T1,0.0,Consensus (8 books),Low,,3.86,0.5431,,0.6373,W,82.0,68.0,2026-11-20 17:50,2026-11-21 02:50,Medium
+2026-11-20,2026-11-20T19:00:00-05:00,401926782,Edge,Georgia State,Jacksonville State,Georgia State,T1,1.5,Consensus (8 books),Medium,,2.02,0.5247,,0.5187,L,77.0,82.0,2026-11-20 17:50,2026-11-21 02:50,Low
+2026-11-20,2026-11-20T19:00:00-05:00,401926134,Edge,Oakland,Purdue,Oakland,T1,21.5,Consensus (8 books),Medium,,0.88,0.51,,0.0304,L,49.0,95.0,2026-11-20 17:50,2026-11-21 02:50,Low
+2026-11-20,2026-11-20T19:00:00-05:00,401925927,Edge,South Carolina State,The Citadel,South Carolina State,T1,3.5,Consensus (7 books),High,,2.18,0.5265,,0.4523,L,63.0,79.0,2026-11-20 17:50,2026-11-21 02:50,Low
+2026-11-20,2026-11-20T19:00:00-05:00,401924844,Edge,Niagara,Delaware State,Delaware State,T2,-1.5,Consensus (7 books),Low,,1.04,0.5131,,0.5911,L,103.0,101.0,2026-11-20 17:50,2026-11-21 02:50,Low
+2026-11-20,2026-11-20T19:00:00-05:00,401924736,Edge,Monmouth,Princeton,Monmouth,T1,4.0,Consensus (8 books),Medium,,1.69,0.5209,,0.4167,L,64.0,75.0,2026-11-20 17:50,2026-11-21 02:50,Low
+2026-11-20,2026-11-20T19:00:00-05:00,401921692,Edge,Wisconsin,Murray State,Murray State,T2,3.5,Consensus (8 books),High,,2.83,0.5334,,0.4756,W,53.0,70.0,2026-11-20 17:50,2026-11-21 02:50,Low
+2026-11-20,2026-11-20T19:00:00-05:00,401921107,Edge,Bellarmine,Eastern Kentucky,Eastern Kentucky,T2,-8.5,Consensus (7 books),Low,,4.07,0.5449,,0.8734,L,79.0,76.0,2026-11-20 17:50,2026-11-21 02:50,Medium
+2026-11-20,2026-11-20T19:00:00-05:00,401921007,Edge,Kansas City,Iona,Iona,T2,-4.5,Draft Kings (no DraftKings line),Low,,0.71,0.509,,0.6823,L,61.0,62.0,2026-11-20 17:50,2026-11-21 02:50,Low
+2026-11-20,2026-11-20T19:00:00-05:00,401920922,Edge,Western Michigan,Mount St. Mary's,Western Michigan,T1,-7.5,Draft Kings (no DraftKings line),Check,,7.06,0.5627,,0.9071,L,73.0,67.0,2026-11-20 17:50,2026-11-21 02:50,High
+2026-11-20,2026-11-20T19:00:00-05:00,401920818,Edge,SE Louisiana,Kennesaw State,Kennesaw State,T2,-11.5,Consensus (7 books),Low,,0.92,0.5114,,0.8705,W,59.0,96.0,2026-11-20 17:50,2026-11-21 02:50,Low
+2026-11-20,2026-11-20T19:00:00-05:00,401920357,Edge,Harvard,Holy Cross,Holy Cross,T2,11.5,Consensus (7 books),High,,3.22,0.5368,,0.2259,L,77.0,65.0,2026-11-20 17:50,2026-11-21 02:50,Low
+2026-11-20,2026-11-20T19:00:00-05:00,401920195,Edge,Saint Joseph's,Drexel,Drexel,T2,4.5,Consensus (7 books),Medium,,1.28,0.516,,0.3847,W,64.0,75.0,2026-11-20 17:50,2026-11-21 02:50,Low
+2026-11-20,2026-11-20T19:00:00-05:00,401916299,Edge,Wagner,Maryland,Wagner,T1,33.5,Consensus (7 books),Check,,6.15,0.5483,,0.0065,W,45.0,62.0,2026-11-20 17:50,2026-11-21 02:50,Medium
+2026-11-20,2026-11-20T19:00:00-05:00,401909709,Edge,Central Michigan,Pittsburgh,Pittsburgh,T2,-21.5,Consensus (8 books),Low,,0.17,0.502,,0.9756,W,82.0,104.0,2026-11-20 17:50,2026-11-21 02:50,Low
+2026-11-20,2026-11-20T19:30:00-05:00,401925865,Edge,Tulsa,Mississippi State,Mississippi State,T2,-6.5,Consensus (8 books),Low,,2.85,0.5336,,0.8023,W,61.0,72.0,2026-11-20 17:50,2026-11-21 02:50,Low
+2026-11-20,2026-11-20T19:30:00-05:00,401925080,Edge,UT Arlington,Northwestern State,UT Arlington,T1,-3.5,Consensus (7 books),Low,,0.94,0.5118,,0.6569,W,69.0,62.0,2026-11-20 17:50,2026-11-21 02:50,Low
+2026-11-20,2026-11-20T19:30:00-05:00,401909545,Edge,Iowa,Xavier,Iowa,T1,3.5,Consensus (8 books),Medium,,0.91,0.5115,,0.4068,W,83.0,65.0,2026-11-20 17:50,2026-11-21 02:50,Low
+2026-11-20,2026-11-20T20:00:00-05:00,401921757,Edge,UCF,Vanderbilt,Vanderbilt,T2,-16.5,Consensus (8 books),Low,,2.65,0.5298,,0.9592,L,74.0,82.0,2026-11-20 17:50,2026-11-21 02:50,Low
+2026-11-20,2026-11-20T20:00:00-05:00,401925740,Edge,Mississippi Valley State,Arkansas,Mississippi Valley State,T1,37.5,Draft Kings (no DraftKings line),Check,,10.42,0.5571,,0.0069,L,48.0,92.0,2026-11-20 17:50,2026-11-21 02:50,Medium
+2026-11-20,2026-11-20T20:00:00-05:00,401929459,Edge,South Alabama,SMU,South Alabama,T1,15.5,Consensus (8 books),High,,4.15,0.5434,,0.151,L,55.0,101.0,2026-11-20 17:50,2026-11-21 02:50,Medium
+2026-11-20,2026-11-20T20:00:00-05:00,401920707,Edge,Lipscomb,Alabama A&M,Lipscomb,T1,-5.5,Consensus (6 books),Low,,4.25,0.5463,,0.8124,L,69.0,85.0,2026-11-20 17:50,2026-11-21 02:50,Medium
+2026-11-20,2026-11-20T20:00:00-05:00,401919784,Edge,Le Moyne,Missouri,Le Moyne,T1,35.0,Consensus (7 books),Medium,,1.16,0.5118,,0.001,W,64.0,91.0,2026-11-20 17:50,2026-11-21 02:50,Low
+2026-11-20,2026-11-20T20:00:00-05:00,401916290,Edge,Kentucky,Indiana,Indiana,T2,-3.5,Consensus (8 books),Low,,1.96,0.524,,0.6902,W,76.0,90.0,2026-11-20 17:50,2026-11-21 02:50,Low
+2026-11-20,2026-11-20T20:00:00-05:00,401916125,Edge,Utah Valley,East Carolina,Utah Valley,T1,-4.0,Consensus (8 books),Low,,0.28,0.5036,,0.6515,L,79.0,90.0,2026-11-20 17:50,2026-11-21 02:50,Low
+2026-11-20,2026-11-20T20:00:00-05:00,401909799,Edge,Campbell,Kansas State,Kansas State,T2,-16.0,Consensus (8 books),Low,,2.89,0.5323,,0.9571,L,80.0,70.0,2026-11-20 17:50,2026-11-21 02:50,Low
+2026-11-20,2026-11-20T20:00:00-05:00,401906784,Edge,Georgia,Georgia Tech,Georgia,T1,-8.5,Consensus (8 books),Low,,1.48,0.5184,,0.8179,L,88.0,82.0,2026-11-20 17:50,2026-11-21 02:50,Low
+2026-11-20,2026-11-20T21:00:00-05:00,401913529,Edge,Eastern Illinois,Illinois,Illinois,T2,-47.5,Consensus (8 books),Low,,1.0,0.5094,,1.0,W,52.0,114.0,2026-11-20 17:50,2026-11-21 02:50,Low
+2026-11-20,2026-11-20T21:00:00-05:00,401928795,Edge,Sam Houston,Boise State,Sam Houston,T1,12.5,Draft Kings (no DraftKings line),High,,2.29,0.5271,,0.1768,W,83.0,69.0,2026-11-20 17:50,2026-11-21 02:50,Low
+2026-11-20,2026-11-20T21:00:00-05:00,401920137,Edge,Cal State Bakersfield,Idaho,Cal State Bakersfield,T1,1.5,Draft Kings (no DraftKings line),Medium,,0.89,0.5112,,0.478,L,81.0,84.0,2026-11-20 17:50,2026-11-21 02:50,Low
+2026-11-20,2026-11-20T21:00:00-05:00,401912710,Edge,Marshall,North Carolina,Marshall,T1,18.5,Consensus (8 books),High,,5.89,0.5531,,0.1258,W,72.0,88.0,2026-11-20 17:50,2026-11-21 02:50,Medium
+2026-11-20,2026-11-20T21:30:00-05:00,401921691,Edge,Seton Hall,NC State,NC State,T2,-3.5,Consensus (8 books),Low,,1.82,0.5224,,0.6857,L,87.0,81.0,2026-11-20 17:50,2026-11-21 02:50,Low
+2026-11-20,2026-11-20T22:00:00-05:00,401925664,Edge,Alabama State,Fresno State,Alabama State,T1,10.5,Consensus (7 books),Medium,,0.87,0.5109,,0.1907,L,68.0,80.0,2026-11-20 17:50,2026-11-21 02:50,Low
+2026-11-20,2026-11-20T23:00:00-05:00,401911252,Edge,Saint Louis,Saint Mary's,Saint Louis,T1,1.5,Consensus (7 books),Medium,,3.92,0.5436,,0.5871,L,78.0,95.0,2026-11-20 17:50,2026-11-21 02:50,Medium
+2026-11-21,2026-11-21T11:00:00-05:00,401924884,Edge,Siena,Bucknell,Bucknell,T2,7.5,Consensus (7 books),High,,2.21,0.5268,,0.3154,W,93.0,87.0,2026-11-21 10:50,2026-11-21 17:45,Low
+2026-11-21,2026-11-21T12:00:00-05:00,401925756,Edge,Detroit Mercy,Michigan St.,Detroit Mercy,T1,40.5,Consensus (8 books),Check,,11.22,0.5567,,0.0039,W,70.0,91.0,2026-11-21 10:50,2026-11-21 17:45,Medium
+2026-11-21,2026-11-21T12:00:00-05:00,401923402,Edge,Columbia,Boston University,Boston University,T2,1.5,Draft Kings (no DraftKings line),Medium,,0.09,0.5011,,0.4489,L,80.0,71.0,2026-11-21 10:50,2026-11-21 17:45,Low
+2026-11-21,2026-11-21T13:00:00-05:00,401921811,Edge,Queens,LSU,Queens,T1,27.5,Consensus (7 books),Check,,8.62,0.5585,,0.043,L,75.0,106.0,2026-11-21 10:50,2026-11-21 17:45,Medium
+2026-11-21,2026-11-21T13:00:00-05:00,401923312,Edge,New Hampshire,New Haven,New Haven,T2,2.5,Consensus (7 books),Medium,,1.63,0.5202,,0.4685,W,47.0,50.0,2026-11-21 10:50,2026-11-21 17:45,Low
+2026-11-21,2026-11-21T13:00:00-05:00,401921169,Edge,Kent St.,Cleveland St.,Cleveland St.,T2,3.5,Consensus (8 books),Medium,,1.8,0.5222,,0.4384,L,69.0,62.0,2026-11-21 10:50,2026-11-21 17:45,Low
+2026-11-21,2026-11-21T13:00:00-05:00,401920948,Edge,Denver,Eastern Michigan,Eastern Michigan,T2,-7.5,Consensus (8 books),Low,,1.85,0.5228,,0.8024,L,68.0,70.0,2026-11-21 10:50,2026-11-21 17:45,Low
+2026-11-21,2026-11-21T13:30:00-05:00,401919828,Edge,Western Illinois,Mercyhurst,Western Illinois,T1,5.5,Consensus (7 books),Medium,,0.29,0.5037,,0.3178,W,65.0,68.0,2026-11-21 10:50,2026-11-21 17:45,Low
+2026-11-21,2026-11-21T14:00:00-05:00,401924882,Edge,Stony Brook,Saint Peter's,Saint Peter's,T2,5.5,Consensus (8 books),High,,3.61,0.5409,,0.4318,L,67.0,52.0,2026-11-21 10:50,2026-11-21 17:45,Medium
+2026-11-21,2026-11-21T14:00:00-05:00,401924722,Edge,Cornell,Morgan St.,Morgan St.,T2,6.5,Consensus (7 books),Medium,,1.97,0.5241,,0.3402,L,84.0,63.0,2026-11-21 10:50,2026-11-21 17:45,Low
+2026-11-21,2026-11-21T14:00:00-05:00,401922222,Edge,Little Rock,North Florida,North Florida,T2,5.5,Draft Kings (no DraftKings line),High,,3.76,0.5422,,0.4371,W,87.0,99.0,2026-11-21 10:50,2026-11-21 17:45,Medium
+2026-11-21,2026-11-21T14:00:00-05:00,401921222,Edge,Navy,Rider,Navy,T1,-4.5,Consensus (7 books),Low,,0.58,0.5073,,0.678,L,66.0,69.0,2026-11-21 10:50,2026-11-21 17:45,Low
+2026-11-21,2026-11-21T14:00:00-05:00,401919031,Edge,New Mexico,Wichita St.,Wichita St.,T2,1.5,Consensus (8 books),Medium,,3.83,0.5429,,0.5838,W,60.0,85.0,2026-11-21 10:50,2026-11-21 17:45,Medium
+2026-11-21,2026-11-21T14:00:00-05:00,401911199,Edge,Fordham,Portland,Portland,T2,4.5,Consensus (8 books),High,,2.03,0.5248,,0.4113,L,87.0,69.0,2026-11-21 10:50,2026-11-21 17:45,Low
+2026-11-21,2026-11-21T14:00:00-05:00,401911022,Edge,Northern Illinois,Bowling Green,Bowling Green,T2,-5.0,Consensus (7 books),Low,,2.78,0.5329,,0.7602,L,86.0,68.0,2026-11-21 10:50,2026-11-21 17:45,Low
+2026-11-21,2026-11-21T14:00:00-05:00,401909730,Edge,Western Carolina,Wake Forest,Western Carolina,T1,14.5,Consensus (8 books),High,,2.99,0.5337,,0.1476,L,63.0,90.0,2026-11-21 10:50,2026-11-21 17:45,Low
+2026-11-21,2026-11-21T14:00:00-05:00,401909719,Edge,Lafayette,Syracuse,Lafayette,T1,24.5,Consensus (7 books),High,,2.94,0.5305,,0.025,W,81.0,84.0,2026-11-21 10:50,2026-11-21 17:45,Low
+2026-11-21,2026-11-21T15:00:00-05:00,401927365,Edge,Drake,Missouri St.,Missouri St.,T2,3.5,Consensus (8 books),Medium,,0.69,0.5087,,0.3992,W,65.0,67.0,2026-11-21 10:50,2026-11-21 17:45,Low
+2026-11-21,2026-11-21T15:00:00-05:00,401920846,Edge,St. Thomas,Milwaukee,Milwaukee,T2,1.5,Draft Kings (no DraftKings line),Medium,,0.19,0.5024,,0.4526,L,98.0,70.0,2026-11-21 10:50,2026-11-21 17:45,Low
+2026-11-21,2026-11-21T15:00:00-05:00,401920569,Edge,Middle Tennessee,Indiana St.,Middle Tennessee,T1,-2.5,Consensus (8 books),Low,,1.96,0.524,,0.6574,W,69.0,59.0,2026-11-21 10:50,2026-11-21 17:45,Low
+2026-11-21,2026-11-21T15:00:00-05:00,401917953,Edge,UT Rio Grande Valley,Austin Peay,Austin Peay,T2,-4.5,Consensus (7 books),Low,,2.47,0.5297,,0.7368,L,79.0,73.0,2026-11-21 10:50,2026-11-21 17:45,Low
+2026-11-21,2026-11-21T15:30:00-05:00,401911278,Edge,Army,Binghamton,Binghamton,T2,1.5,Draft Kings (no DraftKings line),Medium,,5.42,0.5545,,0.6391,W,46.0,67.0,2026-11-21 10:50,2026-11-21 17:45,Medium
+2026-11-21,2026-11-21T16:00:00-05:00,401923322,Edge,Albany,Canisius,Canisius,T2,1.5,Draft Kings (no DraftKings line),Medium,,2.47,0.5297,,0.535,W,81.0,91.0,2026-11-21 10:50,2026-11-22 02:50,Low
+2026-11-21,2026-11-21T16:00:00-05:00,401922048,Edge,Longwood,East Tennessee St.,East Tennessee St.,T2,-5.5,Consensus (6 books),Low,,0.68,0.5086,,0.7128,W,68.0,74.0,2026-11-21 10:50,2026-11-22 02:50,Low
+2026-11-21,2026-11-21T16:00:00-05:00,401921183,Edge,Penn,La Salle,Penn,T1,2.5,Consensus (8 books),Medium,,1.39,0.5173,,0.4597,W,83.0,73.0,2026-11-21 10:50,2026-11-22 02:50,Low
+2026-11-21,2026-11-21T16:00:00-05:00,401918995,Edge,South Florida,George Mason,George Mason,T2,-3.5,Consensus (8 books),Low,,0.63,0.508,,0.6464,W,62.0,73.0,2026-11-21 10:50,2026-11-22 02:50,Low
+2026-11-21,2026-11-21T16:00:00-05:00,401917918,Edge,Central Arkansas,Jacksonville,Jacksonville,T2,3.5,Consensus (7 books),High,,3.76,0.5422,,0.5094,L,82.0,67.0,2026-11-21 10:50,2026-11-22 02:50,Medium
+2026-11-21,2026-11-21T16:30:00-05:00,401917538,Edge,UC Irvine,San Diego,San Diego,T2,4.5,Consensus (8 books),Medium,,1.03,0.5129,,0.3763,W,67.0,64.0,2026-11-21 10:50,2026-11-22 02:50,Low
+2026-11-21,2026-11-21T17:00:00-05:00,401925709,Edge,Winthrop,Wofford,Winthrop,T1,6.5,Consensus (7 books),High,,3.18,0.5369,,0.3813,W,86.0,91.0,2026-11-21 10:50,2026-11-22 02:50,Low
+2026-11-21,2026-11-21T17:00:00-05:00,401925065,Edge,Southern Miss,Nicholls St.,Nicholls St.,T2,2.5,Draft Kings (no DraftKings line),Medium,,0.4,0.5051,,0.4244,L,80.0,69.0,2026-11-21 10:50,2026-11-22 02:50,Low
+2026-11-21,2026-11-21T17:00:00-05:00,401919849,Edge,Northeastern,Stonehill,Stonehill,T2,8.5,Consensus (7 books),Medium,,1.81,0.5223,,0.2716,W,82.0,95.0,2026-11-21 10:50,2026-11-22 02:50,Low
+2026-11-21,2026-11-21T17:00:00-05:00,401911337,Edge,Air Force,UTSA,UTSA,T2,-6.0,Consensus (8 books),Low,,0.6,0.5076,,0.7257,W,68.0,90.0,2026-11-21 10:50,2026-11-22 02:50,Low
+2026-11-21,2026-11-21T17:30:00-05:00,401920570,Edge,Southern Illinois,East Carolina,East Carolina,T2,1.5,Consensus (8 books),Medium,,4.1,0.5451,,0.5933,L,85.0,69.0,2026-11-21 10:50,2026-11-22 02:50,Medium
+2026-11-21,2026-11-21T18:00:00-05:00,401925897,Edge,UNC Wilmington,Norfolk St.,UNC Wilmington,T1,-11.5,Consensus (7 books),Low,,1.97,0.5238,,0.8897,L,89.0,80.0,2026-11-21 17:45,2026-11-22 02:50,Low
+2026-11-21,2026-11-21T18:00:00-05:00,401911023,Edge,Maine,Massachusetts,Maine,T1,11.5,Consensus (7 books),High,,2.31,0.5276,,0.2018,L,44.0,76.0,2026-11-21 17:45,2026-11-22 02:50,Low
+2026-11-21,2026-11-21T18:00:00-05:00,401909517,Edge,Coppin St.,Georgetown,Coppin St.,T1,31.5,Consensus (7 books),High,,5.2,0.5445,,0.0084,W,60.0,84.0,2026-11-21 17:45,2026-11-22 02:50,Medium
+2026-11-21,2026-11-21T19:00:00-05:00,401921776,Edge,Michigan,Villanova,Villanova,T2,3.5,Consensus (8 books),High,,2.79,0.533,,0.4742,W,73.0,79.0,2026-11-21 17:45,2026-11-22 02:50,Low
+2026-11-21,2026-11-21T19:00:00-05:00,401920975,Edge,Radford,Chattanooga,Chattanooga,T2,-8.0,Consensus (7 books),Low,,0.04,0.5005,,0.7677,L,73.0,65.0,2026-11-21 17:45,2026-11-22 02:50,Low
+2026-11-21,2026-11-21T19:00:00-05:00,401920964,Edge,Morehead St.,Elon,Morehead St.,T1,11.5,Consensus (8 books),High,,2.81,0.5328,,0.2148,L,61.0,84.0,2026-11-21 17:45,2026-11-22 02:50,Low
+2026-11-21,2026-11-21T19:00:00-05:00,401920125,Edge,Northern Arizona,Cal Poly,Cal Poly,T2,-8.5,Consensus (7 books),Low,,0.79,0.51,,0.8009,L,88.0,89.0,2026-11-21 17:45,2026-11-22 02:50,Low
+2026-11-21,2026-11-21T19:00:00-05:00,401911394,Edge,Gardner Webb,VMI,Gardner Webb,T1,7.5,DraftKings,Medium,,0.57,0.5072,,0.2644,W,68.0,71.0,2026-11-21 17:45,2026-11-22 02:50,Low
+2026-11-21,2026-11-21T19:00:00-05:00,401911378,Edge,Charleston Southern,Mercer,Charleston Southern,T1,8.5,Consensus (7 books),Medium,,1.13,0.5142,,0.2514,W,64.0,69.0,2026-11-21 17:45,2026-11-22 02:50,Low
+2026-11-21,2026-11-21T19:00:00-05:00,401911310,Edge,Brown,Vermont,Vermont,T2,-4.5,Consensus (7 books),Low,,2.5,0.53,,0.7378,W,71.0,84.0,2026-11-21 17:45,2026-11-22 02:50,Low
+2026-11-21,2026-11-21T19:30:00-05:00,401926217,Edge,Presbyterian,Tennessee Tech,Presbyterian,T1,8.0,Consensus (7 books),High,,2.39,0.5288,,0.3049,L,69.0,97.0,2026-11-21 17:45,2026-11-22 02:50,Low
+2026-11-21,2026-11-21T20:00:00-05:00,401928998,Edge,Troy,Valparaiso,Troy,T1,4.5,Consensus (8 books),High,,3.18,0.5369,,0.4522,W,77.0,72.0,2026-11-21 17:45,2026-11-22 02:50,Low
+2026-11-21,2026-11-21T20:00:00-05:00,401925099,Edge,Texas A&M Corpus Chris,Oral Roberts,Texas A&M Corpus Chris,T1,3.5,DraftKings,Medium,,1.16,0.5145,,0.4157,L,74.0,78.0,2026-11-21 17:45,2026-11-22 02:50,Low
+2026-11-21,2026-11-21T22:00:00-05:00,401917537,Edge,Bradley,Pacific,Pacific,T2,-8.5,Consensus (8 books),Low,,1.23,0.5154,,0.8117,L,62.0,63.0,2026-11-21 17:45,2026-11-22 02:50,Low
+2026-11-21,2026-11-21T23:00:00-05:00,401909567,Edge,Washington St.,Duke,Washington St.,T1,25.0,Consensus (8 books),High,,5.8,0.55,,0.0405,W,74.0,78.0,2026-11-21 17:45,2026-11-22 02:50,Medium
+2026-11-22,2026-11-22T12:00:00-05:00,401902281,Edge,Nebraska,Butler,Butler,T2,11.5,Consensus (8 books),Medium,,0.4,0.505,,0.1565,W,76.0,74.0,2026-11-22 10:49,2026-11-22 17:46,Low
+2026-11-22,2026-11-22T12:00:00-05:00,401911024,Edge,Miami OH,Illinois Chicago,Miami OH,T1,1.0,Consensus (7 books),Medium,,2.75,0.5326,,0.5631,W,71.0,60.0,2026-11-22 10:49,2026-11-22 17:46,Low
+2026-11-22,2026-11-22T13:00:00-05:00,401929023,Edge,Western Illinois,Canisius,Canisius,T2,-4.0,Consensus (8 books),Low,,1.17,0.5147,,0.6809,L,66.0,46.0,2026-11-22 10:49,2026-11-22 17:46,Low
+2026-11-22,2026-11-22T13:00:00-05:00,401920736,Edge,Dayton,Northwestern,Northwestern,T2,3.5,Consensus (8 books),High,,2.44,0.5293,,0.4615,W,55.0,79.0,2026-11-22 10:49,2026-11-22 17:46,Low
+2026-11-22,2026-11-22T13:00:00-05:00,401919809,Edge,Fairfield,LIU,LIU,T2,-3.5,Draft Kings (no DraftKings line),Low,,0.32,0.5041,,0.6357,L,74.0,71.0,2026-11-22 10:49,2026-11-22 17:46,Low
+2026-11-22,2026-11-22T13:00:00-05:00,401912212,Edge,Towson,American,American,T2,1.5,Consensus (7 books),Medium,,3.46,0.5396,,0.5709,W,75.0,86.0,2026-11-22 10:49,2026-11-22 17:46,Low
+2026-11-22,2026-11-22T13:00:00-05:00,401909527,Edge,Chicago St.,Marquette,Chicago St.,T1,33.5,Consensus (7 books),Check,,6.18,0.5484,,0.0065,L,62.0,106.0,2026-11-22 10:49,2026-11-22 17:46,Medium
+2026-11-22,2026-11-22T14:00:00-05:00,401928802,Edge,George Washington,Western Kentucky,George Washington,T1,-3.5,Draft Kings (no DraftKings line),Low,,1.21,0.5152,,0.6657,L,78.0,86.0,2026-11-22 10:49,2026-11-22 17:46,Low
+2026-11-22,2026-11-22T14:00:00-05:00,401925942,Edge,South Dakota,Utah Tech,South Dakota,T1,1.0,Consensus (8 books),Medium,,0.12,0.5015,,0.4681,W,74.0,73.0,2026-11-22 10:49,2026-11-22 17:46,Low
+2026-11-22,2026-11-22T14:00:00-05:00,401921748,Edge,UMass Lowell,Cincinnati,UMass Lowell,T1,28.5,Consensus (7 books),High,,4.83,0.5434,,0.0157,W,68.0,78.0,2026-11-22 10:49,2026-11-22 17:46,Medium
+2026-11-22,2026-11-22T14:00:00-05:00,401921706,Edge,Wyoming,Duquesne,Duquesne,T2,3.5,Consensus (8 books),Medium,,1.04,0.5131,,0.4116,L,79.0,61.0,2026-11-22 10:49,2026-11-22 17:46,Low
+2026-11-22,2026-11-22T14:00:00-05:00,401918988,Edge,Evansville,Memphis,Evansville,T1,20.5,Consensus (8 books),High,,4.24,0.5422,,0.0697,W,62.0,82.0,2026-11-22 10:49,2026-11-22 17:46,Medium
+2026-11-22,2026-11-22T14:00:00-05:00,401918455,Edge,William & Mary,Youngstown St.,Youngstown St.,T2,2.5,Consensus (8 books),Medium,,0.92,0.5116,,0.4429,L,75.0,63.0,2026-11-22 10:49,2026-11-22 17:46,Low
+2026-11-22,2026-11-22T14:00:00-05:00,401911200,Edge,San Diego,Fordham,San Diego,T1,2.5,Consensus (8 books),Medium,,0.65,0.5082,,0.4333,L,58.0,80.0,2026-11-22 10:49,2026-11-22 17:46,Low
+2026-11-22,2026-11-22T14:30:00-05:00,401928790,Edge,Robert Morris,New Mexico St.,New Mexico St.,T2,-1.5,Consensus (8 books),Low,,0.71,0.509,,0.5795,L,84.0,79.0,2026-11-22 10:49,2026-11-22 17:46,Low
+2026-11-22,2026-11-22T15:00:00-05:00,401906868,Edge,Southern Indiana,Texas,Southern Indiana,T1,38.5,Consensus (8 books),Check,,9.96,0.5561,,0.0047,W,61.0,97.0,2026-11-22 10:49,2026-11-22 17:46,Medium
+2026-11-22,2026-11-22T15:00:00-05:00,401925066,Edge,Troy,Nicholls St.,Troy,T1,-5.5,Draft Kings (no DraftKings line),Low,,1.77,0.5218,,0.7458,L,78.0,77.0,2026-11-22 10:49,2026-11-22 17:46,Low
+2026-11-22,2026-11-22T15:00:00-05:00,401922252,Edge,West Florida,South Alabama,West Florida,T1,5.5,Consensus (7 books),Medium,,0.2,0.5025,,0.3151,L,66.0,79.0,2026-11-22 10:49,2026-11-22 17:46,Low
+2026-11-22,2026-11-22T15:30:00-05:00,401929202,Edge,McNeese St.,Texas St.,McNeese St.,T1,2.5,Consensus (7 books),Medium,,1.74,0.5215,,0.4724,L,69.0,95.0,2026-11-22 10:49,2026-11-23 03:08,Low
+2026-11-22,2026-11-22T15:30:00-05:00,401923323,Edge,Mercyhurst,Albany,Albany,T2,1.5,Draft Kings (no DraftKings line),Medium,,0.48,0.5061,,0.4629,L,78.0,75.0,2026-11-22 10:49,2026-11-22 17:46,Low
+2026-11-22,2026-11-22T15:30:00-05:00,401920381,Edge,Virginia Tech,Oklahoma St.,Virginia Tech,T1,-1.5,Consensus (8 books),Low,,1.09,0.5137,,0.5932,L,80.0,106.0,2026-11-22 10:49,2026-11-22 17:46,Low
+2026-11-22,2026-11-22T16:30:00-05:00,401926795,Edge,Richmond,Liberty,Richmond,T1,1.5,Consensus (8 books),Medium,,3.61,0.5409,,0.5762,W,92.0,88.0,2026-11-22 10:49,2026-11-23 03:08,Medium
+2026-11-22,2026-11-22T16:30:00-05:00,401921176,Edge,IU Indy,Maryland Eastern Shore,Maryland Eastern Shore,T2,11.5,Draft Kings (no DraftKings line),High,,2.4,0.5285,,0.204,L,81.0,61.0,2026-11-22 10:49,2026-11-23 03:08,Low
+2026-11-22,2026-11-22T16:30:00-05:00,401917540,Edge,UC Irvine,Loyola Marymount,UC Irvine,T1,-2.0,Consensus (8 books),Low,,0.94,0.5118,,0.6052,W,72.0,68.0,2026-11-22 10:49,2026-11-23 03:08,Low
+2026-11-22,2026-11-22T17:00:00-05:00,401925013,Edge,Rice,Lamar,Rice,T1,2.5,Consensus (7 books),Medium,,0.75,0.5095,,0.4369,W,85.0,81.0,2026-11-22 10:49,2026-11-23 03:08,Low
+2026-11-22,2026-11-22T17:00:00-05:00,401922293,Edge,UNC Asheville,Samford,UNC Asheville,T1,10.5,Consensus (7 books),High,,4.28,0.5464,,0.2857,W,77.0,80.0,2026-11-22 10:49,2026-11-23 03:08,Medium
+2026-11-22,2026-11-22T17:00:00-05:00,401920159,Edge,Cal St. Fullerton,Portland St.,Cal St. Fullerton,T1,4.5,Draft Kings (no DraftKings line),Medium,,0.71,0.509,,0.3654,W,92.0,75.0,2026-11-22 10:49,2026-11-23 03:08,Low
+2026-11-22,2026-11-22T17:00:00-05:00,401909556,Edge,NJIT,Boston College,NJIT,T1,23.5,Consensus (7 books),High,,4.9,0.5456,,0.0454,W,59.0,79.0,2026-11-22 10:49,2026-11-23 03:08,Medium
+2026-11-22,2026-11-22T17:30:00-05:00,401921205,Edge,Temple,Stephen F. Austin,Stephen F. Austin,T2,2.5,Consensus (8 books),Medium,,2.42,0.5291,,0.4971,W,70.0,72.0,2026-11-22 10:49,2026-11-23 03:08,Low
+2026-11-22,2026-11-22T18:00:00-05:00,401928999,Edge,Southern Miss,Valparaiso,Valparaiso,T2,-9.0,Consensus (8 books),Low,,1.07,0.5134,,0.82,L,99.0,89.0,2026-11-22 17:47,2026-11-23 03:08,Low
+2026-11-22,2026-11-22T18:00:00-05:00,401921420,Edge,Utah,Minnesota,Minnesota,T2,-9.5,Consensus (8 books),Check,,6.5,0.5603,,0.9271,W,62.0,77.0,2026-11-22 17:47,2026-11-23 03:08,High
+2026-11-22,2026-11-22T19:00:00-05:00,401920905,Edge,Delaware,UCLA,Delaware,T1,28.5,Consensus (8 books),Medium,,1.89,0.5199,,0.0078,L,48.0,85.0,2026-11-22 17:47,2026-11-23 03:08,Low
+2026-11-22,2026-11-22T19:00:00-05:00,401919020,Edge,Rhode Island,UAB,Rhode Island,T1,-2.0,Consensus (8 books),Low,,1.25,0.5156,,0.6162,W,79.0,64.0,2026-11-22 17:47,2026-11-23 03:08,Low
+2026-11-22,2026-11-22T19:00:00-05:00,401917541,Edge,California Baptist,Portland,Portland,T2,-7.5,DraftKings,Check,,6.4,0.5598,,0.8967,W,71.0,79.0,2026-11-22 17:47,2026-11-23 03:08,Medium
+2026-11-22,2026-11-22T20:00:00-05:00,401926774,Edge,Louisiana,USC,USC,T2,-32.0,Consensus (8 books),Low,,2.96,0.529,,0.9993,L,56.0,82.0,2026-11-22 17:47,2026-11-23 03:08,Low
+2026-11-22,2026-11-22T20:00:00-05:00,401921206,Edge,UT Martin,Utah Valley,UT Martin,T1,6.5,DraftKings,High,,2.94,0.5346,,0.3732,W,76.0,78.0,2026-11-22 17:47,2026-11-23 03:08,Low
+2026-11-22,2026-11-22T21:30:00-05:00,401917542,Edge,Seattle U,UC San Diego,Seattle U,T1,1.5,DraftKings,Medium,,2.54,0.5304,,0.5375,L,64.0,90.0,2026-11-22 17:47,2026-11-23 03:08,Low
+2026-11-22,2026-11-22T23:59:00-05:00,401911233,Edge,San José State,Loyola Chicago,Loyola Chicago,T2,-4.5,DraftKings,Low,,1.78,0.5219,,0.716,L,72.0,63.0,2026-11-22 17:47,2026-11-23 03:08,Low
+2026-11-23,2026-11-23T11:00:00-05:00,401927397,Edge,St. Bonaventure,App State,App State,T2,5.5,DraftKings,High,,3.25,0.5376,,0.419,L,71.0,65.0,2026-11-23 03:08,2026-11-23 17:56,Low
+2026-11-23,2026-11-23T11:00:00-05:00,401921700,Edge,Northern Iowa,Davidson,Northern Iowa,T1,5.0,Consensus (8 books),Medium,,0.99,0.5125,,0.3578,L,48.0,79.0,2026-11-23 03:08,2026-11-23 17:56,Low
+2026-11-23,2026-11-23T12:30:00-05:00,401921209,Edge,Indiana St.,East Carolina,East Carolina,T2,-2.0,Consensus (8 books),Low,,2.06,0.5252,,0.6438,L,77.0,76.0,2026-11-23 11:10,2026-11-23 17:56,Low
+2026-11-23,2026-11-23T13:00:00-05:00,401924266,Edge,Long Beach St.,FIU,FIU,T2,-7.5,DraftKings,Low,,0.64,0.5081,,0.7705,L,75.0,79.0,2026-11-23 11:10,2026-11-23 17:56,Low
+2026-11-23,2026-11-23T13:30:00-05:00,401928830,Edge,Akron,Wright St.,Akron,T1,1.5,Consensus (8 books),Medium,,1.87,0.523,,0.5134,L,64.0,66.0,2026-11-23 11:10,2026-11-23 17:56,Low
+2026-11-23,2026-11-23T13:30:00-05:00,401921701,Edge,Charlotte,Florida Gulf Coast,Charlotte,T1,-6.5,Consensus (7 books),Low,,2.16,0.5263,,0.7844,W,71.0,58.0,2026-11-23 11:10,2026-11-23 17:56,Low
+2026-11-23,2026-11-23T14:00:00-05:00,401921658,Edge,Tulsa,Oregon St.,Tulsa,T1,5.5,Consensus (8 books),High,,3.39,0.5389,,0.4241,W,66.0,69.0,2026-11-23 11:10,2026-11-23 17:56,Low
+2026-11-23,2026-11-23T14:30:00-05:00,401918076,Edge,Mississippi,Clemson,Clemson,T2,5.5,Consensus (8 books),High,,3.38,0.5388,,0.4238,L,82.0,62.0,2026-11-23 11:10,2026-11-23 17:56,Low
+2026-11-23,2026-11-23T15:00:00-05:00,401921207,Edge,Middle Tennessee,Southern Illinois,Middle Tennessee,T1,3.0,Consensus (8 books),High,,4.38,0.5473,,0.55,W,77.0,76.0,2026-11-23 11:10,2026-11-23 17:56,Medium
+2026-11-23,2026-11-23T15:30:00-05:00,401929445,Edge,Arkansas St.,Southern Utah,Southern Utah,T2,6.5,Consensus (8 books),High,,2.91,0.5342,,0.3722,W,102.0,104.0,2026-11-23 11:10,2026-11-24 03:00,Low
+2026-11-23,2026-11-23T15:30:00-05:00,401921177,Edge,William & Mary,IU Indy,IU Indy,T2,6.5,DraftKings,Medium,,0.26,0.5033,,0.2854,W,87.0,82.0,2026-11-23 11:10,2026-11-23 17:56,Low
+2026-11-23,2026-11-23T16:00:00-05:00,401929286,Edge,Yale,Belmont,Belmont,T2,-2.5,Consensus (8 books),Low,,1.97,0.5241,,0.6578,W,60.0,68.0,2026-11-23 11:10,2026-11-23 17:56,Low
+2026-11-23,2026-11-23T16:00:00-05:00,401919006,Edge,Tulane,Georgia St.,Tulane,T1,2.0,Consensus (8 books),Medium,,2.69,0.532,,0.525,L,63.0,73.0,2026-11-23 11:10,2026-11-24 03:00,Low
+2026-11-23,2026-11-23T16:30:00-05:00,401911457,Edge,Nevada,San Francisco,Nevada,T1,-7.0,Consensus (8 books),Low,,0.31,0.5039,,0.7469,L,62.0,71.0,2026-11-23 11:10,2026-11-24 03:00,Low
+2026-11-23,2026-11-23T17:00:00-05:00,401921708,Edge,Washington,BYU,Washington,T1,11.0,Consensus (8 books),High,,2.39,0.5285,,0.2169,W,77.0,83.0,2026-11-23 11:10,2026-11-24 03:00,Low
+2026-11-23,2026-11-23T18:00:00-05:00,401921210,Edge,Temple,UT Martin,UT Martin,T2,2.5,Draft Kings (no DraftKings line),Medium,,4.07,0.5449,,0.5566,W,81.0,90.0,2026-11-23 17:56,2026-11-24 03:00,Medium
+2026-11-23,2026-11-23T18:30:00-05:00,401920752,Edge,Maryland Eastern Shore,Youngstown State,Youngstown State,T2,-13.0,Consensus (7 books),Low,,0.45,0.5055,,0.8893,L,65.0,69.0,2026-11-23 17:56,2026-11-24 03:00,Low
+2026-11-23,2026-11-23T19:00:00-05:00,401921157,Edge,North Carolina A&T,South Carolina State,South Carolina State,T2,2.0,Consensus (7 books),Medium,,1.33,0.5166,,0.4758,P,62.0,60.0,2026-11-23 17:56,2026-11-24 03:00,Low
+2026-11-23,2026-11-23T19:00:00-05:00,401921029,Edge,Georgia Southern,Northern Kentucky,Georgia Southern,T1,3.0,Consensus (8 books),High,,4.44,0.5478,,0.5521,W,84.0,79.0,2026-11-23 17:56,2026-11-24 03:00,Medium
+2026-11-23,2026-11-23T19:00:00-05:00,401919761,Edge,Fairleigh Dickinson,Iona,Iona,T2,-9.5,Consensus (7 books),Low,,0.46,0.5058,,0.8175,L,49.0,46.0,2026-11-23 17:56,2026-11-24 03:00,Low
+2026-11-23,2026-11-23T19:00:00-05:00,401917919,Edge,Central Arkansas,North Florida,North Florida,T2,8.5,Consensus (7 books),Medium,,0.85,0.5107,,0.2433,L,80.0,66.0,2026-11-23 17:56,2026-11-24 03:00,Low
+2026-11-23,2026-11-23T19:00:00-05:00,401917543,Edge,Illinois State,Santa Clara,Santa Clara,T2,-3.0,Consensus (8 books),Low,,1.04,0.5131,,0.6434,L,102.0,99.0,2026-11-23 17:56,2026-11-24 03:00,Low
+2026-11-23,2026-11-23T19:30:00-05:00,401919032,Edge,Texas A&M-Corpus Christi,Wichita State,Texas A&M-Corpus Christi,T1,19.5,Draft Kings (no DraftKings line),High,,3.21,0.5343,,0.0693,W,73.0,91.0,2026-11-23 17:56,2026-11-24 03:00,Low
+2026-11-23,2026-11-23T20:00:00-05:00,401913530,Edge,Winthrop,Illinois,Illinois,T2,-42.5,Consensus (7 books),Low,,2.4,0.5223,,1.0,W,83.0,133.0,2026-11-23 17:56,2026-11-24 03:00,Low
+2026-11-23,2026-11-23T20:00:00-05:00,401909788,Edge,Denver,Kansas,Denver,T1,31.5,Consensus (8 books),Medium,,0.68,0.5072,,0.0025,W,67.0,84.0,2026-11-23 17:56,2026-11-24 03:00,Low
+2026-11-23,2026-11-23T20:00:00-05:00,401921208,Edge,Stephen F. Austin,Utah Valley,Stephen F. Austin,T1,4.0,Consensus (8 books),Medium,,1.15,0.5144,,0.3979,W,77.0,72.0,2026-11-23 17:56,2026-11-24 03:00,Low
+2026-11-23,2026-11-23T20:00:00-05:00,401913102,Edge,Monmouth,North Carolina,Monmouth,T1,18.5,Consensus (8 books),High,,2.37,0.5265,,0.0712,L,45.0,85.0,2026-11-23 17:56,2026-11-24 03:00,Low
+2026-11-23,2026-11-23T21:00:00-05:00,401909536,Edge,VCU,Providence,VCU,T1,1.5,Consensus (8 books),Medium,,3.7,0.5417,,0.5792,L,66.0,72.0,2026-11-23 17:56,2026-11-24 03:00,Medium
+2026-11-23,2026-11-23T21:30:00-05:00,401926183,Edge,UNC Greensboro,Pepperdine,UNC Greensboro,T1,10.5,Consensus (8 books),High,,3.38,0.5386,,0.2587,L,62.0,89.0,2026-11-23 17:56,2026-11-24 03:00,Low
+2026-11-23,2026-11-23T21:30:00-05:00,401921663,Edge,Loyola Chicago,Seattle U,Loyola Chicago,T1,1.5,Draft Kings (no DraftKings line),Medium,,3.24,0.5375,,0.563,L,63.0,76.0,2026-11-23 17:56,2026-11-24 03:00,Low
+2026-11-23,2026-11-23T22:00:00-05:00,401920721,Edge,Eastern Washington,UNLV,Eastern Washington,T1,8.0,Consensus (8 books),High,,2.67,0.5318,,0.314,L,61.0,82.0,2026-11-23 17:56,2026-11-24 03:00,Low
+2026-11-23,2026-11-23T22:00:00-05:00,401918057,Edge,Alabama State,California,California,T2,-18.5,Consensus (7 books),Low,,0.09,0.5011,,0.9545,W,54.0,96.0,2026-11-23 17:56,2026-11-24 03:00,Low
+2026-11-23,2026-11-23T23:30:00-05:00,401909743,Edge,Colorado State,Arizona,Arizona,T2,-16.5,Consensus (8 books),Low,,0.37,0.5044,,0.9374,L,83.0,96.0,2026-11-23 17:56,2026-11-24 03:00,Low
+2026-11-23,2026-11-23T23:59:00-05:00,401921664,Edge,San José State,UC San Diego,San José State,T1,1.5,Consensus (8 books),Medium,,1.55,0.5192,,0.5016,W,88.0,79.0,2026-11-23 17:56,2026-11-24 03:00,Low
+2026-11-24,2026-11-24T10:00:00-05:00,401927398,Edge,Wright St.,St. Bonaventure,Wright St.,T1,1.0,Consensus (7 books),Medium,,0.89,0.5112,,0.4961,L,70.0,72.0,2026-11-24 03:00,2026-11-24 17:59,Low
+2026-11-24,2026-11-24T11:00:00-05:00,401928791,Edge,Ohio,New Mexico St.,New Mexico St.,T2,5.0,Consensus (7 books),High,,4.41,0.5476,,0.4784,W,69.0,68.0,2026-11-24 03:00,2026-11-24 17:59,Medium
+2026-11-24,2026-11-24T12:30:00-05:00,401928835,Edge,Belmont,Akron,Belmont,T1,2.5,Consensus (8 books),Medium,,2.83,0.5334,,0.5121,L,64.0,87.0,2026-11-24 11:15,2026-11-24 17:59,Low
+2026-11-24,2026-11-24T12:30:00-05:00,401920819,Edge,SE Louisiana,Northern Colorado,SE Louisiana,T1,2.5,Draft Kings (no DraftKings line),Medium,,0.22,0.5028,,0.4178,W,70.0,60.0,2026-11-24 11:15,2026-11-24 17:59,Low
+2026-11-24,2026-11-24T13:00:00-05:00,401928358,Edge,Southern Utah,Florida International,Southern Utah,T1,8.5,Draft Kings (no DraftKings line),Medium,,0.3,0.5038,,0.228,L,66.0,81.0,2026-11-24 11:15,2026-11-24 17:59,Low
+2026-11-24,2026-11-24T13:30:00-05:00,401928859,Edge,Rice,UIC,Rice,T1,7.5,Consensus (8 books),High,,5.01,0.5519,,0.4103,W,67.0,68.0,2026-11-24 11:15,2026-11-24 17:59,Medium
+2026-11-24,2026-11-24T13:30:00-05:00,401906806,Edge,Oklahoma,Pittsburgh,Pittsburgh,T2,-1.5,Consensus (8 books),Check,,8.26,0.5667,,0.8126,W,68.0,79.0,2026-11-24 11:15,2026-11-24 17:59,High
+2026-11-24,2026-11-24T14:00:00-05:00,401917676,Edge,Oregon State,San Francisco,Oregon State,T1,-8.5,Consensus (8 books),Low,,3.14,0.5365,,0.855,L,73.0,87.0,2026-11-24 11:15,2026-11-24 17:59,Low
+2026-11-24,2026-11-24T14:30:00-05:00,401921709,Edge,Ole Miss,BYU,Ole Miss,T1,0.0,Consensus (8 books),Low,,2.18,0.5265,,0.5784,W,73.0,63.0,2026-11-24 11:15,2026-11-24 17:59,Low
+2026-11-24,2026-11-24T15:00:00-05:00,401906853,Edge,Tennessee,Maryland,Tennessee,T1,-2.5,Consensus (7 books),Low,,2.48,0.5298,,0.6745,W,72.0,64.0,2026-11-24 11:15,2026-11-24 17:59,Low
+2026-11-24,2026-11-24T15:00:00-05:00,401915941,Edge,Miami,TCU,Miami,T1,-5.0,Consensus (7 books),Low,,3.88,0.5433,,0.7902,L,71.0,84.0,2026-11-24 11:15,2026-11-24 17:59,Medium
+2026-11-24,2026-11-24T15:00:00-05:00,401929285,Edge,App State,Yale,App State,T1,-1.5,Draft Kings (no DraftKings line),Low,,3.4,0.539,,0.6722,L,50.0,57.0,2026-11-24 11:15,2026-11-24 17:59,Low
+2026-11-24,2026-11-24T15:00:00-05:00,401920546,Edge,North Dakota,Detroit Mercy,North Dakota,T1,-4.5,Consensus (8 books),Low,,4.13,0.5454,,0.7836,W,77.0,67.0,2026-11-24 11:15,2026-11-24 17:59,Medium
+2026-11-24,2026-11-24T15:30:00-05:00,401924267,Edge,Long Beach State,Arkansas State,Long Beach State,T1,5.5,Draft Kings (no DraftKings line),High,,5.17,0.5529,,0.488,W,106.0,81.0,2026-11-24 11:15,2026-11-24 17:59,Medium
+2026-11-24,2026-11-24T16:00:00-05:00,401929035,Edge,Lindenwood,New Haven,New Haven,T2,2.5,Consensus (7 books),Medium,,1.06,0.5133,,0.4479,L,63.0,60.0,2026-11-24 11:15,2026-11-24 17:59,Low
+2026-11-24,2026-11-24T16:30:00-05:00,401921666,Edge,Tulsa,Illinois State,Illinois State,T2,1.5,Consensus (8 books),Medium,,2.52,0.5302,,0.5368,L,79.0,67.0,2026-11-24 11:15,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T17:00:00-05:00,401921710,Edge,Providence,Arizona,Providence,T1,7.5,Consensus (8 books),Medium,,0.14,0.5018,,0.2519,L,66.0,84.0,2026-11-24 11:15,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T17:30:00-05:00,401921707,Edge,Wyoming,Kent State,Wyoming,T1,-8.0,Consensus (8 books),Low,,5.55,0.5553,,0.8909,L,78.0,75.0,2026-11-24 11:15,2026-11-25 03:04,Medium
+2026-11-24,2026-11-24T17:30:00-05:00,401909775,Edge,San Diego State,Iowa State,San Diego State,T1,9.5,Consensus (8 books),Check,,6.18,0.5587,,0.3813,L,68.0,81.0,2026-11-24 11:15,2026-11-25 03:04,Medium
+2026-11-24,2026-11-24T17:30:00-05:00,401909495,Edge,Creighton,Michigan,Creighton,T1,5.5,Consensus (8 books),Medium,,0.77,0.5097,,0.3336,W,99.0,73.0,2026-11-24 11:15,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T18:00:00-05:00,401924877,Edge,Sacred Heart,Rutgers,Sacred Heart,T1,22.5,Consensus (8 books),Medium,,1.51,0.5169,,0.0282,L,73.0,106.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T18:00:00-05:00,401923395,Edge,Southern Indiana,VMI,VMI,T2,-4.5,Consensus (8 books),Low,,0.15,0.5019,,0.6637,L,83.0,87.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T18:00:00-05:00,401923262,Edge,Mercer,Florida Atlantic,Florida Atlantic,T2,-7.0,Consensus (8 books),Low,,2.06,0.5252,,0.7948,W,84.0,95.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T18:00:00-05:00,401922231,Edge,Queens,Wofford,Wofford,T2,1.5,Consensus (7 books),Medium,,0.57,0.5072,,0.4664,W,77.0,86.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T18:00:00-05:00,401920949,Edge,Eastern Michigan,Kennesaw St.,Eastern Michigan,T1,5.5,Consensus (8 books),High,,3.6,0.5408,,0.4315,W,60.0,56.0,2026-11-24 17:59,2026-11-25 03:04,Medium
+2026-11-24,2026-11-24T18:00:00-05:00,401909505,Edge,DePaul,Purdue,DePaul,T1,3.5,Consensus (8 books),Medium,,0.4,0.5051,,0.3891,W,65.0,56.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T18:30:00-05:00,401925014,Edge,Robert Morris,Lamar,Robert Morris,T1,3.0,Consensus (7 books),High,,2.26,0.5274,,0.473,L,62.0,87.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T18:30:00-05:00,401921142,Edge,Elon,Furman,Furman,T2,-7.0,Consensus (8 books),Low,,0.05,0.5006,,0.7391,W,60.0,82.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T19:00:00-05:00,401906774,Edge,Milwaukee,Florida,Milwaukee,T1,35.0,Consensus (8 books),Check,,6.76,0.5501,,0.0051,W,67.0,76.0,2026-11-24 17:59,2026-11-25 03:04,Medium
+2026-11-24,2026-11-24T19:00:00-05:00,401916319,Edge,Vanderbilt,Ohio St.,Ohio St.,T2,2.0,Consensus (7 books),Medium,,2.26,0.5274,,0.5094,L,72.0,66.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T19:00:00-05:00,401916291,Edge,Jacksonville,Indiana,Jacksonville,T1,27.5,Consensus (7 books),High,,5.83,0.5491,,0.0244,W,64.0,82.0,2026-11-24 17:59,2026-11-25 03:04,Medium
+2026-11-24,2026-11-24T19:00:00-05:00,401926827,Edge,Hampton,Old Dominion,Hampton,T1,7.5,Consensus (8 books),Medium,,1.93,0.5237,,0.3063,L,59.0,71.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T19:00:00-05:00,401925950,Edge,Tarleton St.,Weber St.,Tarleton St.,T1,1.5,Consensus (8 books),Medium,,5.82,0.5568,,0.6528,L,87.0,89.0,2026-11-24 17:59,2026-11-25 03:04,Medium
+2026-11-24,2026-11-24T19:00:00-05:00,401923271,Edge,Bryant,Marist,Marist,T2,-3.0,Consensus (7 books),Low,,4.58,0.5489,,0.7546,L,57.0,58.0,2026-11-24 17:59,2026-11-25 03:04,Medium
+2026-11-24,2026-11-24T19:00:00-05:00,401921777,Edge,Coppin St.,Villanova,Coppin St.,T1,34.0,Consensus (7 books),Check,,6.03,0.5476,,0.0055,W,52.0,70.0,2026-11-24 17:59,2026-11-25 03:04,Medium
+2026-11-24,2026-11-24T19:00:00-05:00,401921266,Edge,Rider,Loyola MD,Loyola MD,T2,-3.5,DraftKings,Low,,2.25,0.5273,,0.6995,W,54.0,71.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T19:00:00-05:00,401921030,Edge,Georgia Southern,Bellarmine,Georgia Southern,T1,-2.5,Consensus (7 books),Low,,0.5,0.5063,,0.6073,L,67.0,82.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T19:00:00-05:00,401920976,Edge,Delaware St.,Chattanooga,Delaware St.,T1,16.5,Consensus (7 books),High,,5.43,0.5515,,0.1571,W,66.0,79.0,2026-11-24 17:59,2026-11-25 03:04,Medium
+2026-11-24,2026-11-24T19:00:00-05:00,401920923,Edge,Mount St. Mary's,Morgan St.,Mount St. Mary's,T1,1.5,DraftKings,Medium,,1.25,0.5156,,0.4909,W,75.0,74.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T19:00:00-05:00,401920889,Edge,New Hampshire,Seton Hall,New Hampshire,T1,20.5,Consensus (6 books),Medium,,1.62,0.5183,,0.043,L,27.0,73.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T19:00:00-05:00,401920742,Edge,Campbell,Coastal Carolina,Campbell,T1,1.5,Consensus (8 books),Medium,,0.13,0.5016,,0.4504,W,70.0,66.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T19:00:00-05:00,401920727,Edge,UMBC,Iowa,UMBC,T1,28.5,Consensus (6 books),High,,5.09,0.5449,,0.0167,L,48.0,87.0,2026-11-24 17:59,2026-11-25 03:04,Medium
+2026-11-24,2026-11-24T19:00:00-05:00,401920695,Edge,Vermont,Siena,Vermont,T1,3.5,Consensus (7 books),High,,2.21,0.5268,,0.4532,L,88.0,98.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T19:00:00-05:00,401920358,Edge,Boston University,Harvard,Harvard,T2,-5.5,DraftKings,Low,,2.92,0.5343,,0.7781,L,81.0,72.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T19:00:00-05:00,401920309,Edge,Samford,Georgia Tech,Samford,T1,10.5,Consensus (8 books),Medium,,0.05,0.5006,,0.171,W,92.0,81.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T19:00:00-05:00,401918996,Edge,Stetson,South Florida,Stetson,T1,17.0,Consensus (7 books),High,,2.51,0.5283,,0.0938,L,67.0,100.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T19:00:00-05:00,401911458,Edge,Santa Clara,Nevada,Santa Clara,T1,0.0,Consensus (8 books),Low,,1.37,0.5171,,0.5495,L,66.0,85.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T19:00:00-05:00,401911379,Edge,Charleston Southern,James Madison,James Madison,T2,-13.0,Consensus (7 books),Low,,1.11,0.5136,,0.9002,W,58.0,82.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T19:00:00-05:00,401911279,Edge,Binghamton,Lehigh,Lehigh,T2,-8.5,Consensus (7 books),Low,,1.02,0.5128,,0.8066,L,90.0,83.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T19:00:00-05:00,401911027,Edge,Gardner Webb,Bowling Green,Bowling Green,T2,-12.5,DraftKings,Low,,1.46,0.5178,,0.8979,W,65.0,91.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T19:30:00-05:00,401926154,Edge,Purdue Fort Wayne,Southeast Missouri St.,Purdue Fort Wayne,T1,3.5,DraftKings,Medium,,0.49,0.5062,,0.392,W,80.0,75.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T19:30:00-05:00,401925687,Edge,Alcorn St.,Louisiana Tech,Alcorn St.,T1,16.5,Consensus (7 books),High,,5.36,0.5511,,0.1556,L,41.0,83.0,2026-11-24 17:59,2026-11-25 03:04,Medium
+2026-11-24,2026-11-24T19:30:00-05:00,401920414,Edge,Duquesne,High Point,Duquesne,T1,10.5,Consensus (7 books),High,,2.16,0.5262,,0.2243,W,70.0,75.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T19:30:00-05:00,401917983,Edge,Houston Christian,Louisiana Monroe,Louisiana Monroe,T2,1.5,Consensus (7 books),Medium,,1.8,0.5222,,0.5108,L,84.0,58.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T19:30:00-05:00,401917904,Edge,West Georgia,Tennessee Tech,West Georgia,T1,14.5,Consensus (8 books),Medium,,1.9,0.5224,,0.1261,L,85.0,124.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T20:00:00-05:00,401915942,Edge,Texas Tech,Louisville,Texas Tech,T1,-2.5,Consensus (8 books),Low,,0.03,0.5004,,0.5909,L,64.0,72.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T20:00:00-05:00,401929421,Edge,Florida A&M,South Alabama,Florida A&M,T1,17.5,Consensus (6 books),High,,4.72,0.5467,,0.1227,L,49.0,74.0,2026-11-24 17:59,2026-11-25 03:04,Medium
+2026-11-24,2026-11-24T20:00:00-05:00,401929359,Edge,Oral Roberts,UT Arlington,UT Arlington,T2,-4.5,Consensus (8 books),Low,,0.81,0.5102,,0.6854,L,84.0,80.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T20:00:00-05:00,401925642,Edge,Alabama A&M,North Alabama,Alabama A&M,T1,3.5,Consensus (6 books),High,,2.61,0.5312,,0.4678,W,74.0,77.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T20:00:00-05:00,401924723,Edge,Bucknell,Cornell,Bucknell,T1,11.5,Consensus (7 books),Medium,,0.96,0.5119,,0.1689,L,71.0,92.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T20:00:00-05:00,401921711,Edge,Clemson,Washington,Washington,T2,1.5,Consensus (8 books),Medium,,0.13,0.5016,,0.4504,W,63.0,64.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T20:00:00-05:00,401921184,Edge,Drexel,Penn,Penn,T2,-6.0,Consensus (8 books),Low,,2.92,0.5343,,0.7912,W,74.0,89.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T20:00:00-05:00,401921008,Edge,Green Bay,UMKC,Green Bay,T1,1.5,DraftKings,Medium,,1.53,0.519,,0.5009,W,77.0,72.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T20:00:00-05:00,401920709,Edge,Lipscomb,Auburn,Lipscomb,T1,24.5,Consensus (7 books),High,,5.4,0.5481,,0.0413,L,66.0,101.0,2026-11-24 17:59,2026-11-25 03:04,Medium
+2026-11-24,2026-11-24T20:00:00-05:00,401911338,Edge,Army,Air Force,Air Force,T2,-3.5,DraftKings,Low,,3.04,0.5355,,0.7239,W,79.0,88.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T20:00:00-05:00,401911026,Edge,Central Michigan,Notre Dame,Central Michigan,T1,20.5,Consensus (8 books),High,,3.35,0.5352,,0.0595,W,70.0,88.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T20:30:00-05:00,401911535,Edge,UTEP,Charleston,UTEP,T1,1.5,Consensus (8 books),Medium,,1.46,0.5182,,0.4985,W,80.0,69.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T21:00:00-05:00,401928796,Edge,Sam Houston St.,Washington St.,Sam Houston St.,T1,5.5,DraftKings,High,,3.94,0.5438,,0.4435,L,73.0,80.0,2026-11-24 17:59,2026-11-25 03:04,Medium
+2026-11-24,2026-11-24T21:00:00-05:00,401926184,Edge,UNC Greensboro,UC Santa Barbara,UC Santa Barbara,T2,-18.0,Consensus (8 books),Low,,0.06,0.5007,,0.9497,W,65.0,85.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T21:00:00-05:00,401922023,Edge,Idaho St.,Boise St.,Idaho St.,T1,18.5,Consensus (8 books),Medium,,1.74,0.5199,,0.0638,W,71.0,88.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T21:00:00-05:00,401921817,Edge,Evansville,Missouri,Evansville,T1,30.5,Consensus (8 books),Check,,6.57,0.5511,,0.0148,W,67.0,78.0,2026-11-24 17:59,2026-11-25 03:04,Medium
+2026-11-24,2026-11-24T21:00:00-05:00,401909699,Edge,UNC Asheville,Florida St.,UNC Asheville,T1,29.5,Consensus (7 books),Check,,8.05,0.5562,,0.0256,L,61.0,97.0,2026-11-24 17:59,2026-11-25 03:04,Medium
+2026-11-24,2026-11-24T21:30:00-05:00,401911253,Edge,Grand Canyon,Saint Louis,Grand Canyon,T1,-1.5,DraftKings,Low,,0.29,0.5037,,0.5645,L,88.0,91.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T22:00:00-05:00,401906762,Edge,Baylor,Alabama,Alabama,T2,-1.5,Consensus (8 books),Low,,0.59,0.5075,,0.5753,L,68.0,63.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T22:30:00-05:00,401915943,Edge,Oregon,St. John's,Oregon,T1,10.5,Consensus (7 books),High,,5.23,0.5531,,0.316,L,79.0,90.0,2026-11-24 17:59,2026-11-25 03:04,Medium
+2026-11-24,2026-11-24T22:30:00-05:00,401921712,Edge,VCU,Colorado St.,Colorado St.,T2,5.5,Consensus (8 books),Medium,,0.76,0.5096,,0.3334,W,84.0,81.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-24T23:59:00-05:00,401909763,Edge,Stanford,Colorado,Colorado,T2,3.5,Consensus (8 books),High,,2.69,0.532,,0.4706,L,70.0,65.0,2026-11-24 17:59,2026-11-25 03:04,Low
+2026-11-24,2026-11-25T00:30:00-05:00,401909800,Edge,Gonzaga,Kansas St.,Kansas St.,T2,15.0,Consensus (8 books),High,,4.5,0.5462,,0.17,L,101.0,61.0,2026-11-24 17:59,2026-11-25 03:04,Medium
+2026-11-25,2026-11-25T10:00:00-05:00,401927399,Edge,St. Bonaventure,Belmont,St. Bonaventure,T1,-4.0,Consensus (8 books),Low,,0.43,0.5054,,0.6565,L,71.0,68.0,2026-11-25 03:04,2026-11-25 17:58,Low
+2026-11-25,2026-11-25T11:00:00-05:00,401928845,Edge,Rice,Ohio,Rice,T1,4.5,Consensus (8 books),High,,3.28,0.5379,,0.4559,W,82.0,74.0,2026-11-25 03:04,2026-11-25 17:58,Low
+2026-11-25,2026-11-25T11:00:00-05:00,401921702,Edge,Northern Iowa,Charlotte,Northern Iowa,T1,7.5,Consensus (8 books),Medium,,0.58,0.5073,,0.2646,L,72.0,85.0,2026-11-25 03:04,2026-11-25 17:58,Low
+2026-11-25,2026-11-25T12:00:00-05:00,401920428,Edge,Virginia,Marquette,Marquette,T2,5.5,Consensus (8 books),High,,3.25,0.5376,,0.419,L,60.0,54.0,2026-11-25 11:14,2026-11-25 17:58,Low
+2026-11-25,2026-11-25T12:30:00-05:00,401928831,Edge,Yale,Wright State,Wright State,T2,-4.5,Consensus (8 books),Low,,5.6,0.5556,,0.8207,L,72.0,70.0,2026-11-25 11:14,2026-11-25 17:58,Medium
+2026-11-25,2026-11-25T12:30:00-05:00,401920547,Edge,Northern Colorado,Detroit Mercy,Detroit Mercy,T2,5.5,Draft Kings (no DraftKings line),Medium,,0.47,0.506,,0.3236,L,93.0,83.0,2026-11-25 11:14,2026-11-25 17:58,Low
+2026-11-25,2026-11-25T13:00:00-05:00,401926835,Edge,Lindenwood,Stony Brook,Lindenwood,T1,11.5,Consensus (8 books),Medium,,0.75,0.5093,,0.1642,W,63.0,69.0,2026-11-25 11:14,2026-11-25 17:58,Low
+2026-11-25,2026-11-25T13:00:00-05:00,401924268,Edge,Southern Utah,Long Beach State,Southern Utah,T1,1.5,Draft Kings (no DraftKings line),Medium,,0.91,0.5115,,0.4788,W,64.0,65.0,2026-11-25 11:14,2026-11-25 17:58,Low
+2026-11-25,2026-11-25T13:00:00-05:00,401911029,Edge,Eastern Kentucky,Miami (OH),Eastern Kentucky,T1,14.5,Consensus (7 books),High,,3.03,0.5341,,0.1486,W,72.0,85.0,2026-11-25 11:14,2026-11-25 17:58,Low
+2026-11-25,2026-11-25T13:30:00-05:00,401919007,Edge,Tulane,Davidson,Tulane,T1,9.5,Consensus (8 books),Medium,,0.93,0.5117,,0.2179,L,47.0,74.0,2026-11-25 11:14,2026-11-25 17:58,Low
+2026-11-25,2026-11-25T14:00:00-05:00,401921669,Edge,Arizona State,LSU,LSU,T2,-4.5,Consensus (8 books),Low,,1.83,0.5225,,0.7175,L,94.0,92.0,2026-11-25 11:14,2026-11-25 17:58,Low
+2026-11-25,2026-11-25T14:00:00-05:00,401929406,Edge,Arkansas-Pine Bluff,South Dakota,South Dakota,T2,-21.5,Consensus (7 books),Low,,0.4,0.5046,,0.9768,W,50.0,86.0,2026-11-25 11:14,2026-11-25 17:58,Low
+2026-11-25,2026-11-25T14:00:00-05:00,401924705,Edge,Saint Peter's,Columbia,Columbia,T2,-13.5,Consensus (8 books),Check,,8.4,0.5651,,0.9767,W,44.0,65.0,2026-11-25 11:14,2026-11-25 17:58,High
+2026-11-25,2026-11-25T14:00:00-05:00,401920868,Edge,Manhattan,NJIT,Manhattan,T1,1.5,Consensus (7 books),Medium,,0.12,0.5015,,0.45,W,81.0,70.0,2026-11-25 11:14,2026-11-25 17:58,Low
+2026-11-25,2026-11-25T14:00:00-05:00,401917967,Edge,Abilene Christian,South Dakota State,South Dakota State,T2,-6.5,Consensus (8 books),Low,,5.8,0.5567,,0.8683,L,101.0,95.0,2026-11-25 11:14,2026-11-25 17:58,Medium
+2026-11-25,2026-11-25T14:30:00-05:00,401921715,Edge,Ole Miss,Arizona,Ole Miss,T1,5.5,Consensus (8 books),Check,,7.58,0.5646,,0.575,L,73.0,84.0,2026-11-25 11:14,2026-11-25 17:58,High
+2026-11-25,2026-11-25T14:30:00-05:00,401920809,Edge,Texas A&M,Xavier,Texas A&M,T1,-3.5,Consensus (8 books),Low,,3.98,0.5441,,0.7518,L,83.0,88.0,2026-11-25 11:14,2026-11-26 03:02,Medium
+2026-11-25,2026-11-25T15:00:00-05:00,401928836,Edge,Akron,App State,App State,T2,4.5,Draft Kings (no DraftKings line),Medium,,1.71,0.5211,,0.4,W,66.0,76.0,2026-11-25 11:14,2026-11-25 17:58,Low
+2026-11-25,2026-11-25T15:00:00-05:00,401920548,Edge,SE Louisiana,North Dakota,North Dakota,T2,1.5,Consensus (8 books),Medium,,2.82,0.5333,,0.5478,W,73.0,72.0,2026-11-25 11:14,2026-11-25 17:58,Low
+2026-11-25,2026-11-25T15:00:00-05:00,401919042,Edge,Jackson State,Oklahoma State,Jackson State,T1,35.5,Consensus (7 books),High,,3.69,0.5338,,0.0019,W,58.0,93.0,2026-11-25 11:14,2026-11-25 17:58,Low
+2026-11-25,2026-11-25T15:30:00-05:00,401928359,Edge,Arkansas State,Florida International,Florida International,T2,-1.5,Draft Kings (no DraftKings line),Low,,1.56,0.5194,,0.6096,L,92.0,88.0,2026-11-25 11:14,2026-11-26 03:02,Low
+2026-11-25,2026-11-25T16:00:00-05:00,401925050,Edge,Grambling,LSU New Orleans,Grambling,T1,3.5,Draft Kings (no DraftKings line),Check,,7.1,0.5628,,0.6283,W,81.0,80.0,2026-11-25 11:14,2026-11-26 03:02,High
+2026-11-25,2026-11-25T16:00:00-05:00,401924737,Edge,Princeton,Liberty,Princeton,T1,3.5,Consensus (8 books),Medium,,1.01,0.5127,,0.4106,W,79.0,72.0,2026-11-25 11:14,2026-11-26 03:02,Low
+2026-11-25,2026-11-25T16:00:00-05:00,401921703,Edge,Georgia State,Florida Gulf Coast,Georgia State,T1,-2.5,Consensus (7 books),Low,,0.39,0.5049,,0.6037,L,72.0,77.0,2026-11-25 11:14,2026-11-26 03:02,Low
+2026-11-25,2026-11-25T16:00:00-05:00,401920858,Edge,Prairie View A&M,Marshall,Marshall,T2,-14.5,Draft Kings (no DraftKings line),Low,,2.43,0.5281,,0.9381,L,58.0,64.0,2026-11-25 11:14,2026-11-26 03:02,Low
+2026-11-25,2026-11-25T16:30:00-05:00,401921670,Edge,South Carolina,USC,USC,T2,-10.5,Consensus (8 books),Low,,2.93,0.5343,,0.889,L,69.0,71.0,2026-11-25 11:14,2026-11-26 03:02,Low
+2026-11-25,2026-11-25T17:00:00-05:00,401926065,Edge,Southern,Nebraska,Southern,T1,34.5,Consensus (7 books),Medium,,1.43,0.5146,,0.0013,W,72.0,101.0,2026-11-25 11:14,2026-11-26 03:02,Low
+2026-11-25,2026-11-25T17:00:00-05:00,401925917,Edge,Portland State,UC Riverside,Portland State,T1,2.5,Consensus (8 books),Medium,,0.6,0.5076,,0.4313,W,72.0,65.0,2026-11-25 11:14,2026-11-26 03:02,Low
+2026-11-25,2026-11-25T17:00:00-05:00,401925688,Edge,Alcorn State,Texas State,Texas State,T2,-25.5,Consensus (7 books),Check,,9.95,0.5618,,0.9994,W,70.0,97.0,2026-11-25 11:14,2026-11-26 03:02,High
+2026-11-25,2026-11-25T17:00:00-05:00,401920237,Edge,Holy Cross,Dartmouth,Dartmouth,T2,-11.5,Consensus (7 books),Low,,2.27,0.5271,,0.8947,L,67.0,65.0,2026-11-25 11:14,2026-11-26 03:02,Low
+2026-11-25,2026-11-25T17:30:00-05:00,401921716,Edge,BYU,Providence,BYU,T1,-2.5,Consensus (8 books),Low,,3.87,0.5432,,0.7187,W,85.0,82.0,2026-11-25 11:14,2026-11-26 03:02,Medium
+2026-11-25,2026-11-25T18:00:00-05:00,401922253,Edge,West Florida,Northwestern State,West Florida,T1,1.5,Consensus (7 books),Medium,,0.74,0.5093,,0.4725,L,57.0,71.0,2026-11-25 17:58,2026-11-26 03:02,Low
+2026-11-25,2026-11-25T18:00:00-05:00,401920549,Edge,Kennesaw State,Charleston,Kennesaw State,T1,1.5,Consensus (8 books),Medium,,2.6,0.5311,,0.54,L,77.0,91.0,2026-11-25 17:58,2026-11-26 03:02,Low
+2026-11-25,2026-11-25T18:00:00-05:00,401920299,Edge,Cal State Northridge,Weber State,Cal State Northridge,T1,-1.5,DraftKings,Low,,1.9,0.5233,,0.6213,W,89.0,67.0,2026-11-25 17:58,2026-11-26 03:02,Low
+2026-11-25,2026-11-25T18:00:00-05:00,401911241,Edge,Bethune-Cookman,Richmond,Bethune-Cookman,T1,11.5,Consensus (7 books),High,,2.08,0.525,,0.196,W,79.0,86.0,2026-11-25 17:58,2026-11-26 03:02,Low
+2026-11-25,2026-11-25T18:00:00-05:00,401909720,Edge,UAlbany,Syracuse,UAlbany,T1,24.5,DraftKings,Medium,,0.99,0.511,,0.0163,W,53.0,74.0,2026-11-25 17:58,2026-11-26 03:02,Low
+2026-11-25,2026-11-25T18:35:00-05:00,401917182,Edge,Memphis,Penn State,Memphis,T1,-4.0,Consensus (8 books),Low,,0.93,0.5117,,0.673,W,83.0,70.0,2026-11-25 17:58,2026-11-26 03:02,Low
+2026-11-25,2026-11-25T19:00:00-05:00,401909568,Edge,UConn,Duke,UConn,T1,-1.0,Consensus (8 books),Low,,0.47,0.506,,0.5532,W,77.0,63.0,2026-11-25 17:58,2026-11-26 03:02,Low
+2026-11-25,2026-11-25T19:00:00-05:00,401922285,Edge,South Carolina Upstate,The Citadel,The Citadel,T2,-2.5,Consensus (7 books),Low,,5.66,0.5559,,0.7708,W,54.0,72.0,2026-11-25 17:58,2026-11-26 03:02,Medium
+2026-11-25,2026-11-25T19:00:00-05:00,401921108,Edge,Bellarmine,Northern Kentucky,Bellarmine,T1,6.5,Consensus (7 books),Check,,6.77,0.5615,,0.5097,W,66.0,52.0,2026-11-25 17:58,2026-11-26 03:02,High
+2026-11-25,2026-11-25T19:00:00-05:00,401920916,Edge,Northern Illinois,SIU Edwardsville,Northern Illinois,T1,-3.0,Consensus (7 books),Low,,4.7,0.5497,,0.7581,P,68.0,65.0,2026-11-25 17:58,2026-11-26 03:02,Medium
+2026-11-25,2026-11-25T19:00:00-05:00,401920847,Edge,St. Thomas,UNC Wilmington,St. Thomas,T1,5.5,DraftKings,High,,4.53,0.5485,,0.4649,L,77.0,86.0,2026-11-25 17:58,2026-11-26 03:02,Medium
+2026-11-25,2026-11-25T19:00:00-05:00,401920076,Edge,Longwood,George Mason,Longwood,T1,16.5,Consensus (7 books),High,,4.3,0.5441,,0.1338,L,58.0,93.0,2026-11-25 17:58,2026-11-26 03:02,Medium
+2026-11-25,2026-11-25T19:00:00-05:00,401918971,Edge,SMU,Utah State,Utah State,T2,-3.5,Consensus (8 books),Low,,1.02,0.5128,,0.6594,W,59.0,93.0,2026-11-25 17:58,2026-11-26 03:02,Low
+2026-11-25,2026-11-25T19:00:00-05:00,401918960,Edge,Norfolk State,NC State,NC State,T2,-28.5,Consensus (7 books),Low,,1.88,0.5198,,0.9971,W,49.0,80.0,2026-11-25 17:58,2026-11-26 03:02,Low
+2026-11-25,2026-11-25T19:00:00-05:00,401911028,Edge,Northeastern,Wisconsin,Northeastern,T1,20.0,Consensus (8 books),High,,5.43,0.55,,0.0927,L,54.0,91.0,2026-11-25 17:58,2026-11-26 03:02,Medium
+2026-11-25,2026-11-25T19:30:00-05:00,401929287,Edge,Wake Forest,Mississippi State,Wake Forest,T1,3.5,Consensus (8 books),Medium,,0.17,0.5022,,0.3809,W,78.0,71.0,2026-11-25 17:58,2026-11-26 03:02,Low
+2026-11-25,2026-11-25T20:00:00-05:00,401920138,Edge,Cal State Bakersfield,Pepperdine,Pepperdine,T2,-9.5,DraftKings,Low,,0.69,0.5087,,0.8228,L,68.0,70.0,2026-11-25 17:58,2026-11-26 03:02,Low
+2026-11-25,2026-11-25T20:00:00-05:00,401911522,Edge,Omaha,UC Davis,UC Davis,T2,-4.0,Consensus (8 books),Low,,4.85,0.5508,,0.7894,L,78.0,80.0,2026-11-25 17:58,2026-11-26 03:02,Medium
+2026-11-25,2026-11-25T20:30:00-05:00,401920550,Edge,Eastern Michigan,UTEP,UTEP,T2,-1.0,Consensus (8 books),Low,,0.91,0.5115,,0.5688,W,54.0,72.0,2026-11-25 17:58,2026-11-26 03:02,Low
+2026-11-25,2026-11-25T21:00:00-05:00,401924897,Edge,Mississippi Valley State,New Mexico,Mississippi Valley State,T1,35.5,DraftKings,Check,,7.73,0.5529,,0.0058,W,77.0,100.0,2026-11-25 17:58,2026-11-26 03:02,Medium
+2026-11-25,2026-11-25T21:00:00-05:00,401917545,Edge,Eastern Washington,Loyola Marymount,Eastern Washington,T1,7.5,Consensus (8 books),Medium,,1.69,0.5209,,0.2986,L,72.0,81.0,2026-11-25 17:58,2026-11-26 03:02,Low
+2026-11-25,2026-11-25T21:30:00-05:00,401921671,Edge,Grand Canyon,Colorado,Grand Canyon,T1,-9.5,DraftKings,Low,,0.72,0.5091,,0.8236,L,79.0,73.0,2026-11-25 17:58,2026-11-26 03:02,Low
+2026-11-25,2026-11-25T22:00:00-05:00,401921713,Edge,Washington,VCU,VCU,T2,-3.5,Consensus (8 books),Low,,1.33,0.5166,,0.6698,L,78.0,80.0,2026-11-25 17:58,2026-11-26 03:02,Low
+2026-11-25,2026-11-25T22:30:00-05:00,401917544,Edge,Pacific,Jacksonville State,Pacific,T1,-3.5,Consensus (8 books),Low,,2.81,0.5332,,0.717,L,76.0,83.0,2026-11-25 17:58,2026-11-26 03:02,Low
+2026-11-25,2026-11-25T23:59:00-05:00,401929005,Edge,Incarnate Word,Hawai'i,Incarnate Word,T1,16.5,Consensus (7 books),High,,3.66,0.5391,,0.1215,W,81.0,83.0,2026-11-25 17:58,2026-11-26 03:02,Low
+2026-11-25,2026-11-25T23:59:00-05:00,401921672,Edge,Stanford,Saint Louis,Saint Louis,T2,-3.5,Consensus (8 books),Low,,4.66,0.5494,,0.7709,L,64.0,66.0,2026-11-25 17:58,2026-11-26 11:08,Medium
+2026-11-25,2026-11-26T00:30:00-05:00,401921714,Edge,Clemson,Colorado State,Colorado State,T2,3.5,Consensus (8 books),Medium,,0.7,0.5088,,0.3996,W,75.0,77.0,2026-11-25 17:58,2026-11-26 03:02,Low
+2026-11-26,2026-11-26T11:00:00-05:00,401929281,Edge,Georgia,Cincinnati,Georgia,T1,2.5,Consensus (8 books),Medium,,1.43,0.5178,,0.4612,,,,2026-11-26 03:02,,Low
