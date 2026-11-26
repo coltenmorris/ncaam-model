@@ -265,7 +265,8 @@ def run(args) -> int:
         now, bpi_note = torvik.espn_bpi_now(torvik.season_for(day), ratings)
         if now is not None:
             ratings = torvik.attach_espn_now(ratings, now)
-        notes.append(bpi_note)
+        else:
+            notes.append(bpi_note)   # only shown when ESPN's current BPI couldn't be fetched
         if src.startswith("ESPN BPI"):
             ratings[[c for c in torvik.RATING_COLS if c in ratings]].to_csv(
                 DATA / f"ratings_{torvik.season_for(day)}_{date.today():%Y-%m-%d}.csv", index=False)
